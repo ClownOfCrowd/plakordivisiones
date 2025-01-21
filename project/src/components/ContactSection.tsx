@@ -120,9 +120,9 @@ const ContactSection = () => {
                 <div>
                   <h3 className="font-semibold text-lg mb-1 md:mb-2">Ubicación</h3>
                   <p className="text-gray-600 text-sm md:text-base">
-                    Carrer Nàpols, 5<br />
-                    43850 Cambrils<br />
-                    Tarragona, Spain
+                    Camí de Sant Joan, 4<br />
+                    43391 Vinyols i els Arcs,<br />
+                    España
                   </p>
                 </div>
               </div>
@@ -155,7 +155,7 @@ const ContactSection = () => {
             {/* Карта */}
             <div className="rounded-lg overflow-hidden shadow-lg">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1771.2056488561345!2d1.089252991182679!3d41.07737330365405!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a15afc4c171b37%3A0xdbc9fa4491eebfee!2sPlakor%20Divisiones%20-%20Expertos%20en%20pladur%20en%20Tarragona!5e0!3m2!1sru!2ses!4v1737214527434!5m2!1sru!2ses"
+                src="https://www.google.com/maps/embed?pb=!4v1737477513500!6m8!1m7!1sZNiOntMvkSj1xDhJlU-TGA!2m2!1d41.07889977341467!2d1.060381155206556!3f79.93690559160865!4f-4.188574625260912!5f0.8092302647419771"
                 width="100%"
                 height="400"
                 style={{ border: 0 }}

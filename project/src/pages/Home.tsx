@@ -147,7 +147,7 @@ const Home = () => {
               className="text-xl mb-8"
             >
               Servicios de construcción de alta calidad para residencial y
-              comercial proyectos
+              proyectos comerciales
             </motion.p>
           </div>
         </div>

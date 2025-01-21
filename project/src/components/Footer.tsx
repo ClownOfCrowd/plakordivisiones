@@ -38,9 +38,8 @@ const Footer = () => {
             <div className="flex items-start space-x-3">
               <MapPin className="w-5 h-5 mt-1 text-cyan-700 flex-shrink-0" />
               <address className="not-italic text-sm md:text-base">
-                Carrer Nàpols, 5<br />
-                43850 Cambrils,<br />
-                Tarragona,<br />
+                Camí de Sant Joan, 4<br />
+                43391 Vinyols i els Arcs,<br />
                 España
               </address>
             </div>

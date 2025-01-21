@@ -9,45 +9,45 @@ import 'swiper/css/pagination';
 const portfolioItems = [
   {
     id: 1,
-    title: 'Modern Office Complex',
-    description: 'A state-of-the-art office building with sustainable design',
+    title: 'Complejo de oficinas modernas',
+    description: 'Un edificio de oficinas moderno con diseño sostenible',
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80',
     category: 'Commercial',
   },
   {
     id: 2,
-    title: 'Luxury Residence',
-    description: 'Custom-built luxury home with premium finishes',
+    title: 'Residencia de lujo',
+    description: 'Casa de lujo personalizada con acabados prémium',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80',
-    category: 'Residential',
+    category: 'Residencial',
   },
   {
     id: 3,
-    title: 'Industrial Facility',
-    description: 'Modern industrial complex with advanced infrastructure',
+    title: 'Instalación industrial',
+    description: 'Complejo industrial moderno con infraestructura avanzada',
     image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80',
     category: 'Industrial',
   },
   {
     id: 4,
-    title: 'Shopping Center',
-    description: 'Multi-level retail space with contemporary design',
+    title: 'Centro comercial',
+    description: 'Espacio comercial de varios niveles con diseño contemporáneo',
     image: 'https://images.unsplash.com/photo-1555636222-cae831e670b3?auto=format&fit=crop&q=80',
     category: 'Commercial',
   },
   {
     id: 5,
-    title: 'Apartments',
-    description: 'Modern residential complex with amenities',
+    title: 'Apartamentos',
+    description: 'Moderno complejo residencial con servicios',
     image: 'https://i.postimg.cc/SNcyxgxb/seungcheol-baek-f-Hw-Sf-Nzr98-unsplash.jpg',
-    category: 'Residential',
+    category: 'Residencial',
   },
   {
     id: 6,
-    title: 'Educational Campus',
-    description: 'State-of-the-art educational facility',
-    image: 'https://images.unsplash.com/photo-1562886877-f12251816e01?auto=format&fit=crop&q=80',
-    category: 'Institutional',
+    title: 'Campus educativo',
+    description: 'Instalaciones educativas de última generación',
+    image: 'https://i.postimg.cc/25k29y7S/ludovic-charlet-LFWF2tm-Df-X0-unsplash.jpg',
+    category: 'Institucional',
   },
 ];
 
@@ -93,7 +93,8 @@ const Portfolio = () => {
                 transition={{ duration: 0.3 }}
                 className="group relative overflow-hidden rounded-lg shadow-lg"
               >
-                <div className="aspect-w-16 aspect-h-12">
+                {/* Фиксируем высоту контейнера изображения */}
+                <div className="h-64"> {/* Высота 16rem (256px) */}
                   <img
                     src={item.image}
                     alt={item.title}
@@ -118,7 +119,7 @@ const Portfolio = () => {
             </SwiperSlide>
           ))}
 
-          {/* Кастомные кнопки навигации с Tailwind CSS */}
+          {/* Оригинальные кнопки навигации Swiper */}
           <div className="swiper-button-next bg-gradient-to-r from-cyan-700 to-cyan-800 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-50 hover:opacity-100 hover:from-cyan-800 hover:to-cyan-900 hover:shadow-xl hover:scale-110 transition-all duration-300">
             &rarr; {/* Большая стрелка вправо */}
           </div>
