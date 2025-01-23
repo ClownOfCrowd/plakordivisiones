@@ -98,35 +98,4 @@ export const api = {
   contact: {
     send: (data: ContactFormData) => post<void>(API.contact, data)
   }
-};
-
-// Типы для форм
-export interface BookingFormData {
-  name: string;
-  phone: string;
-  service: string;
-  date: string;
-  time: string;
-  comment?: string;
-}
-
-export interface ReviewFormData {
-  name: string;
-  service: string;
-  rating: number;
-  review: string;
-}
-
-export interface ContactFormData {
-  name: string;
-  phone: string;
-  email?: string;
-  message: string;
-}
-
-// API endpoints
-export const endpoints = {
-  booking: '/api/booking',
-  reviews: '/api/reviews',
-  contact: '/api/contact'
 }; 
