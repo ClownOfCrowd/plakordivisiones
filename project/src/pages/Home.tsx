@@ -7,6 +7,8 @@ import ReviewsSection from '../components/ReviewsSection';
 import ContactSection from '../components/ContactSection';
 import ContactModal from '../components/ContactModal'; // Импорт модального окна
 import { Link } from 'react-router-dom'; // Импорт Link для навигации
+import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Состояние для модального окна
@@ -119,8 +121,50 @@ const Home = () => {
     },
   ];
 
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Plakor Divisiones",
+    "image": "https://plakordivisiones.es/images/logo.png",
+    "description": "Expertos en construcción en seco, reformas y remodelaciones en Tarragona",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Camí de Sant Joan, 4",
+      "addressLocality": "Vinyols i els Arcs",
+      "postalCode": "43391",
+      "addressCountry": "ES"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "41.0789",
+      "longitude": "1.0604"
+    },
+    "telephone": "+34977350508",
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "08:00",
+        "closes": "19:00"
+      }
+    ]
+  };
+
+  const showReviews = import.meta.env.VITE_SHOW_REVIEWS === 'true';
+
   return (
     <div className="overflow-x-hidden"> {/* Добавлен overflow-x-hidden */}
+      <SEO 
+        title="Plakor Divisiones - Expertos en Pladur y Reformas en Cambrils"
+        description="Empresa líder en construcción en seco, reformas y remodelaciones. Servicios profesionales de pladur, aislamientos y acabados en Cambrils."
+        keywords="pladur, reformas, construcción, Cambrils, aislamientos, tabiques, techos, remodelaciones"
+      />
+      {/* Schema.org разметка */}
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      </Helmet>
       {/* Hero Section */}
       <section
         className="relative h-[80vh] bg-cover bg-center"
@@ -240,7 +284,19 @@ const Home = () => {
       </section>
 
       {/* Reviews Section */}
-      <ReviewsSection />
+      {showReviews && (
+        <section className="py-16 bg-gray-50">
+          <div className="container mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-2">
+              ¿Qué opinan nuestros clientes?
+            </h2>
+            <p className="text-gray-600 text-center mb-12">
+              Vea lo que nuestros clientes dicen sobre nuestros servicios de construcción
+            </p>
+            <ReviewsSection />
+          </div>
+        </section>
+      )}
 
       {/* Stats Section */}
       <section className="bg-cyan-700 py-16 text-white">

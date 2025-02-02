@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import { api } from '../lib/api';
 
 const ContactSection = () => {
   const [ref, inView] = useInView({
@@ -10,16 +11,52 @@ const ContactSection = () => {
   });
 
   const [formData, setFormData] = useState({
-    name: '',
+    nombre: '',
+    telefono: '',
     email: '',
-    phone: '',
-    message: '',
+    mensaje: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.nombre.trim()) {
+      newErrors.nombre = 'El nombre es obligatorio';
+    }
+    
+    if (!formData.telefono.trim()) {
+      newErrors.telefono = 'El teléfono es obligatorio';
+    }
+    
+    if (!formData.mensaje.trim()) {
+      newErrors.mensaje = 'El mensaje es obligatorio';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+    try {
+      await api.contacto.create(formData);
+      setSubmitSuccess(true);
+      setFormData({ nombre: '', telefono: '', email: '', mensaje: '' });
+      setTimeout(() => setSubmitSuccess(false), 5000);
+    } catch (error) {
+      console.error('Error al enviar el mensaje:', error);
+      setErrors({ submit: 'Error al enviar el mensaje. Por favor, inténtelo de nuevo.' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -45,65 +82,93 @@ const ContactSection = () => {
             transition={{ duration: 0.8 }}
             className="bg-white p-6 md:p-8 rounded-lg shadow-lg"
           >
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm md:text-base"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-gray-700 mb-2" htmlFor="nombre">
+                    Nombre *
+                  </label>
+                  <input
+                    type="text"
+                    id="nombre"
+                    value={formData.nombre}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                    className={`w-full px-4 py-3 rounded-lg border ${errors.nombre ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  {errors.nombre && (
+                    <p className="text-red-500 text-sm mt-1">{errors.nombre}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 mb-2" htmlFor="telefono">
+                    Teléfono *
+                  </label>
+                  <input
+                    type="tel"
+                    id="telefono"
+                    value={formData.telefono}
+                    onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                    className={`w-full px-4 py-3 rounded-lg border ${errors.telefono ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  {errors.telefono && (
+                    <p className="text-red-500 text-sm mt-1">{errors.telefono}</p>
+                  )}
+                </div>
               </div>
+
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email *
+                <label className="block text-gray-700 mb-2" htmlFor="email">
+                  Email (opcional)
                 </label>
                 <input
                   type="email"
                   id="email"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm md:text-base"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300"
                 />
               </div>
+
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Teléfono *
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm md:text-base"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-gray-700 mb-2" htmlFor="mensaje">
                   Mensaje *
                 </label>
                 <textarea
-                  id="message"
-                  required
+                  id="mensaje"
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm md:text-base"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                ></textarea>
+                  value={formData.mensaje}
+                  onChange={(e) => setFormData(prev => ({ ...prev, mensaje: e.target.value }))}
+                  className={`w-full px-4 py-3 rounded-lg border ${errors.mensaje ? 'border-red-500' : 'border-gray-300'}`}
+                />
+                {errors.mensaje && (
+                  <p className="text-red-500 text-sm mt-1">{errors.mensaje}</p>
+                )}
               </div>
-              <button
-                type="submit"
-                className="w-full bg-cyan-700 text-white py-2 px-4 rounded-md hover:bg-cyan-800 transition-colors text-sm md:text-base"
-              >
-                Enviar Mensaje
-              </button>
+
+              {errors.submit && (
+                <p className="text-red-500 text-center">{errors.submit}</p>
+              )}
+
+              <div className="text-center">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`px-8 py-3 bg-cyan-700 text-white rounded-lg hover:bg-cyan-800 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}
+                </button>
+              </div>
+
+              {submitSuccess && (
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-green-600 text-center font-medium"
+                >
+                  ¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.
+                </motion.p>
+              )}
             </form>
           </motion.div>
 

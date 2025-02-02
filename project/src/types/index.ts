@@ -6,7 +6,6 @@
     success: boolean;
     data?: T;
     error?: string;
-    message?: string;
     }
 
     // Параметры пагинации
@@ -47,12 +46,13 @@
 
     export interface Review {
     id: number;
-    author: string;
-    rating: number;
-    text: string;
-    date: string;
-    serviceId?: number;
-    specialistId?: number;
+    attributes: {
+        name: string;
+        rating: number;
+        comment: string;
+        published: boolean;
+        createdAt: string;
+    };
     }
 
     export interface Booking {
@@ -91,4 +91,42 @@
     email: string;
     phone?: string;
     message: string;
+    }
+
+    export interface SolicitudFormData {
+    nombre: string;
+    telefono: string;
+    tipo: 'llamada' | 'presupuesto';
+    fecha: string;
+    estado: 'pendiente' | 'completada' | 'cancelada';
+    }
+
+    export interface Project {
+    id: number;
+    documentId: string;
+    Title: string;
+    Description: string;
+    Category: string;
+    Orden: number;
+    Slug: string;
+    Image: {
+        id: number;
+        url: string;
+        formats: {
+        thumbnail: { url: string };
+        small: { url: string };
+        medium: { url: string };
+        large: { url: string };
+        };
+    };
+    Gallery: Array<{
+        id: number;
+        url: string;
+        formats: {
+        thumbnail: { url: string };
+        small: { url: string };
+        medium: { url: string };
+        large: { url: string };
+        };
+    }>;
     } 

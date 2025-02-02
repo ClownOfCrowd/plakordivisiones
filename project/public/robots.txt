@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Запрещаем индексацию админки
+Disallow: /admin/
+Disallow: /api/
+
+# Указываем sitemap
+Sitemap: https://plakordivisiones.es/sitemap.xml 

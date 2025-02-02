@@ -1,11 +1,12 @@
 import config from '@config';
-import { ApiResponse, BookingFormData, ReviewFormData, ContactFormData } from '@/types';
+import { ApiResponse, BookingFormData, ReviewFormData, ContactFormData, SolicitudFormData } from '@/types';
 
 // API endpoints
 const API = {
   booking: '/api/booking',
   reviews: '/api/reviews',
-  contact: '/api/contact'
+  contact: '/api/contact',
+  solicitud: '/api/solicitud'
 };
 
 // Базовые методы для работы с API
@@ -97,5 +98,15 @@ export const api = {
   },
   contact: {
     send: (data: ContactFormData) => post<void>(API.contact, data)
+  },
+  solicitud: {
+    create: (data: SolicitudFormData): Promise<ApiResponse<{ id: number }>> => 
+      post(API.solicitud, {
+        data: {
+          ...data,
+          estado: 'pendiente',
+          fecha: new Date().toISOString()
+        }
+      })
   }
 }; 

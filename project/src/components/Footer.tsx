@@ -100,15 +100,7 @@ const Footer = () => {
                 <h4 className="text-white mb-3 text-sm md:text-base">Síguenos</h4>
                 <div className="flex space-x-4">
                   <a 
-                    href="https://facebook.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:text-cyan-700 transition-colors"
-                  >
-                    <Facebook className="w-6 h-6" />
-                  </a>
-                  <a 
-                    href="https://instagram.com" 
+                    href="https://www.instagram.com/constructora_plakor_divisiones?igsh=NHFycHphcDI0b2w3" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="hover:text-cyan-700 transition-colors"
@@ -116,12 +108,12 @@ const Footer = () => {
                     <Instagram className="w-6 h-6" />
                   </a>
                   <a 
-                    href="https://twitter.com" 
+                    href="https://www.facebook.com/share/15Z69wo3CD/?mibextid=wwXIfr" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="hover:text-cyan-700 transition-colors"
                   >
-                    <Twitter className="w-6 h-6" />
+                    <Facebook className="w-6 h-6" />
                   </a>
                 </div>
               </div>

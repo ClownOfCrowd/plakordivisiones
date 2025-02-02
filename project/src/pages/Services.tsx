@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Square, Layout, HomeIcon, Hammer, Wrench, Flame, VolumeX, Thermometer, Droplets, Zap, Grid, Brush } from 'lucide-react';
-import ContactModal from '../components/ContactModal'; // Импорт модального окна
+import RequestCallModal from '../components/RequestCallModal';
 
 const Services = () => {
   const [ref, inView] = useInView({
@@ -10,15 +10,19 @@ const Services = () => {
     threshold: 0.1,
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние для модального окна
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Функции для управления модальным окном
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    alert('Solicitud enviada con éxito');
   };
 
   const services = [
@@ -97,7 +101,7 @@ const Services = () => {
   ];
 
   return (
-    <div className="py-20 bg-white overflow-x-hidden"> {/* Добавлен overflow-x-hidden */}
+    <div className="py-20 bg-white overflow-x-hidden">
       <section ref={ref} className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -111,7 +115,6 @@ const Services = () => {
           </p>
         </motion.div>
 
-        {/* Все услуги в одной сетке */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
           {services.map((service, index) => (
             <motion.div
@@ -144,7 +147,6 @@ const Services = () => {
           ))}
         </div>
 
-        {/* Кнопка Solicitar presupuesto */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -152,7 +154,7 @@ const Services = () => {
           className="text-center mt-12"
         >
           <button
-            onClick={handleOpenModal} // Открываем модальное окно
+            onClick={handleOpenModal}
             className="bg-cyan-700 text-white px-8 py-3 rounded-md hover:bg-cyan-800 transition-colors"
           >
             Solicitar presupuesto
@@ -160,8 +162,11 @@ const Services = () => {
         </motion.div>
       </section>
 
-      {/* Модальное окно */}
-      <ContactModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <RequestCallModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal}
+        onSuccess={handleFormSuccess}
+      />
     </div>
   );
 };
