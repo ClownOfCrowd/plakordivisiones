@@ -153,11 +153,11 @@ const Home = () => {
   const showReviews = import.meta.env.VITE_SHOW_REVIEWS === 'true';
 
   return (
-    <div className="overflow-x-hidden"> {/* Добавлен overflow-x-hidden */}
+    <>
       <SEO 
-        title="Plakor Divisiones - Expertos en Pladur y Reformas en Cambrils"
-        description="Empresa líder en construcción en seco, reformas y remodelaciones. Servicios profesionales de pladur, aislamientos y acabados en Cambrils."
-        keywords="pladur, reformas, construcción, Cambrils, aislamientos, tabiques, techos, remodelaciones"
+        title="Plakor Divisiones | Expertos en Pladur y Reformas en Tarragona"
+        description="Especialistas en instalación de pladur, tabiques y reformas integrales en Tarragona. Más de 20 años de experiencia en construcción y rehabilitación."
+        keywords="pladur, reformas, construcción, Tarragona, tabiques, rehabilitación"
       />
       {/* Schema.org разметка */}
       <Helmet>
@@ -165,169 +165,171 @@ const Home = () => {
           {JSON.stringify(schemaData)}
         </script>
       </Helmet>
-      {/* Hero Section */}
-      <section
-        className="relative h-[80vh] bg-cover bg-center"
-        style={{
-          backgroundImage:
-            'url("https://i.postimg.cc/tJw6n4jB/freepik-169-23853.jpg")',
-        }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-50" />
-        <div className="relative container mx-auto px-4 h-full flex items-center">
-          <div className="max-w-2xl text-white">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-5xl font-bold mb-6"
-            >
-              Construyendo su visión, superando las expectativas
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl mb-8"
-            >
-              Servicios de construcción de alta calidad para residencial y
-              proyectos comerciales
-            </motion.p>
-          </div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section ref={servicesRef} className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={servicesInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold mb-4">Servicios</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Ofrecemos soluciones de construcción completas adaptadas a sus
-              necesidades específicas
-            </p>
-          </motion.div>
-
-          {/* Service Categories */}
-          {categories.map((category, categoryIndex) => (
-            <div key={category} className="mb-16 last:mb-0">
-              <h3 className="text-2xl font-bold mb-8 text-gray-800">{category}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                {services
-                  .filter(service => service.category === category)
-                  .map((service, index) => (
-                    <motion.div
-                      key={service.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={servicesInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="group relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                    >
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={service.image}
-                          alt={service.title}
-                          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <p className="text-white text-center px-4">
-                            {service.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-center mb-4">
-                          <service.icon className="w-8 h-8 text-cyan-700 flex-shrink-0" />
-                          <h3 className="text-xl font-bold ml-3">{service.title}</h3>
-                        </div>
-                        <p className="text-gray-600">{service.description}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-              </div>
-            </div>
-          ))}
-
-          {/* CTA Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={servicesInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center mt-12"
-          >
-            <button
-              onClick={handleOpenModal} // Открываем модальное окно
-              className="bg-cyan-700 text-white px-8 py-3 rounded-md hover:bg-cyan-800 transition-colors"
-            >
-              Solicitar presupuesto
-            </button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Portfolio Section */}
-      <section ref={portfolioRef} className="py-20 bg-white">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="container mx-auto px-4"
+      <div className="overflow-x-hidden"> {/* Добавлен overflow-x-hidden */}
+        {/* Hero Section */}
+        <section
+          className="relative h-[80vh] bg-cover bg-center"
+          style={{
+            backgroundImage:
+              'url("https://i.postimg.cc/tJw6n4jB/freepik-169-23853.jpg")',
+          }}
         >
-          <Portfolio />
-        </motion.div>
-      </section>
-
-      {/* Reviews Section */}
-      {showReviews && (
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto">
-            <h2 className="text-4xl font-bold text-center mb-2">
-              ¿Qué opinan nuestros clientes?
-            </h2>
-            <p className="text-gray-600 text-center mb-12">
-              Vea lo que nuestros clientes dicen sobre nuestros servicios de construcción
-            </p>
-            <ReviewsSection />
+          <div className="absolute inset-0 bg-black bg-opacity-50" />
+          <div className="relative container mx-auto px-4 h-full flex items-center">
+            <div className="max-w-2xl text-white">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-5xl font-bold mb-6"
+              >
+                Construyendo su visión, superando las expectativas
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-xl mb-8"
+              >
+                Servicios de construcción de alta calidad para residencial y
+                proyectos comerciales
+              </motion.p>
+            </div>
           </div>
         </section>
-      )}
 
-      {/* Stats Section */}
-      <section className="bg-cyan-700 py-16 text-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold mb-2">150+</div>
-              <div>Proyectos completados</div>
+        {/* Services Section */}
+        <section ref={servicesRef} className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={servicesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8 }}
+              className="text-center mb-16"
+            >
+              <h2 className="text-4xl font-bold mb-4">Servicios</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Ofrecemos soluciones de construcción completas adaptadas a sus
+                necesidades específicas
+              </p>
+            </motion.div>
+
+            {/* Service Categories */}
+            {categories.map((category, categoryIndex) => (
+              <div key={category} className="mb-16 last:mb-0">
+                <h3 className="text-2xl font-bold mb-8 text-gray-800">{category}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                  {services
+                    .filter(service => service.category === category)
+                    .map((service, index) => (
+                      <motion.div
+                        key={service.title}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={servicesInView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="group relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
+                      >
+                        <div className="relative h-48 overflow-hidden">
+                          <img
+                            src={service.image}
+                            alt={service.title}
+                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <p className="text-white text-center px-4">
+                              {service.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="p-6">
+                          <div className="flex items-center mb-4">
+                            <service.icon className="w-8 h-8 text-cyan-700 flex-shrink-0" />
+                            <h3 className="text-xl font-bold ml-3">{service.title}</h3>
+                          </div>
+                          <p className="text-gray-600">{service.description}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                </div>
+              </div>
+            ))}
+
+            {/* CTA Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={servicesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-center mt-12"
+            >
+              <button
+                onClick={handleOpenModal} // Открываем модальное окно
+                className="bg-cyan-700 text-white px-8 py-3 rounded-md hover:bg-cyan-800 transition-colors"
+              >
+                Solicitar presupuesto
+              </button>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Portfolio Section */}
+        <section ref={portfolioRef} className="py-20 bg-white">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={portfolioInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8 }}
+            className="container mx-auto px-4"
+          >
+            <Portfolio />
+          </motion.div>
+        </section>
+
+        {/* Reviews Section */}
+        {showReviews && (
+          <section className="py-16 bg-gray-50">
+            <div className="container mx-auto">
+              <h2 className="text-4xl font-bold text-center mb-2">
+                ¿Qué opinan nuestros clientes?
+              </h2>
+              <p className="text-gray-600 text-center mb-12">
+                Vea lo que nuestros clientes dicen sobre nuestros servicios de construcción
+              </p>
+              <ReviewsSection />
             </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">20+</div>
-              <div>Años de experiencia</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">80%</div>
-              <div>de los clientes regresan con nuevos pedidos</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">100%</div>
-              <div>Satisfacción del cliente</div>
+          </section>
+        )}
+
+        {/* Stats Section */}
+        <section className="bg-cyan-700 py-16 text-white">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-4xl font-bold mb-2">150+</div>
+                <div>Proyectos completados</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">20+</div>
+                <div>Años de experiencia</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">80%</div>
+                <div>de los clientes regresan con nuevos pedidos</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-2">100%</div>
+                <div>Satisfacción del cliente</div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Contact Section */}
-      <ContactSection />
+        {/* Contact Section */}
+        <ContactSection />
 
-      {/* Модальное окно */}
-      <ContactModal isOpen={isModalOpen} onClose={handleCloseModal} />
-    </div>
+        {/* Модальное окно */}
+        <ContactModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      </div>
+    </>
   );
 };
 

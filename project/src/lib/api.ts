@@ -1,4 +1,5 @@
-import { SolicitudFormData, ApiResponse as ImportedApiResponse, Project, Review } from '../types';
+import { SolicitudFormData, ApiResponse, Project, Review } from '../types';
+import { cacheApi } from './cache';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:1337';
 
@@ -78,8 +79,20 @@ const setCachedData = (key: string, data: any) => {
   };
 };
 
+// Только для некритичных данных
+const getCachedDataAsync = async (url: string) => {
+  const cached = cacheApi.get(url);
+  if (cached) return cached;
+
+  const response = await fetch(url);
+  const data = await response.json();
+  
+  cacheApi.set(url, data);
+  return data;
+};
+
 // Обновляем функцию post с новой обработкой ошибок
-async function post<T>(url: string, data: any): Promise<ImportedApiResponse<T>> {
+async function post<T>(url: string, data: any): Promise<ApiResponse<T>> {
   try {
     // Добавляем базовую валидацию
     if (!data || Object.keys(data).length === 0) {
@@ -239,13 +252,6 @@ export const api = {
   },
   reviews: {
     getAll: async () => {
-      const cacheKey = 'published_reviews';
-      const cached = getCachedData(cacheKey, CACHE_DURATION.REVIEWS);
-      
-      if (cached) {
-        return cached;
-      }
-
       try {
         const response = await fetch(
           `${API_URL}/api/reviews?filters[publishedAt][$notNull]=true&filters[estado][$eq]=approved&populate=*`,
@@ -253,28 +259,22 @@ export const api = {
             headers: {
               ...defaultHeaders,
               'Origin': window.location.origin
-            },
-            credentials: 'include'
+            }
           }
         );
         
+        console.log('API URL:', `${API_URL}/api/reviews?filters[publishedAt][$notNull]=true&filters[estado][$eq]=approved&populate=*`);
+        
         if (!response.ok) {
-          console.error('Reviews fetch error:', await response.text());
-          throw new Error(response.status.toString());
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         const data = await response.json();
-        console.log('API Response structure:', JSON.stringify(data, null, 2));
-        
-        if (data) {
-          setCachedData(cacheKey, data);
-          return data;
-        }
-        
-        return { data: [] };
+        console.log('API response data:', data);
+        return data;
       } catch (error) {
-        console.error('Reviews fetch error:', error);
-        throw handleApiError(error);
+        console.error('Error in getAll reviews:', error);
+        throw error;
       }
     },
 
@@ -290,11 +290,11 @@ export const api = {
             ...defaultHeaders,
             'Origin': window.location.origin
           },
-          credentials: 'include',
           body: JSON.stringify({
             data: {
-              ...reviewData,
-              published: false,
+              name: reviewData.name,
+              rating: reviewData.rating,
+              comment: reviewData.comment,
               estado: 'pending',
               publishedAt: null
             }
@@ -303,15 +303,15 @@ export const api = {
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.error('API Error:', errorData);
+          console.error('API Error Response:', errorData);
           throw new Error(errorData.error?.message || 'Error al enviar la reseña');
         }
 
         return response.json();
       } catch (error) {
-        console.error('Request Error:', error);
-        throw handleApiError(error);
+        console.error('Error creating review:', error);
+        throw error;
       }
     }
-  }
-}; 
+  },
+};

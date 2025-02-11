@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect, lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -10,33 +10,93 @@ import Projects from './pages/Projects';
 import Reviews from './pages/Reviews';
 import ContactSection from './components/ContactSection';
 import CookieConsent from './components/CookieConsent';
-import { initGA, logPageView } from './lib/analytics';
+import { initGA, trackPageView } from './lib/analytics';
+import Layout from './components/Layout';
+import LazyComponent from './components/LazyComponent';
+import ErrorBoundary from './components/ErrorBoundary';
+import { ToastProvider } from './contexts/ToastContext';
+import { measureWebVitals } from './utils/performance';
+import { errorTracker } from './services/errorTracking';
+import PWAUpdatePrompt from './components/PWAUpdatePrompt';
+import { initErrorLogger } from './utils/devTools';
+
+const DevTools = lazy(() => import('./pages/DevTools'));
 
 // Создаем отдельный компонент для роутинга
 const AppRoutes = () => {
   const location = useLocation();
+  
+  useEffect(() => {
+    initGA();
+  }, []);
 
   useEffect(() => {
-    logPageView(location.pathname);
+    trackPageView(location.pathname);
   }, [location]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col overflow-x-hidden">
-      <Header />
-      <main className="pt-20 flex-grow overflow-x-hidden">
-        <AnimatePresence mode="wait">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/contact" element={<ContactSection />} />
-          </Routes>
-        </AnimatePresence>
-      </main>
-      <Footer />
-      <CookieConsent />
+    <div className="min-h-screen flex flex-col">
+      <Header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm" />
+      <AnimatePresence 
+        mode="wait"
+        initial={false}
+      >
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={
+            <Layout>
+              <LazyComponent>
+                <Home />
+              </LazyComponent>
+            </Layout>
+          } />
+          <Route path="/about" element={
+            <Layout>
+              <LazyComponent>
+                <About />
+              </LazyComponent>
+            </Layout>
+          } />
+          <Route path="/services" element={
+            <Layout>
+              <Services />
+            </Layout>
+          } />
+          <Route path="/projects" element={
+            <Layout>
+              <LazyComponent>
+                <Projects />
+              </LazyComponent>
+            </Layout>
+          } />
+          <Route path="/reviews" element={
+            <Layout>
+              <LazyComponent>
+                <Reviews />
+              </LazyComponent>
+            </Layout>
+          } />
+          <Route path="/contact" element={
+            <Layout>
+              <LazyComponent>
+                <ContactSection />
+              </LazyComponent>
+            </Layout>
+          } />
+          {process.env.NODE_ENV === 'development' && (
+            <Route 
+              path="/dev-tools" 
+              element={
+                <Layout>
+                  <LazyComponent>
+                    <DevTools />
+                  </LazyComponent>
+                </Layout>
+              } 
+            />
+          )}
+        </Routes>
+      </AnimatePresence>
+      <CookieConsent className="relative z-[60]" />
     </div>
   );
 };
@@ -44,13 +104,29 @@ const AppRoutes = () => {
 // Основной компонент App
 const App = () => {
   useEffect(() => {
-    initGA();
+    // Измеряем Web Vitals
+    measureWebVitals((metrics) => {
+      console.log('Performance metrics:', metrics);
+    });
+
+    // Инициализируем трекер ошибок
+    errorTracker;
+
+    // Инициализируем инструменты разработчика
+    if (process.env.NODE_ENV === 'development') {
+      initErrorLogger();
+    }
   }, []);
 
   return (
-    <Router>
-      <AppRoutes />
-    </Router>
+    <ErrorBoundary>
+      <ToastProvider>
+        <Router>
+          <AppRoutes />
+          <PWAUpdatePrompt />
+        </Router>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 };
 

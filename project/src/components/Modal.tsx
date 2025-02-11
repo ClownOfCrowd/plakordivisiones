@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -9,7 +9,27 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
+/**
+ * Reusable modal component with animations
+ * Features:
+ * - Focus trap
+ * - Keyboard navigation
+ * - Backdrop click to close
+ * - Smooth transitions
+ */
 const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+  // Close on escape key press
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, onClose]);
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>

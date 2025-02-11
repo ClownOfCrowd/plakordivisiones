@@ -3,19 +3,35 @@ import { Loader2 } from 'lucide-react';
 interface LoadingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
   children: React.ReactNode;
+  className?: string;
 }
 
-const LoadingButton = ({ isLoading, children, ...props }: LoadingButtonProps) => {
+/**
+ * Button component with loading state
+ * Features:
+ * - Loading spinner
+ * - Disabled state during loading
+ * - Customizable styles
+ */
+const LoadingButton = ({ 
+  isLoading, 
+  children, 
+  className = '',
+  ...props 
+}: LoadingButtonProps) => {
   return (
     <button
+      disabled={isLoading}
+      className={`
+        relative
+        inline-flex items-center justify-center
+        ${isLoading ? 'cursor-not-allowed opacity-70' : ''}
+        ${className}
+      `}
       {...props}
-      disabled={isLoading || props.disabled}
-      className={`relative ${props.className}`}
     >
       {isLoading && (
-        <span className="absolute inset-0 flex items-center justify-center bg-inherit">
-          <Loader2 className="w-5 h-5 animate-spin" />
-        </span>
+        <Loader2 className="absolute w-4 h-4 animate-spin" />
       )}
       <span className={isLoading ? 'opacity-0' : 'opacity-100'}>
         {children}

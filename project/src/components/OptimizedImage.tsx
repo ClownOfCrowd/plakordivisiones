@@ -1,41 +1,82 @@
 import { useState, useEffect } from 'react';
+import { optimizeImage, preloadImage } from '../utils/imageOptimizer';
+import { trackError } from '../lib/analytics';
 
-interface OptimizedImageProps {
+interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   alt: string;
-  className?: string;
   width?: number;
   height?: number;
+  priority?: boolean;
+  quality?: number;
+  className?: string;
 }
 
-const OptimizedImage = ({ src, alt, className = '', width, height }: OptimizedImageProps) => {
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState(false);
+/**
+ * Optimized image component with lazy loading and fallback
+ * Features:
+ * - Automatic image optimization
+ * - Lazy loading
+ * - Loading placeholder
+ * - Error handling
+ */
+export const OptimizedImage = ({
+  src,
+  alt,
+  width,
+  height,
+  priority = false,
+  quality = 75,
+  className = '',
+  ...props
+}: Props) => {
+  const [imageSrc, setImageSrc] = useState<string>('/images/placeholder.jpg');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => setLoaded(true);
-    img.onerror = () => setError(true);
-  }, [src]);
+    const loadImage = async () => {
+      try {
+        setIsLoading(true);
+        const optimizedSrc = await optimizeImage(src, { width, height, quality });
+        
+        if (priority) {
+          await preloadImage(optimizedSrc);
+        }
+        
+        setImageSrc(optimizedSrc);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load image:', src);
+        trackError(err instanceof Error ? err : new Error('Failed to load image'), 'OptimizedImage');
+        setError(err instanceof Error ? err : new Error('Failed to load image'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  if (error) {
-    return <div className={`bg-gray-200 ${className}`} />;
-  }
+    loadImage();
+  }, [src, width, height, quality, priority]);
 
   return (
     <div className={`relative ${className}`}>
-      {!loaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
-      )}
       <img
-        src={src}
+        src={imageSrc}
         alt={alt}
-        className={`${className} ${loaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
         width={width}
         height={height}
-        loading="lazy"
+        className={`
+          w-full h-full object-cover
+          ${isLoading ? 'animate-pulse bg-gray-200' : ''}
+          ${error ? 'opacity-50' : ''}
+        `}
+        {...props}
       />
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-sm text-red-500">Failed to load image</span>
+        </div>
+      )}
     </div>
   );
 };

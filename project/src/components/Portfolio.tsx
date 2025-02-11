@@ -52,7 +52,19 @@ const ProjectCard = ({ project }: { project: Project }) => {
   );
 };
 
+/**
+ * Portfolio showcase component
+ * Displays featured projects with filtering and lazy loading
+ */
 const Portfolio = () => {
+  // Project categories for filtering
+  const categories = [
+    'Comercial',
+    'Residencial',
+    'Industrial',
+    'Institucional'
+  ];
+
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">

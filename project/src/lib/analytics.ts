@@ -1,46 +1,68 @@
 import ReactGA from 'react-ga4';
 
-const TRACKING_ID = 'G-XXXXXXXXXX'; // Здесь будет ваш ID из Google Analytics
+const GA_TRACKING_ID = import.meta.env.VITE_GA_TRACKING_ID;
 
 export const initGA = () => {
-  ReactGA.initialize(TRACKING_ID);
+  if (GA_TRACKING_ID) {
+    ReactGA.initialize(GA_TRACKING_ID);
+  }
 };
 
-export const logPageView = (path: string) => {
+// Отслеживание просмотров страниц
+export const trackPageView = (path: string) => {
   ReactGA.send({ hitType: "pageview", page: path });
 };
 
-export const logEvent = (category: string, action: string, label?: string) => {
+// События форм
+export const trackFormSubmission = (formName: string, success: boolean) => {
   ReactGA.event({
-    category,
-    action,
-    label
+    category: 'Form',
+    action: success ? 'Submit Success' : 'Submit Error',
+    label: formName
   });
 };
 
-// События для форм
-export const logFormSubmission = (formName: string, success: boolean) => {
-  logEvent(
-    'Form',
-    success ? 'Submit Success' : 'Submit Error',
-    formName
-  );
+// События кликов
+export const trackButtonClick = (buttonName: string) => {
+  ReactGA.event({
+    category: 'Button',
+    action: 'Click',
+    label: buttonName
+  });
+};
+
+// Отслеживание ошибок
+export const trackError = (error: Error, componentName: string) => {
+  ReactGA.event({
+    category: 'Error',
+    action: error.message,
+    label: componentName
+  });
+};
+
+// Отслеживание производительности
+export const trackPerformance = (metric: string, value: number) => {
+  ReactGA.event({
+    category: 'Performance',
+    action: metric,
+    value
+  });
 };
 
 // События для проектов
 export const logProjectView = (projectTitle: string) => {
-  logEvent(
-    'Project',
-    'View',
-    projectTitle
-  );
+  ReactGA.event({
+    category: 'Project',
+    action: 'View',
+    label: projectTitle
+  });
 };
 
 // События для контактов
 export const logContactClick = (method: string) => {
-  logEvent(
-    'Contact',
-    'Click',
-    method
-  );
+  ReactGA.event({
+    category: 'Contact',
+    action: 'Click',
+    label: method
+  });
 }; 

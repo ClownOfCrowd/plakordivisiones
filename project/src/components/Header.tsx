@@ -2,9 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Menu, Phone, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import RequestCallModal from './RequestCallModal';
+import { motion } from 'framer-motion';
 
-const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+/**
+ * Main navigation header component
+ * Includes responsive menu and call request modal
+ */
+const Header = ({ className = '' }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
 
@@ -17,20 +22,21 @@ const Header = () => {
     { name: 'Contacto', path: '/contact' },
   ];
 
-  // Scroll to top on navigation
+  // Close menu on page navigation or modal open
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  }, [location.pathname]);
+    setIsOpen(false);
+  }, [location.pathname, isModalOpen]);
 
   return (
-    <header className="fixed w-full bg-white shadow-md z-50">
+    <header className={`${className} bg-white shadow-sm`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-cyan-700">Plakor Divisiones</span>
+          <Link 
+            to="/" 
+            className="text-2xl font-bold text-cyan-700"
+            onClick={() => setIsOpen(false)}
+          >
+            Plakor Divisiones
           </Link>
 
           {/* Desktop Navigation */}
@@ -56,23 +62,23 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2"
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4">
-            <nav className="flex flex-col space-y-4">
+        {isOpen && (
+          <div className="md:hidden absolute top-20 left-0 right-0 bg-white shadow-lg z-40">
+            <nav className="flex flex-col space-y-4 p-4">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.path}
                   className="text-gray-600 hover:text-cyan-700 transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => setIsOpen(false)}
                 >
                   {item.name}
                 </Link>
@@ -80,9 +86,9 @@ const Header = () => {
               <button
                 onClick={() => {
                   setIsModalOpen(true);
-                  setIsMenuOpen(false);
+                  setIsOpen(false);
                 }}
-                className="flex items-center justify-center px-6 py-2 bg-cyan-700 text-white rounded-md hover:bg-cyan-700 transition-colors"
+                className="flex items-center justify-center px-6 py-2 bg-cyan-700 text-white rounded-md hover:bg-cyan-800 transition-colors"
               >
                 <Phone className="w-4 h-4 mr-2" />
                 Solicitar llamada
@@ -92,7 +98,10 @@ const Header = () => {
         )}
       </div>
 
-      <RequestCallModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <RequestCallModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </header>
   );
 };
