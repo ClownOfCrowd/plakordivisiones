@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.plakordivisiones.es';
   const today = new Date().toISOString().split('T')[0];
 
@@ -41,5 +41,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
-  ];
+  ] satisfies MetadataRoute.Sitemap;
 } 
