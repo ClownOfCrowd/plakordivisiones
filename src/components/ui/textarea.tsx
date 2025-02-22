@@ -21,7 +21,7 @@ const textareaWrapperVariants = cva(
       success: {
         true: "!border-green-500 focus-within:!border-green-500 focus-within:!ring-green-200",
       },
-      disabled: {
+      isDisabled: {
         true: "opacity-50 cursor-not-allowed bg-gray-50",
       },
     },
@@ -49,7 +49,7 @@ const textareaVariants = cva(
 
 interface TextareaProps
   extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "size">,
-    VariantProps<typeof textareaWrapperVariants>,
+    Omit<VariantProps<typeof textareaWrapperVariants>, "isDisabled" | "error" | "success">,
     VariantProps<typeof textareaVariants> {
   label?: string;
   hint?: string;
@@ -104,7 +104,12 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {/* Обертка textarea */}
         <div
           className={cn(
-            textareaWrapperVariants({ variant, error: !!error, success: !!success, disabled })
+            textareaWrapperVariants({ 
+              variant, 
+              error: !!error, 
+              success: !!success, 
+              isDisabled: disabled 
+            })
           )}
         >
           <textarea
