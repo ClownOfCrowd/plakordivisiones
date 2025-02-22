@@ -19,7 +19,7 @@ const inputWrapperVariants = cva(
       success: {
         true: "!border-green-500 focus-within:!border-green-500 focus-within:!ring-green-200",
       },
-      disabled: {
+      isDisabled: {
         true: "opacity-50 cursor-not-allowed bg-gray-50",
       },
     },
@@ -47,7 +47,7 @@ const inputVariants = cva(
 
 interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
-    VariantProps<typeof inputWrapperVariants>,
+    Omit<VariantProps<typeof inputWrapperVariants>, "isDisabled">,
     VariantProps<typeof inputVariants> {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -138,7 +138,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {/* Обертка инпута */}
         <div
           className={cn(
-            inputWrapperVariants({ variant, error: !!error, success: !!success, disabled })
+            inputWrapperVariants({ 
+              variant, 
+              error: !!error, 
+              success: !!success, 
+              isDisabled: disabled 
+            })
           )}
         >
           {/* Левая иконка */}
