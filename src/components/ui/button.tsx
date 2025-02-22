@@ -39,7 +39,7 @@ const buttonVariants = cva(
   }
 );
 
-export interface ButtonProps
+interface ButtonProps
   extends Omit<HTMLMotionProps<"button">, keyof VariantProps<typeof buttonVariants>>,
     VariantProps<typeof buttonVariants> {
   leftIcon?: React.ReactNode;
@@ -104,4 +104,5 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = "Button";
 
-export { Button, buttonVariants, type ButtonProps }; 
+export { Button, buttonVariants };
+export type { ButtonProps }; 
