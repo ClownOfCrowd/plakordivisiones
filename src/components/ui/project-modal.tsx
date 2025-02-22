@@ -79,7 +79,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
   // Предзагрузка следующего изображения
   useEffect(() => {
     const nextIndex = (activeImage + 1) % project.images.length;
-    const img = new Image();
+    const img = new window.Image();
     img.src = project.images[nextIndex];
   }, [activeImage, project.images]);
 
