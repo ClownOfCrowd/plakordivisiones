@@ -22,7 +22,7 @@ const selectWrapperVariants = cva(
       success: {
         true: "!border-green-500 focus-within:!border-green-500 focus-within:!ring-green-200",
       },
-      disabled: {
+      isDisabled: {
         true: "opacity-50 cursor-not-allowed bg-gray-50",
       },
     },
@@ -102,7 +102,7 @@ export interface SelectOption {
 
 interface SelectProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "size">,
-    VariantProps<typeof selectWrapperVariants>,
+    Omit<VariantProps<typeof selectWrapperVariants>, "isDisabled">,
     VariantProps<typeof selectButtonVariants> {
   options: SelectOption[];
   value?: string;
@@ -197,7 +197,12 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>(
         {/* Обертка селекта */}
         <div
           className={cn(
-            selectWrapperVariants({ variant, error: !!error, success: !!success, disabled })
+            selectWrapperVariants({ 
+              variant, 
+              error: !!error, 
+              success: !!success, 
+              isDisabled: disabled 
+            })
           )}
         >
           <button
