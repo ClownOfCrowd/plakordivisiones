@@ -94,7 +94,7 @@ const messageVariants = {
   }
 };
 
-export interface SelectOption {
+interface SelectOption {
   value: string;
   label: string;
   disabled?: boolean;
@@ -319,4 +319,5 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>(
 
 Select.displayName = "Select";
 
-export { Select, type SelectProps, type SelectOption }; 
+export { Select };
+export type { SelectProps, SelectOption }; 
