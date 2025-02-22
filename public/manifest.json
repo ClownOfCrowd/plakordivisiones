@@ -1,0 +1,40 @@
+{
+  "name": "Plakor Divisiones",
+  "short_name": "Plakor",
+  "description": "Especialistas en Pladur y Reformas en Tarragona",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0369a1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Contactar",
+      "short_name": "Contacto",
+      "description": "Contacta con nosotros",
+      "url": "/contacto",
+      "icons": [{ "src": "/shortcuts/contact.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Servicios",
+      "short_name": "Servicios",
+      "description": "Ver nuestros servicios",
+      "url": "/servicios",
+      "icons": [{ "src": "/shortcuts/services.png", "sizes": "192x192" }]
+    }
+  ]
+} 
