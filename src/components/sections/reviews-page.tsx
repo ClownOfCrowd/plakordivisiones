@@ -36,6 +36,7 @@ interface Review extends ReviewFormData {
   id: number;
   createdAt: string;
   updatedAt: string;
+  source: string;
 }
 
 // Временные данные (в будущем будут загружаться из Strapi)
