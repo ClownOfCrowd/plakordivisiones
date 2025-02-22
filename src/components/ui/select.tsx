@@ -102,7 +102,7 @@ export interface SelectOption {
 
 interface SelectProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "size" | "onChange">,
-    Omit<VariantProps<typeof selectWrapperVariants>, "isDisabled">,
+    Omit<VariantProps<typeof selectWrapperVariants>, "isDisabled" | "error" | "success">,
     VariantProps<typeof selectButtonVariants> {
   options: SelectOption[];
   value?: string;
