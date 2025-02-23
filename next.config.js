@@ -33,19 +33,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "frame-src 'self' https://www.google.com https://*.google.com",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://www.google-analytics.com",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https://*.google.com https://*.googleapis.com https://*.gstatic.com",
-              "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://*.google.com https://*.googleapis.com https://www.google-analytics.com"
-            ].join('; ')
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN'
+            value: "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'"
           },
           {
             key: 'X-DNS-Prefetch-Control',
