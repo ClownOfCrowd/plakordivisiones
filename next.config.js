@@ -11,7 +11,6 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 60 * 60 * 24, // 24 hours
     dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
@@ -26,73 +25,78 @@ const nextConfig = {
     locales: ['es'],
     defaultLocale: 'es',
   },
-  // Enhanced caching and performance headers
-  headers: async () => [
-    {
-      source: '/:path*',
-      headers: [
-        {
-          key: 'X-DNS-Prefetch-Control',
-          value: 'on'
-        },
-        {
-          key: 'Strict-Transport-Security',
-          value: 'max-age=63072000; includeSubDomains; preload'
-        },
-        {
-          key: 'X-XSS-Protection',
-          value: '1; mode=block'
-        },
-        {
-          key: 'X-Frame-Options',
-          value: 'SAMEORIGIN'
-        },
-        {
-          key: 'X-Content-Type-Options',
-          value: 'nosniff'
-        },
-        {
-          key: 'Referrer-Policy',
-          value: 'origin-when-cross-origin'
-        },
-        {
-          key: 'Content-Security-Policy',
-          value: "default-src 'self'; frame-src 'self' https://www.google.com https://*.google.com; script-src 'self' https://*.google.com; style-src 'self' 'unsafe-inline';"
-        },
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=3600, must-revalidate'
-        }
-      ]
-    },
-    {
-      source: '/:all*(svg|jpg|jpeg|png|webp|avif)',
-      locale: false,
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable',
-        },
-        {
-          key: 'Accept-CH',
-          value: 'DPR, Width, Viewport-Width',
-        }
-      ],
-    },
-    {
-      source: '/fonts/:all*',
-      locale: false,
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable',
-        }
-      ],
-    },
-  ],
+  // Enhanced security and caching headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://maps.googleapis.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: https://*.google.com https://*.googleapis.com https://*.gstatic.com",
+              "frame-src 'self' https://www.google.com https://*.google.com",
+              "connect-src 'self' https://*.google.com https://*.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com",
+            ].join('; ')
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'ALLOW-FROM https://www.google.com'
+          },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'geolocation=*, camera=(), microphone=(), payment=()'
+          }
+        ]
+      },
+      {
+        source: '/:all*(svg|jpg|jpeg|png|webp|avif)',
+        locale: false,
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
+      },
+      {
+        source: '/fonts/:all*',
+        locale: false,
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
+      }
+    ];
+  },
   // Webpack optimization
   webpack: (config, { dev, isServer }) => {
-    // Optimize images
     config.module.rules.push({
       test: /\.(jpe?g|png|svg|webp|avif)$/i,
       use: [
