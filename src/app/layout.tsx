@@ -138,10 +138,6 @@ export default function RootLayout({
           href="https://fonts.gstatic.com" 
           crossOrigin="anonymous"
         />
-        <meta
-          httpEquiv="Content-Security-Policy"
-          content="default-src 'self'; frame-src 'self' https://www.google.com https://*.google.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.google.com https://*.googleapis.com https://*.gstatic.com"
-        />
         <link
           rel="preload"
           as="image"
