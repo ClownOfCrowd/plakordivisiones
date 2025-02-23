@@ -56,6 +56,10 @@ const nextConfig = {
           value: 'origin-when-cross-origin'
         },
         {
+          key: 'Content-Security-Policy',
+          value: "default-src 'self'; frame-src 'self' https://www.google.com https://*.google.com; script-src 'self' https://*.google.com; style-src 'self' 'unsafe-inline';"
+        },
+        {
           key: 'Cache-Control',
           value: 'public, max-age=3600, must-revalidate'
         }
