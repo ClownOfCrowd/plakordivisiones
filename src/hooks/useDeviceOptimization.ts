@@ -81,7 +81,7 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
 
     return {
       quality: isLowBandwidth ? 60 : 80,
-      loading: options.enableLazyLoading ? 'lazy' : undefined,
+      loading: options.enableLazyLoading ? 'lazy' as const : 'eager' as const,
       sizes: isMobile ? '100vw' : undefined,
     };
   }, [connection, isMobile, options.enableLazyLoading, options.enableLowBandwidth]);
