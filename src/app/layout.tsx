@@ -11,12 +11,16 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
 })
 
 const montserrat = Montserrat({
   subsets: ['latin'],
   variable: '--font-montserrat',
   display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
 })
 
 export const metadata = {
@@ -96,6 +100,18 @@ export const metadata = {
     bing: 'bing-verification-code',
   },
   category: 'construction',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
+  themeColor: '#0369a1',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 }
 
 export default function RootLayout({
@@ -106,14 +122,30 @@ export default function RootLayout({
   return (
     <html 
       lang="es" 
-      className="scroll-smooth"
+      className={`scroll-smooth ${inter.variable} ${montserrat.variable}`}
       suppressHydrationWarning
     >
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <link 
+          rel="preconnect" 
+          href="https://fonts.googleapis.com" 
+          crossOrigin="anonymous"
+        />
+        <link 
+          rel="preconnect" 
+          href="https://fonts.gstatic.com" 
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/og-image.jpg"
+          type="image/jpeg"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
         <meta name="theme-color" content="#0369a1" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script
           type="application/ld+json"
@@ -129,16 +161,22 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body 
-        className={`${inter.variable} ${montserrat.variable} font-sans antialiased`}
+        className="font-sans antialiased bg-gray-50 text-gray-900 min-h-screen flex flex-col"
       >
         <ToastProvider>
           <Header />
-          <main id="main-content">
+          <main id="main-content" className="flex-grow">
             {children}
           </main>
           <Footer />
           <Analytics />
-          <Toaster position="top-right" expand={true} richColors />
+          <Toaster 
+            position="top-right" 
+            expand={true} 
+            richColors 
+            closeButton
+            theme="light"
+          />
         </ToastProvider>
       </body>
     </html>
