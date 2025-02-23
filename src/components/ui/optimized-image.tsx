@@ -34,11 +34,14 @@ export function OptimizedImage({
   useEffect(() => {
     // Предзагрузка изображения высокого качества
     const img = document.createElement('img');
-    img.src = typeof src === 'string' ? src : src.src;
-    img.onload = () => {
-      setIsLoaded(true);
-      setTimeout(() => setShowLowQuality(false), 100);
-    };
+    const imgSrc = typeof src === 'string' ? src : typeof src === 'object' && 'default' in src ? src.default : '';
+    if (imgSrc) {
+      img.src = imgSrc;
+      img.onload = () => {
+        setIsLoaded(true);
+        setTimeout(() => setShowLowQuality(false), 100);
+      };
+    }
   }, [src]);
 
   return (
