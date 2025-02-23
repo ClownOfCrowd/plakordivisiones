@@ -9,14 +9,29 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps) {
   const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // Анимация прогресса
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + 1;
+      });
+    }, minimumLoadingTime / 100);
+
     // Гарантируем минимальное время показа прелоадера
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, minimumLoadingTime);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressInterval);
+    };
   }, [minimumLoadingTime]);
 
   return (
@@ -31,98 +46,101 @@ export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps)
             backgroundImage: 'linear-gradient(135deg, #0369a1 0%, #0284c7 100%)',
           }}
         >
-          <div className="relative w-64 h-64">
-            {/* Фоновая "стена" */}
-            <motion.div
-              initial={{ scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              transition={{
-                duration: 1,
-                ease: 'easeOut',
-              }}
-              className="absolute inset-0 bg-white/10 rounded-lg"
-              style={{ originY: 1 }}
-            />
-
-            {/* Анимированные блоки стены */}
-            {[...Array(5)].map((_, i) => (
+          <div className="relative w-full max-w-sm mx-4 sm:mx-auto">
+            {/* Основная анимация */}
+            <div className="relative aspect-square">
+              {/* Фоновый круг */}
               <motion.div
-                key={i}
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{
-                  delay: i * 0.2,
-                  duration: 0.8,
-                  ease: 'easeOut',
-                }}
-                className="absolute h-8 bg-white/20 rounded"
-                style={{
-                  bottom: `${i * 10}px`,
-                  left: '10%',
-                  right: '10%',
-                  transformOrigin: 'left',
-                }}
-              />
-            ))}
-
-            {/* Анимированный мастерок */}
-            <motion.div
-              initial={{ rotate: -45, y: 50, x: -50 }}
-              animate={{
-                rotate: 45,
-                y: [-50, 0, -50],
-                x: [50, 0, 50],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              className="absolute right-0 top-1/2 w-16 h-32"
-            >
-              <div className="relative w-full h-full">
-                <div className="absolute top-0 w-12 h-12 bg-gray-200 rounded-full shadow-lg">
-                  <div className="w-3 h-20 bg-gray-300 absolute top-8 left-4 rounded-b-lg shadow-md" />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Анимированные частицы */}
-            {[...Array(8)].map((_, i) => (
-              <motion.div
-                key={`particle-${i}`}
-                initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{
-                  scale: [0, 1, 0],
-                  x: [0, (i % 2 ? 50 : -50) * Math.random()],
-                  y: [0, -100 * Math.random()],
-                }}
+                initial={{ scale: 0, rotate: 0 }}
+                animate={{ scale: 1, rotate: 360 }}
                 transition={{
                   duration: 1.5,
-                  repeat: Infinity,
-                  delay: i * 0.2,
                   ease: 'easeOut',
                 }}
-                className="absolute w-2 h-2 bg-white/40 rounded-full"
-                style={{
-                  left: '50%',
-                  bottom: '20%',
-                }}
+                className="absolute inset-0 rounded-full border-4 border-white/20"
               />
-            ))}
+
+              {/* Анимированные элементы строительства */}
+              <div className="absolute inset-0">
+                {/* Стены */}
+                {[...Array(4)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ scaleY: 0 }}
+                    animate={{ scaleY: 1 }}
+                    transition={{
+                      delay: i * 0.2,
+                      duration: 0.8,
+                      ease: 'easeOut',
+                    }}
+                    className="absolute bottom-0 bg-white/30 w-6 rounded-t-lg"
+                    style={{
+                      height: `${(i + 1) * 25}%`,
+                      left: `${25 * i + 10}%`,
+                    }}
+                  />
+                ))}
+
+                {/* Вращающийся элемент */}
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <div className="w-16 h-1 bg-white/40 rounded-full transform origin-right" />
+                </motion.div>
+
+                {/* Пульсирующий круг */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 1, 0.5],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="absolute inset-4 rounded-full border-2 border-white/40"
+                />
+              </div>
+            </div>
+
+            {/* Прогресс бар */}
+            <div className="mt-8 relative">
+              <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: progress / 100 }}
+                  transition={{ duration: 0.2 }}
+                  className="h-full bg-white origin-left"
+                />
+              </div>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-4 left-1/2 transform -translate-x-1/2 text-white/90 text-sm"
+              >
+                {progress}%
+              </motion.p>
+            </div>
 
             {/* Логотип и текст */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="absolute top-full left-1/2 transform -translate-x-1/2 mt-8 text-center w-full"
+              className="mt-12 text-center"
             >
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="text-2xl font-bold text-white mb-2"
+                className="text-2xl sm:text-3xl font-bold text-white mb-2"
               >
                 Plakor Divisiones
               </motion.h1>
@@ -141,18 +159,6 @@ export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps)
                 Construyendo calidad
               </motion.p>
             </motion.div>
-
-            {/* Индикатор прогресса */}
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{
-                duration: minimumLoadingTime / 1000,
-                ease: 'linear',
-              }}
-              className="absolute bottom-0 left-0 right-0 h-1 bg-white/20"
-              style={{ transformOrigin: 'left' }}
-            />
           </div>
         </motion.div>
       )}
