@@ -99,6 +99,12 @@ export function Footer() {
               <Link href="/proyectos" className="block hover:text-white">
                 Proyectos
               </Link>
+              <Link href="/resenas" className="block hover:text-white">
+                Reseñas
+              </Link>
+              <Link href="/faq" className="block hover:text-white">
+                FAQ
+              </Link>
               <Link href="/contacto" className="block hover:text-white">
                 Contacto
               </Link>

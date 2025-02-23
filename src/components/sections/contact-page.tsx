@@ -197,16 +197,16 @@ export function ContactPage() {
                 className="space-y-8 transform-gpu"
               >
                 {/* Google Maps */}
-                <div className="rounded-2xl overflow-hidden shadow-xl bg-white">
+                <div className="rounded-2xl overflow-hidden shadow-xl bg-white h-[400px] md:h-[450px]">
                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!4v1740072020999!6m8!1m7!1sZNiOntMvkSj1xDhJlU-TGA!2m2!1d41.07889977341467!2d1.060381155206556!3f79.94!4f-4.189999999999998!5f0.6250067126621903" 
+                    src="https://www.google.com/maps/embed?pb=!4v1740317724090!6m8!1m7!1sZNiOntMvkSj1xDhJlU-TGA!2m2!1d41.07889977341467!2d1.060381155206556!3f79.94!4f-4.189999999999998!5f0.6250067126621903" 
                     width="100%" 
-                    height="400" 
+                    height="100%" 
                     style={{ border: 0 }} 
                     allowFullScreen 
                     loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="w-full"
+                    className="w-full h-full"
                     title="Ubicación de Plakor Divisiones en Google Maps"
                   />
                 </div>

@@ -13,9 +13,29 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
+  // Закрываем меню при изменении маршрута
+  useEffect(() => {
+    onClose();
+  }, [pathname, onClose]);
+
   useEffect(() => {
     setMounted(true);
+    
+    // Очищаем стили при размонтировании
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.backgroundColor = '';
+    };
   }, []);
+
+  // Управляем overflow и фоном body
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [isOpen]);
 
   const menuItems = [
     { href: '/servicios', label: 'Servicios', icon: (
@@ -53,17 +73,19 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     <div className={`fixed inset-0 z-[100] ${!isOpen && 'pointer-events-none'}`}>
       {/* Оверлей */}
       <div 
-        className={`absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={onClose}
+        style={{ willChange: 'opacity' }}
       />
 
       {/* Меню */}
       <div 
-        className={`absolute top-0 right-0 h-[100dvh] w-[280px] bg-white shadow-xl transform transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 h-[100dvh] w-[280px] bg-white shadow-xl transform transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
+        style={{ willChange: 'transform' }}
       >
         {/* Навигация */}
         <nav className="h-full flex flex-col">
