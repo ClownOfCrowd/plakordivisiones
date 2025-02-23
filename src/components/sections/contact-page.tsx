@@ -197,9 +197,9 @@ export function ContactPage() {
                 className="space-y-8 transform-gpu"
               >
                 {/* Google Maps */}
-                <div className="rounded-2xl overflow-hidden shadow-xl bg-white h-[400px] md:h-[450px]">
+                <div className="rounded-2xl overflow-hidden shadow-xl bg-white h-[400px] md:h-[450px] relative">
                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!4v1737477513500!6m8!1m7!1sZNiOntMvkSj1xDhJlU-TGA!2m2!1d41.07889977341467!2d1.060381155206556!3f79.93690559160865!4f-4.188574625260912!5f0.8092302647419771"
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3010.044782427569!2d1.0581925!3d41.0788998!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a157851e4fffff%3A0x51c05a8e12e57c35!2sPlakor%20Divisiones!5e0!3m2!1ses!2ses!4v1709669433099!5m2!1ses!2ses"
                     width="100%" 
                     height="100%" 
                     style={{ border: 0 }} 
