@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -21,20 +23,17 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   useEffect(() => {
     setMounted(true);
     
-    // Очищаем стили при размонтировании
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.backgroundColor = '';
-    };
-  }, []);
-
-  // Управляем overflow и фоном body
-  useEffect(() => {
+    // Управляем overflow и фоном body
     if (isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
+
+    // Очищаем стили при размонтировании
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   const menuItems = [
@@ -65,70 +64,94 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     )}
   ];
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
-    <div className={`fixed inset-0 z-[100] ${!isOpen && 'pointer-events-none'}`}>
-      {/* Оверлей */}
-      <div 
-        className={`fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${
-          isOpen ? 'opacity-100' : 'opacity-0'
-        }`}
-        onClick={onClose}
-        style={{ willChange: 'opacity' }}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Оверлей */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[98]"
+            onClick={onClose}
+          />
 
-      {/* Меню */}
-      <div 
-        className={`fixed top-0 right-0 h-[100dvh] w-[280px] bg-white shadow-xl transform transition-transform duration-300 ease-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        style={{ willChange: 'transform' }}
-      >
-        {/* Навигация */}
-        <nav className="h-full flex flex-col">
-          {/* Шапка */}
-          <div className="flex items-center justify-end p-4 border-b">
-            <button 
-              onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-all"
-              aria-label="Cerrar menú"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </div>
+          {/* Меню */}
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed top-0 right-0 h-[100dvh] w-[280px] bg-white shadow-xl z-[99]"
+          >
+            {/* Навигация */}
+            <nav className="h-full flex flex-col">
+              {/* Шапка */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <h2 className="text-lg font-semibold text-primary">Menú</h2>
+                <button
+                  onClick={onClose}
+                  className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-primary transition-all"
+                  aria-label="Cerrar menú"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
-          {/* Список ссылок */}
-          <div className="flex-1 p-6">
-            <div className="space-y-3">
-              {menuItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link 
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    className={`flex items-center gap-3 px-4 py-4 rounded-xl transition-all ${
-                      isActive 
-                        ? 'bg-primary text-white font-medium shadow-lg' 
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
-                    }`}
+              {/* Список ссылок */}
+              <div className="flex-1 overflow-y-auto py-6 px-4">
+                <div className="space-y-2">
+                  {menuItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onClose}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                          isActive
+                            ? 'bg-primary text-white shadow-lg'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
+                        }`}
+                      >
+                        <span className={isActive ? 'text-white' : 'text-primary'}>
+                          {item.icon}
+                        </span>
+                        <span className="text-base font-medium">{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Кнопка вызова */}
+                <div className="mt-6">
+                  <Button 
+                    variant="cta" 
+                    size="lg" 
+                    className="w-full"
+                    onClick={() => window.location.href = '/contacto'}
                   >
-                    <span className={isActive ? 'text-white' : 'text-gray-400'}>
-                      {item.icon}
-                    </span>
-                    <span className="text-lg">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </nav>
-      </div>
-    </div>
+                    Solicitar llamada
+                  </Button>
+                </div>
+              </div>
+
+              {/* Футер меню */}
+              <div className="p-4 border-t">
+                <p className="text-sm text-gray-500 text-center">
+                  © {new Date().getFullYear()} Plakor Divisiones
+                </p>
+              </div>
+            </nav>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 } 

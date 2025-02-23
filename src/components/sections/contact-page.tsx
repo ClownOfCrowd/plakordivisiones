@@ -199,7 +199,7 @@ export function ContactPage() {
                 {/* Google Maps */}
                 <div className="rounded-2xl overflow-hidden shadow-xl bg-white h-[400px] md:h-[450px]">
                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!4v1740317724090!6m8!1m7!1sZNiOntMvkSj1xDhJlU-TGA!2m2!1d41.07889977341467!2d1.060381155206556!3f79.94!4f-4.189999999999998!5f0.6250067126621903" 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.0447824275687!2d1.0581924761461334!3d41.07889977341467!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a157851e4fffff%3A0x51c05a8e12e57c35!2sPlakor%20Divisiones!5e0!3m2!1ses!2ses!4v1709669433099!5m2!1ses!2ses"
                     width="100%" 
                     height="100%" 
                     style={{ border: 0 }} 

@@ -3,12 +3,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { MobileMenu } from "./mobile-menu";
+import { motion } from "framer-motion";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const toggleMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center">
@@ -59,25 +64,25 @@ export function Header() {
             >
               Solicitar llamada
             </Button>
-            <button 
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(true)}
+            <button
+              onClick={toggleMenu}
+              className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors relative z-50"
+              aria-label="Abrir menú"
             >
-              <span className="sr-only">Menú</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              <div className="flex flex-col gap-1.5 w-6">
+                <motion.span
+                  animate={isMobileMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+                  className="w-full h-0.5 bg-primary rounded-full transform-gpu origin-center"
                 />
-              </svg>
+                <motion.span
+                  animate={isMobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
+                  className="w-full h-0.5 bg-primary rounded-full transform-gpu"
+                />
+                <motion.span
+                  animate={isMobileMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+                  className="w-full h-0.5 bg-primary rounded-full transform-gpu origin-center"
+                />
+              </div>
             </button>
           </div>
         </div>
