@@ -124,7 +124,7 @@ export function ServiceModal({ service, onClose }: ServiceModalProps) {
         aria-hidden="true"
       />
       
-      <div className="fixed inset-0 overflow-y-auto">
+      <div className="fixed inset-0 overflow-y-auto pt-20">
         <div className="min-h-screen px-4 flex items-center justify-center">
           <motion.div
             ref={modalRef}
