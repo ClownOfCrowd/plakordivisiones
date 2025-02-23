@@ -6,6 +6,8 @@ import './globals.css'
 import { getOrganizationSchema } from '@/lib/schema'
 import { ToastProvider } from '@/components/ui/toast'
 import { Toaster } from 'sonner'
+import { LoadingScreen } from '@/components/ui/loading-screen'
+import { cn } from '@/lib/utils'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -159,10 +161,29 @@ export default function RootLayout({
         <meta name="geo.position" content="41.1054;1.0489" />
         <meta name="ICBM" content="41.1054, 1.0489" />
         <meta name="format-detection" content="telephone=no" />
+        <link
+          rel="preload"
+          href="/fonts/inter.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/montserrat.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
       </head>
       <body 
-        className="font-sans antialiased bg-gray-50 text-gray-900 min-h-screen flex flex-col"
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased',
+          inter.variable,
+          montserrat.variable
+        )}
       >
+        <LoadingScreen />
         <ToastProvider>
           <Header />
           <main id="main-content" className="flex-grow">
