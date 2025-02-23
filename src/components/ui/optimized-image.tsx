@@ -33,7 +33,7 @@ export function OptimizedImage({
 
   useEffect(() => {
     // Предзагрузка изображения высокого качества
-    const img = new Image();
+    const img = document.createElement('img');
     img.src = typeof src === 'string' ? src : src.src;
     img.onload = () => {
       setIsLoaded(true);
