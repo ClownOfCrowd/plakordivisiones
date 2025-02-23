@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image, { ImageProps } from 'next/image';
+import Image, { ImageProps, StaticImageData } from 'next/image';
 import { useDeviceOptimization } from '@/hooks/useDeviceOptimization';
 import { cn } from '@/lib/utils';
 
@@ -34,7 +34,10 @@ export function OptimizedImage({
   useEffect(() => {
     // Предзагрузка изображения высокого качества
     const img = document.createElement('img');
-    const imgSrc = typeof src === 'string' ? src : typeof src === 'object' && 'default' in src ? src.default : '';
+    const imgSrc = typeof src === 'string' 
+      ? src 
+      : (src as StaticImageData).src || '';
+      
     if (imgSrc) {
       img.src = imgSrc;
       img.onload = () => {
