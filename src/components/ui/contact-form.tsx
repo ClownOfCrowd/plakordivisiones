@@ -124,8 +124,18 @@ export function ContactForm() {
       setIsSubmitting(true);
       
       try {
-        // В будущем здесь будет отправка на API
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Отправка данных на API
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al enviar el mensaje');
+        }
         
         toast.success('Mensaje enviado correctamente', {
           description: 'Nos pondremos en contacto contigo lo antes posible'
