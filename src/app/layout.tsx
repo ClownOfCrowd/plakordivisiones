@@ -97,9 +97,14 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code',
-    yandex: 'yandex-verification-code',
-    other: 'bing-verification-code',
+    google: {
+      name: 'google-site-verification',
+      content: 'your-google-verification-code'
+    },
+    yandex: {
+      name: 'yandex-verification',
+      content: 'yandex-verification-code'
+    }
   },
   category: 'construction',
   viewport: {
