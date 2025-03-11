@@ -96,16 +96,6 @@ export const metadata: Metadata = {
       'notranslate': true,
     },
   },
-  verification: {
-    google: {
-      name: 'google-site-verification',
-      content: 'your-google-verification-code'
-    },
-    yandex: {
-      name: 'yandex-verification',
-      content: 'yandex-verification-code'
-    }
-  },
   category: 'construction',
   viewport: {
     width: 'device-width',
