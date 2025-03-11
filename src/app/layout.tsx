@@ -1,5 +1,4 @@
 import { Inter, Montserrat } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import './globals.css'
@@ -124,7 +123,11 @@ export default function RootLayout({
   return (
     <html 
       lang="es" 
-      className={`scroll-smooth ${inter.variable} ${montserrat.variable}`}
+      className={cn(
+        'scroll-smooth',
+        inter.variable,
+        montserrat.variable
+      )}
       suppressHydrationWarning
     >
       <head>
@@ -161,20 +164,6 @@ export default function RootLayout({
         <meta name="geo.position" content="41.1054;1.0489" />
         <meta name="ICBM" content="41.1054, 1.0489" />
         <meta name="format-detection" content="telephone=no" />
-        <link
-          rel="preload"
-          href="/fonts/inter.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/montserrat.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
       </head>
       <body 
         className={cn(
@@ -190,7 +179,6 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
-          <Analytics />
           <Toaster 
             position="top-right" 
             expand={true} 

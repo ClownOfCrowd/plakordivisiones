@@ -8,6 +8,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { ReviewForm, ReviewFormData } from '@/components/ui/review-form';
 import { toast } from 'sonner';
+import { getReviews } from '@/lib/strapi';
 
 // Анимации с учетом производительности
 const containerVariants = {
@@ -39,53 +40,48 @@ interface Review extends ReviewFormData {
   source: string;
 }
 
-// Временные данные (в будущем будут загружаться из Strapi)
-const reviews: Review[] = [
-  {
-    id: 1,
-    name: 'María García',
-    email: 'maria@example.com',
-    rating: 5,
-    text: 'Excelente trabajo en la reforma de mi cocina. El equipo fue muy profesional y cumplieron con los plazos establecidos.',
-    service: 'reforma',
-    status: 'approved',
-    publishedAt: '2024-02-20T10:00:00.000Z',
-    createdAt: '2024-02-20T10:00:00.000Z',
-    updatedAt: '2024-02-20T10:00:00.000Z',
-    source: 'Web',
-  },
-  {
-    id: 2,
-    name: 'Juan Martínez',
-    email: 'juan@example.com',
-    rating: 5,
-    text: 'Contratamos a Plakor para la instalación de pladur en toda la casa y quedamos muy satisfechos con el resultado.',
-    service: 'pladur',
-    status: 'approved',
-    publishedAt: '2024-02-19T10:00:00.000Z',
-    createdAt: '2024-02-19T10:00:00.000Z',
-    updatedAt: '2024-02-19T10:00:00.000Z',
-    source: 'Web',
-  },
-  {
-    id: 3,
-    name: 'Ana López',
-    email: 'ana@example.com',
-    rating: 5,
-    text: 'Gran empresa, muy serios en su trabajo. Los recomiendo totalmente para cualquier tipo de reforma.',
-    service: 'reforma',
-    status: 'approved',
-    publishedAt: '2024-02-18T10:00:00.000Z',
-    createdAt: '2024-02-18T10:00:00.000Z',
-    updatedAt: '2024-02-18T10:00:00.000Z',
-    source: 'Web',
-  },
-];
-
 export function ReviewsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const prefersReducedMotion = useReducedMotion();
+
+  // Загрузка отзывов из Strapi
+  useEffect(() => {
+    async function loadReviews() {
+      try {
+        setIsLoading(true);
+        const strapiReviews = await getReviews();
+        
+        if (strapiReviews && strapiReviews.length > 0) {
+          // Преобразуем данные из Strapi в формат для компонента
+          const mappedReviews = strapiReviews.map((review: any) => ({
+            id: review.id,
+            name: review.attributes.name,
+            email: review.attributes.email,
+            rating: review.attributes.rating,
+            text: review.attributes.text,
+            service: review.attributes.service,
+            status: review.attributes.status,
+            publishedAt: review.attributes.publishedAt,
+            createdAt: review.attributes.createdAt,
+            updatedAt: review.attributes.updatedAt,
+            source: review.attributes.source || 'Web',
+          }));
+          
+          setReviews(mappedReviews);
+        }
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+        // Используем временные данные в случае ошибки
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    loadReviews();
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -93,8 +89,19 @@ export function ReviewsPage() {
 
   const handleSubmitReview = useCallback(async (data: ReviewFormData) => {
     try {
-      // В будущем здесь будет API-запрос к Strapi
-      console.log('Review data:', data);
+      // Отправляем отзыв через API
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al enviar la reseña');
+      }
+      
       setIsModalOpen(false);
       toast.success('¡Gracias por tu reseña! La revisaremos y publicaremos pronto.');
     } catch (error) {

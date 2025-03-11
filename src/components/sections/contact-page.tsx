@@ -250,17 +250,14 @@ export function ContactPage() {
                 ¿Necesitas un presupuesto rápido?
               </h2>
               <p className="text-lg text-secondary mb-8">
-                Llámanos ahora y te atenderemos inmediatamente. También puedes 
-                enviarnos un WhatsApp para una respuesta rápida.
+                Llámanos ahora y te atenderemos inmediatamente.
               </p>
-              <div className="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button 
-                  variant="default" 
-                  size="lg"
-                  className="min-w-[200px]"
+                  size="lg" 
                   onClick={() => handlePhoneClick('+34977350508')}
+                  className="min-w-[200px]"
                 >
-                  <Phone className="w-5 h-5 mr-2" />
                   Llamar ahora
                 </Button>
               </div>

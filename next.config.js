@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  env: {
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
-  },
   images: {
     domains: ['www.plakordivisiones.es'],
     formats: ['image/avif', 'image/webp'],
@@ -19,14 +16,63 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   generateEtags: true,
-  optimizeFonts: true,
-  swcMinify: true,
   i18n: {
     locales: ['es'],
     defaultLocale: 'es',
   },
+  // Настройка перенаправлений для админ-панели Strapi
+  async rewrites() {
+    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+    return [
+      {
+        source: '/admin',
+        destination: `${strapiUrl}/admin`,
+      },
+      {
+        source: '/admin/:path*',
+        destination: `${strapiUrl}/admin/:path*`,
+      },
+      {
+        source: '/api/:path*',
+        destination: `${strapiUrl}/api/:path*`,
+      },
+      {
+        source: '/uploads/:path*',
+        destination: `${strapiUrl}/uploads/:path*`,
+      },
+      {
+        source: '/content-manager/:path*',
+        destination: `${strapiUrl}/content-manager/:path*`,
+      },
+      {
+        source: '/content-type-builder/:path*',
+        destination: `${strapiUrl}/content-type-builder/:path*`,
+      },
+      {
+        source: '/i18n/:path*',
+        destination: `${strapiUrl}/i18n/:path*`,
+      },
+      {
+        source: '/email/:path*',
+        destination: `${strapiUrl}/email/:path*`,
+      },
+      {
+        source: '/users-permissions/:path*',
+        destination: `${strapiUrl}/users-permissions/:path*`,
+      },
+      {
+        source: '/upload/:path*',
+        destination: `${strapiUrl}/upload/:path*`,
+      },
+      {
+        source: '/documentation/:path*',
+        destination: `${strapiUrl}/documentation/:path*`,
+      },
+    ];
+  },
   // Security headers
   async headers() {
+    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
     return [
       {
         source: '/:path*',
@@ -34,60 +80,19 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.googleapis.com https://*.gstatic.com https://www.google-analytics.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.gstatic.com",
-              "img-src 'self' data: https://*.google.com https://*.googleapis.com https://*.gstatic.com",
-              "frame-src 'self' https://www.google.com https://*.google.com",
-              "connect-src 'self' https://*.google.com https://*.googleapis.com https://www.google-analytics.com",
-              "font-src 'self' data: https://fonts.gstatic.com"
+              "default-src 'self' https://www.google.com https://www.youtube.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://www.google-analytics.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: https://www.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com",
+              "frame-src 'self' https://www.google.com https://www.youtube.com",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              "connect-src 'self' " + strapiUrl + " https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com"
             ].join('; ')
-          },
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on'
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload'
           }
         ]
       }
     ];
-  },
-  // Webpack optimization
-  webpack: (config, { dev, isServer }) => {
-    config.module.rules.push({
-      test: /\.(jpe?g|png|svg|webp|avif)$/i,
-      use: [
-        {
-          loader: 'image-webpack-loader',
-          options: {
-            mozjpeg: {
-              progressive: true,
-              quality: 80,
-            },
-            optipng: {
-              enabled: true,
-              optimizationLevel: 3,
-            },
-            pngquant: {
-              quality: [0.65, 0.90],
-              speed: 4,
-            },
-            webp: {
-              quality: 80,
-            },
-            svgo: {
-              enabled: true,
-            },
-          },
-        },
-      ],
-    });
-
-    return config;
-  },
+  }
 };
 
 module.exports = nextConfig; 

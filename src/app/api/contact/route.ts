@@ -1,60 +1,73 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
 import { submitContactForm } from '@/lib/strapi';
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('Missing RESEND_API_KEY environment variable');
+// Функция для добавления заголовков CORS
+function corsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return response;
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Обработчик OPTIONS запросов для CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
 
 export async function POST(request: Request) {
+  console.log('Contact form API endpoint called');
+  
   try {
     const body = await request.json();
+    console.log('Request body:', body);
+    
     const { name, email, phone, service, message } = body;
 
     // Отправляем данные в Strapi
-    let strapiResponse = null;
     try {
-      strapiResponse = await submitContactForm({
+      console.log('Submitting to Strapi with data:', {
         name,
         email,
         phone,
         service,
         message,
-        status: 'new',
+        requestStatus: 'new',
       });
+      
+      const strapiResponse = await submitContactForm({
+        name,
+        email,
+        phone,
+        service,
+        message,
+        requestStatus: 'new',
+      });
+      
+      console.log('Strapi response:', strapiResponse);
+
+      return corsHeaders(NextResponse.json({ 
+        success: true, 
+        data: strapiResponse
+      }));
     } catch (error) {
       console.error('Error submitting to Strapi:', error);
-      // Продолжаем выполнение, даже если Strapi недоступен
+      return corsHeaders(NextResponse.json(
+        { error: 'Error submitting form' },
+        { status: 500 }
+      ));
     }
-
-    // Отправляем email
-    const data = await resend.emails.send({
-      from: 'Plakor Website <no-reply@plakordivisiones.es>',
-      to: ['plakordivisiones@hotmail.com'],
-      subject: 'Nuevo mensaje de contacto',
-      html: `
-        <h2>Nuevo mensaje de contacto</h2>
-        <p><strong>Nombre:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email || 'No proporcionado'}</p>
-        <p><strong>Teléfono:</strong> ${phone}</p>
-        ${service ? `<p><strong>Servicio:</strong> ${service}</p>` : ''}
-        <p><strong>Mensaje:</strong></p>
-        <p>${message}</p>
-      `,
-    });
-
-    return NextResponse.json({ 
-      success: true, 
-      data,
-      strapiResponse
-    });
   } catch (error) {
-    console.error('Error sending email:', error);
-    return NextResponse.json(
-      { error: 'Error al enviar el mensaje' },
+    console.error('Error processing request:', error);
+    return corsHeaders(NextResponse.json(
+      { error: 'Error processing request' },
       { status: 500 }
-    );
+    ));
   }
 } 

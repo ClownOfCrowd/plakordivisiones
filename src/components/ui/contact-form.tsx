@@ -125,12 +125,12 @@ export function ContactForm() {
       
       try {
         // Отправка данных на API
-        const response = await fetch('/api/contact', {
+        const response = await fetch('/api/contact-form', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({ data: formData }),
         });
 
         if (!response.ok) {

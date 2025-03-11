@@ -108,6 +108,12 @@ export async function submitContactForm(formData: any) {
       headers.Authorization = `Bearer ${STRAPI_API_TOKEN}`;
     }
     
+    console.log('Sending data to Strapi:', {
+      url,
+      headers,
+      data: formData
+    });
+    
     const response = await fetch(url, {
       method: 'POST',
       headers,
@@ -115,6 +121,8 @@ export async function submitContactForm(formData: any) {
     });
     
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Strapi error response:', errorText);
       throw new Error(`Error submitting form: ${response.statusText}`);
     }
     
@@ -122,6 +130,54 @@ export async function submitContactForm(formData: any) {
     return data;
   } catch (error) {
     console.error('Error submitting form:', error);
+    throw error;
+  }
+}
+
+/**
+ * Отправка отзыва в Strapi
+ * @param reviewData - Данные отзыва
+ * @returns Результат отправки
+ */
+export async function submitReview(reviewData: any) {
+  try {
+    const url = `${STRAPI_API_URL}/api/reviews`;
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (STRAPI_API_TOKEN) {
+      headers.Authorization = `Bearer ${STRAPI_API_TOKEN}`;
+    }
+    
+    // Подготавливаем данные для Strapi
+    const formattedData = {
+      data: {
+        name: reviewData.name,
+        email: reviewData.email,
+        rating: reviewData.rating,
+        text: reviewData.text,
+        service: reviewData.service,
+        status: 'pending', // По умолчанию отзыв ожидает модерации
+        source: 'Web',
+      }
+    };
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(formattedData),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error submitting review: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error submitting review:', error);
     throw error;
   }
 } 

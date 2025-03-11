@@ -7,6 +7,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useDesktopOptimization } from '@/hooks/useDesktopOptimization';
 import Link from 'next/link';
+import { getProjects } from '@/lib/strapi';
 
 // Оптимизированные анимации
 const containerVariants = {
@@ -34,6 +35,39 @@ const itemVariants = {
   }
 };
 
+// Интерфейс для проекта из Strapi
+interface StrapiProject {
+  id: number;
+  attributes: {
+    title: string;
+    description: string;
+    location: string;
+    tags: string[];
+    seoDescription: string;
+    area?: string;
+    services: string[];
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+    images: {
+      data: Array<{
+        id: number;
+        attributes: {
+          url: string;
+          width: number;
+          height: number;
+          formats: {
+            thumbnail: { url: string };
+            small: { url: string };
+            medium: { url: string };
+            large?: { url: string };
+          };
+        }
+      }>;
+    };
+  };
+}
+
 // Интерфейс для проекта
 interface Project {
   id: number;
@@ -49,8 +83,28 @@ interface Project {
   seoDescription: string;
 }
 
-// Данные проектов
-const projects: Project[] = [
+// Преобразование данных из Strapi в формат для компонента
+function mapStrapiProjectToProject(strapiProject: StrapiProject): Project {
+  const { id, attributes } = strapiProject;
+  const imageUrl = attributes.images?.data?.[0]?.attributes?.url || '/images/projects/placeholder.jpg';
+  
+  return {
+    id,
+    title: attributes.title,
+    description: attributes.description,
+    imageUrl: imageUrl.startsWith('/') ? `${process.env.NEXT_PUBLIC_STRAPI_API_URL}${imageUrl}` : imageUrl,
+    location: attributes.location,
+    tags: attributes.tags || [],
+    details: {
+      area: attributes.area,
+      services: attributes.services || [],
+    },
+    seoDescription: attributes.seoDescription,
+  };
+}
+
+// Временные данные (будут использоваться, если не удастся загрузить из Strapi)
+const fallbackProjects: Project[] = [
   {
     id: 1,
     title: 'Reforma integral Casino de Reus',
@@ -93,6 +147,8 @@ const projects: Project[] = [
 export function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [projects, setProjects] = useState<Project[]>(fallbackProjects);
+  const [isLoading, setIsLoading] = useState(true);
   const prefersReducedMotion = useReducedMotion();
   const { getAnimationSettings, getTransformSettings } = useDesktopOptimization();
   const animationSettings = getAnimationSettings();
@@ -104,6 +160,29 @@ export function ProjectsPage() {
   // Оптимизированный обработчик для выбора проекта
   const handleProjectSelect = useCallback((project: Project) => {
     setSelectedProject(project);
+  }, []);
+
+  // Загрузка проектов из Strapi
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        setIsLoading(true);
+        const strapiProjects = await getProjects();
+        
+        if (strapiProjects && strapiProjects.length > 0) {
+          const mappedProjects = strapiProjects.map(mapStrapiProjectToProject);
+          setProjects(mappedProjects);
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        // Используем резервные данные в случае ошибки
+        setProjects(fallbackProjects);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    loadProjects();
   }, []);
 
   useEffect(() => {

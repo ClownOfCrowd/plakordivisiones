@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  // Пропускаем запросы к админ-панели Strapi и связанным путям
+  const strapiPaths = [
+    '/admin',
+    '/api',
+    '/uploads',
+    '/content-manager',
+    '/content-type-builder',
+    '/i18n',
+    '/email',
+    '/users-permissions',
+    '/upload',
+    '/documentation'
+  ];
+  
+  // Проверяем, начинается ли путь с одного из путей Strapi
+  const isStrapiPath = strapiPaths.some(path => 
+    request.nextUrl.pathname === path || 
+    request.nextUrl.pathname.startsWith(`${path}/`)
+  );
+  
+  // Если это путь Strapi, пропускаем middleware
+  if (isStrapiPath) {
+    return NextResponse.next();
+  }
+
   // Принудительный HTTPS
   if (process.env.NODE_ENV === 'production' && !request.url.includes('localhost')) {
     if (request.headers.get("x-forwarded-proto") !== "https") {
