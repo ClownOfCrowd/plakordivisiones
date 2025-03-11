@@ -99,7 +99,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'your-google-verification-code',
     yandex: 'yandex-verification-code',
-    bing: 'bing-verification-code',
+    other: 'bing-verification-code',
   },
   category: 'construction',
   viewport: {
