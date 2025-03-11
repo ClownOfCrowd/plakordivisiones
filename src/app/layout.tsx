@@ -7,6 +7,7 @@ import { ToastProvider } from '@/components/ui/toast'
 import { Toaster } from 'sonner'
 import { LoadingScreen } from '@/components/ui/loading-screen'
 import { cn } from '@/lib/utils'
+import { Metadata } from 'next'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -24,7 +25,7 @@ const montserrat = Montserrat({
   fallback: ['system-ui', 'arial'],
 })
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL('https://www.plakordivisiones.es'),
   title: {
     default: 'Plakor Divisiones - Especialistas en Pladur y Reformas en Tarragona',
@@ -114,6 +115,10 @@ export const metadata = {
     apple: '/apple-touch-icon.png',
   },
 }
+
+// Конфигурация автоматического скролла при навигации
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function RootLayout({
   children,

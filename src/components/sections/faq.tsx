@@ -5,26 +5,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 const faqs = [
   {
     category: "Presupuestos y Plazos",
     questions: [
       {
-        q: "¿Cuánto cuesta una reforma completa en Tarragona?",
-        a: "El coste depende de varios factores como el tamaño del espacio, materiales seleccionados y complejidad del proyecto. Para una vivienda estándar en Tarragona, los precios pueden oscilar entre 500-700€/m². Ofrecemos presupuestos personalizados sin compromiso, incluyendo:\n\n• Evaluación detallada del espacio\n• Propuesta de materiales de primera calidad\n• Planificación de trabajos\n• Mano de obra profesional\n• Gestión de residuos",
-        cta: "Solicitar Presupuesto Gratuito"
+        q: "¿Cómo solicitar un presupuesto para mi proyecto?",
+        a: "El proceso es simple y sin compromiso:\n\n• Contacto inicial por teléfono o formulario\n• Visita técnica gratuita\n• Evaluación detallada del proyecto\n• Presupuesto desglosado en 24-48h\n• Resolución de dudas y ajustes\n\nNos adaptamos a tu presupuesto manteniendo la calidad."
       },
       {
-        q: "¿Cuál es el plazo medio de una reforma integral en Tarragona?",
-        a: "Los plazos varían según el alcance del proyecto:\n\n• Reforma básica: 2-3 semanas\n• Reforma integral de vivienda: 2-3 meses\n• Reforma comercial: 1-2 meses\n\nProporcionamos un cronograma detallado que incluye:\n• Fase de demolición\n• Instalaciones nuevas\n• Acabados\n• Limpieza final",
-        cta: "Consultar Plazos Específicos"
+        q: "¿Cuánto tiempo tarda una reforma completa?",
+        a: "Los plazos varían según el proyecto:\n\n• Reformas pequeñas: 1-2 semanas\n• Reformas medias: 3-4 semanas\n• Reformas integrales: 6-8 semanas\n\nGarantizamos fechas de inicio y finalización por contrato."
       },
       {
-        q: "¿Realizan presupuestos detallados por fases?",
-        a: "Sí, desglosamos el presupuesto por partidas incluyendo:\n\n• Costes de materiales\n• Mano de obra\n• Instalaciones\n• Acabados\n• Gestión de residuos\n\nEsto permite adaptar el proyecto a diferentes presupuestos y planificar las fases según tus necesidades.",
-        cta: "Solicitar Presupuesto Desglosado"
+        q: "¿Qué formas de pago aceptan?",
+        a: "Ofrecemos opciones flexibles:\n\n• Pago por fases según avance\n• Financiación hasta 36 meses\n• Transferencia bancaria\n• Tarjeta de crédito/débito\n\nSin pagos finales hasta satisfacción completa."
       }
     ]
   },
@@ -33,38 +29,15 @@ const faqs = [
     questions: [
       {
         q: "¿Por qué elegir Pladur para la construcción en seco en Tarragona?",
-        a: "El Pladur ofrece múltiples ventajas:\n\n• Excelente aislamiento térmico y acústico\n• Instalación más rápida que materiales tradicionales\n• Acabado perfecto\n• Ideal para ocultar instalaciones\n• Versatilidad en diseños\n• Mejor relación calidad-precio\n• Material sostenible\n• Reformas más limpias",
-        cta: "Ver Proyectos con Pladur"
+        a: "El Pladur ofrece múltiples ventajas:\n\n• Excelente aislamiento térmico y acústico\n• Instalación más rápida que materiales tradicionales\n• Acabado perfecto\n• Ideal para ocultar instalaciones\n• Versatilidad en diseños\n• Mejor relación calidad-precio\n• Material sostenible\n• Reformas más limpias"
       },
       {
         q: "¿Qué garantía ofrecen en sus trabajos de construcción y reforma?",
-        a: "Ofrecemos una garantía completa:\n\n• 5 años en instalación\n• Materiales de primeras marcas\n• Profesionales cualificados\n• Servicio post-venta\n• Mantenimiento incluido\n\nTrabajamos solo con materiales certificados y proveedores de confianza.",
-        cta: "Consultar Garantías"
+        a: "Ofrecemos una garantía completa:\n\n• 5 años en instalación\n• Materiales de primeras marcas\n• Profesionales cualificados\n• Servicio post-venta\n• Mantenimiento incluido\n\nTrabajamos solo con materiales certificados y proveedores de confianza."
       },
       {
         q: "¿Qué tipos de acabados y materiales ofrecen?",
-        a: "Disponemos de una amplia gama:\n\n• Pladur resistente a la humedad\n• Pladur térmico y acústico\n• Acabados lisos o texturizados\n• Materiales sostenibles\n• Opciones ignífugas\n• Soluciones decorativas\n\nAsesoramos en la selección según necesidades y presupuesto.",
-        cta: "Ver Catálogo de Materiales"
-      }
-    ]
-  },
-  {
-    category: "Proceso de Trabajo",
-    questions: [
-      {
-        q: "¿Cómo es el proceso de inicio de una obra en Tarragona?",
-        a: "Seguimos un proceso estructurado:\n\n1. Visita técnica gratuita\n2. Presupuesto detallado\n3. Planificación del proyecto\n4. Gestión de licencias\n5. Inicio de obras\n6. Supervisión continua\n7. Control de calidad\n8. Entrega final",
-        cta: "Programar Visita Técnica"
-      },
-      {
-        q: "¿Gestionan los permisos necesarios para obras en Tarragona?",
-        a: "Sí, nos encargamos de toda la gestión administrativa:\n\n• Licencias de obra\n• Permisos municipales\n• Certificaciones necesarias\n• Documentación técnica\n• Gestión con comunidades\n\nTrabajamos con arquitectos y aparejadores locales.",
-        cta: "Consultar Requisitos"
-      },
-      {
-        q: "¿Cómo garantizan la calidad durante la ejecución?",
-        a: "Implementamos un sistema de control riguroso:\n\n• Supervisión diaria\n• Controles de calidad\n• Documentación fotográfica\n• Informes de progreso\n• Certificaciones de materiales\n• Pruebas de instalaciones",
-        cta: "Ver Proceso de Calidad"
+        a: "Disponemos de una amplia gama:\n\n• Pladur resistente a la humedad\n• Pladur térmico y acústico\n• Acabados lisos o texturizados\n• Materiales sostenibles\n• Opciones ignífugas\n• Soluciones decorativas\n\nAsesoramos en la selección según necesidades y presupuesto."
       }
     ]
   },
@@ -73,18 +46,15 @@ const faqs = [
     questions: [
       {
         q: "¿En qué zonas de Tarragona realizan trabajos de reforma?",
-        a: "Cubrimos toda la provincia de Tarragona:\n\n• Tarragona capital\n• Reus\n• Cambrils\n• Salou\n• Vila-seca\n• Torredembarra\n• Y poblaciones cercanas\n\nRealizamos proyectos en:\n• Viviendas\n• Locales comerciales\n• Oficinas\n• Comunidades",
-        cta: "Verificar Cobertura"
+        a: "Cubrimos toda la provincia de Tarragona:\n\n• Tarragona capital\n• Reus\n• Cambrils\n• Salou\n• Vila-seca\n• Torredembarra\n• Y poblaciones cercanas\n\nRealizamos proyectos en:\n• Viviendas\n• Locales comerciales\n• Oficinas\n• Comunidades"
       },
       {
         q: "¿Qué tipos de reformas y servicios ofrecen en Tarragona?",
-        a: "Ofrecemos servicios integrales:\n\n• Reformas completas\n• Construcción en seco\n• Instalaciones\n• Aislamientos\n• Acabados\n• Cocinas y baños\n• Carpintería\n• Pintura\n\nNos adaptamos a cualquier tipo de proyecto.",
-        cta: "Ver Todos los Servicios"
+        a: "Ofrecemos servicios integrales:\n\n• Reformas completas\n• Construcción en seco\n• Instalaciones\n• Aislamientos\n• Acabados\n• Cocinas y baños\n• Carpintería\n• Pintura\n\nNos adaptamos a cualquier tipo de proyecto."
       },
       {
         q: "¿Trabajan con comunidades de vecinos en Tarragona?",
-        a: "Sí, realizamos proyectos para comunidades:\n\n• Rehabilitación de fachadas\n• Mejoras en zonas comunes\n• Instalaciones comunitarias\n• Accesibilidad\n• Eficiencia energética\n\nGestionamos subvenciones y ayudas disponibles.",
-        cta: "Consultar para Comunidades"
+        a: "Sí, realizamos proyectos para comunidades:\n\n• Rehabilitación de fachadas\n• Mejoras en zonas comunes\n• Instalaciones comunitarias\n• Accesibilidad\n• Eficiencia energética\n\nGestionamos subvenciones y ayudas disponibles."
       }
     ]
   }
@@ -93,12 +63,6 @@ const faqs = [
 export function FaqSection() {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
-  const router = useRouter();
-
-  const handleCtaClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    router.push('/contacto');
-  };
 
   return (
     <section className="pt-32 pb-20">
@@ -112,7 +76,7 @@ export function FaqSection() {
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">
               Preguntas Frecuentes
             </h1>
-            <p className="text-lg text-secondary mb-8">
+            <p className="text-lg text-gray-600 mb-8">
               Resolvemos tus dudas sobre reformas, instalaciones y servicios
             </p>
             <Link href="/contacto">
@@ -125,7 +89,7 @@ export function FaqSection() {
             </Link>
           </motion.div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {faqs.map((category) => (
               <motion.div
                 key={category.category}
@@ -176,7 +140,7 @@ export function FaqSection() {
                               )}
                               className="w-full text-left flex justify-between items-center py-2"
                             >
-                              <h3 className="text-lg font-medium pr-8">
+                              <h3 className="text-lg font-medium text-gray-900 pr-8">
                                 {item.q}
                               </h3>
                               <svg
@@ -204,7 +168,7 @@ export function FaqSection() {
                                   exit={{ height: 0, opacity: 0 }}
                                   className="overflow-hidden"
                                 >
-                                  <p className="text-secondary mt-2 whitespace-pre-line">
+                                  <p className="text-gray-600 mt-2 whitespace-pre-line">
                                     {item.a}
                                   </p>
                                 </motion.div>

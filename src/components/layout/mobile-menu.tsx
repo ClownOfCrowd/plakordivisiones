@@ -86,6 +86,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       key={item.href}
                       href={item.href}
                       onClick={onClose}
+                      scroll={true}
                       className={`flex items-center space-x-4 p-3 rounded-lg transition-colors
                         ${pathname === item.href 
                           ? 'bg-primary/10 text-primary' 

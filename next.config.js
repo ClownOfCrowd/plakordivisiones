@@ -20,6 +20,10 @@ const nextConfig = {
     locales: ['es'],
     defaultLocale: 'es',
   },
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['framer-motion', 'lucide-react'],
+  },
   // Настройка перенаправлений для админ-панели Strapi
   async rewrites() {
     const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
