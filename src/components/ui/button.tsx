@@ -45,6 +45,7 @@ interface ButtonProps
   loading?: boolean;
   loadingText?: string;
   soundEffect?: boolean;
+  children: React.ReactNode;
 }
 
 // Мемоизированный компонент загрузки
@@ -77,12 +78,12 @@ LoadingIndicator.displayName = 'LoadingIndicator';
 // Мемоизированный компонент контента
 const ButtonContent = memo(({ 
   leftIcon, 
-  children, 
-  rightIcon 
+  rightIcon,
+  children 
 }: { 
   leftIcon?: React.ReactNode;
-  children: React.ReactNode;
   rightIcon?: React.ReactNode;
+  children: string | number | React.ReactElement;
 }) => (
   <>
     {leftIcon && <span className="mr-2">{leftIcon}</span>}
@@ -132,6 +133,25 @@ const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
       transition: { duration: 0.1 }
     };
 
+    const renderContent = () => {
+      if (loading) {
+        return <LoadingIndicator text={loadingText || (typeof children === 'string' || typeof children === 'number' ? children : null)} />;
+      }
+      
+      if (typeof children === 'string' || typeof children === 'number' || React.isValidElement(children)) {
+        return (
+          <ButtonContent
+            leftIcon={leftIcon}
+            rightIcon={rightIcon}
+          >
+            {children}
+          </ButtonContent>
+        );
+      }
+      
+      return null;
+    };
+
     return (
       <motion.button
         className={cn(buttonVariants({ variant, size, fullWidth, loading, className }))}
@@ -142,16 +162,7 @@ const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
         aria-busy={loading}
         {...props}
       >
-        {loading ? (
-          <LoadingIndicator text={loadingText || (typeof children === 'string' || typeof children === 'number' ? children : null)} />
-        ) : (
-          <ButtonContent
-            leftIcon={leftIcon}
-            rightIcon={rightIcon}
-          >
-            {children}
-          </ButtonContent>
-        )}
+        {renderContent()}
       </motion.button>
     );
   }
