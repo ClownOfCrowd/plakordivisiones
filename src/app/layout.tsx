@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { Metadata } from 'next'
 import { ScrollReset } from '@/components/layout/scroll-reset'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { CookieConsent } from '@/components/ui/cookie-consent'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -199,6 +200,7 @@ export default function RootLayout({
           inter.variable,
           montserrat.variable
         )}
+        suppressHydrationWarning
       >
         <ErrorBoundary>
           <ScrollReset />
@@ -209,6 +211,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <CookieConsent />
             <Toaster 
               position="bottom-center"
               expand={true} 

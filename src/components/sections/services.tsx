@@ -1,7 +1,7 @@
 'use client';
 
 import { Container } from "@/components/ui/container";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -120,30 +120,45 @@ const services = [
 ];
 
 export function Services() {
+  const prefersReducedMotion = useReducedMotion();
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: [0.25, 0.1, 0.25, 1], // cubic-bezier
+      }
+    }
+  };
+
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 relative overflow-hidden">
       <Container>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary mb-4">
+          <h2 className="text-4xl font-bold text-primary mb-6">
             Nuestros Servicios
           </h2>
-          <p className="text-lg text-secondary max-w-2xl mx-auto">
-            Ofrecemos soluciones integrales en construcción y reformas con más de 15 años de experiencia
+          <p className="text-lg text-secondary max-w-3xl mx-auto">
+            Ofrecemos soluciones integrales en construcción en seco, reformas y acabados. 
+            Calidad y profesionalidad garantizada en cada proyecto.
           </p>
         </motion.div>
 
         {services.map((category, categoryIndex) => (
           <div key={category.category} className="mb-20 last:mb-0">
             <motion.h3
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
               className="text-2xl font-bold text-primary mb-8"
             >
               {category.category}
@@ -153,24 +168,29 @@ export function Services() {
               {category.items.map((service, serviceIndex) => (
                 <motion.div
                   key={service.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: serviceIndex * 0.1 }}
-                  className="group relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                  variants={cardVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ 
+                    once: true, 
+                    margin: "-50px",
+                    amount: 0.3 // Триггерит анимацию когда 30% элемента видно
+                  }}
+                  custom={serviceIndex}
+                  className="group relative bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform-gpu will-change-transform"
                 >
-                  {/* Изображение с оверлеем */}
                   <div className="relative h-64 overflow-hidden">
                     <Image
                       src={service.image}
                       alt={service.title}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
+                      priority={serviceIndex < 3} // Приоритетная загрузка первых трех изображений
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
 
-                  {/* Контент */}
                   <div className="p-6">
                     <h4 className="text-xl font-bold text-primary mb-3">
                       {service.title}

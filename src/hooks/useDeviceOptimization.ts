@@ -63,9 +63,16 @@ interface DeviceState {
   connection: NetworkInformation | null;
 }
 
+interface ImageSettings {
+  quality: number;
+  loading: 'lazy' | 'eager';
+  fetchPriority: 'high' | 'low' | 'auto';
+  sizes: string;
+}
+
 const DEFAULT_DEVICE_STATE: DeviceState = {
   isMobile: false,
-  isDesktop: false,
+  isDesktop: true,
   isLowPowerMode: false,
   prefersReducedMotion: false,
   connection: null,
@@ -73,9 +80,14 @@ const DEFAULT_DEVICE_STATE: DeviceState = {
 
 export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
   const [deviceState, setDeviceState] = useState<DeviceState>(DEFAULT_DEVICE_STATE);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Определение типа устройства и предпочтений анимации
   useEffect(() => {
+    setIsMounted(true);
+    
+    if (typeof window === 'undefined') return;
+
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const mobileQuery = window.matchMedia('(max-width: 768px)');
@@ -85,7 +97,7 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
         ...prev,
         isMobile: mobileQuery.matches,
         isDesktop: mediaQuery.matches,
-        prefersReducedMotion: motionQuery.matches,
+        prefersReducedMotion: motionQuery.matches || options.enableReducedMotion || false,
       }));
     };
 
@@ -101,36 +113,33 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
     motionQuery.addEventListener('change', updateDeviceState);
     mobileQuery.addEventListener('change', updateDeviceState);
 
+    // Определение сетевого соединения
+    if ('connection' in navigator) {
+      const connection = (navigator as any).connection as NetworkInformation;
+      
+      const updateConnectionInfo = () => {
+        setDeviceState(prev => ({
+          ...prev,
+          connection,
+          isLowPowerMode: connection.saveData || options.enableLowBandwidth || false
+        }));
+      };
+
+      updateConnectionInfo();
+      connection.addEventListener('change', updateConnectionInfo);
+
+      return () => {
+        connection.removeEventListener('change', updateConnectionInfo);
+      };
+    }
+
     return () => {
       resizeObserver.disconnect();
       mediaQuery.removeEventListener('change', updateDeviceState);
       motionQuery.removeEventListener('change', updateDeviceState);
       mobileQuery.removeEventListener('change', updateDeviceState);
     };
-  }, []);
-
-  // Определение состояния подключения с debounce
-  useEffect(() => {
-    if (!('connection' in navigator)) return;
-
-    const nav = navigator as Navigator & { connection: NetworkInformation };
-    let timeoutId: NodeJS.Timeout;
-    
-    const updateConnectionStatus = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        setDeviceState(prev => ({ ...prev, connection: nav.connection }));
-      }, 1000);
-    };
-
-    updateConnectionStatus();
-    nav.connection.addEventListener('change', updateConnectionStatus);
-    
-    return () => {
-      clearTimeout(timeoutId);
-      nav.connection.removeEventListener('change', updateConnectionStatus);
-    };
-  }, []);
+  }, [options.enableReducedMotion, options.enableLowBandwidth]);
 
   // Определение режима энергосбережения с debounce
   useEffect(() => {
@@ -168,40 +177,68 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
     };
   }, []);
 
-  // Мемоизированные настройки производительности
-  const performanceSettings = useMemo(() => ({
-    shouldReduceMotion: deviceState.isLowPowerMode || deviceState.prefersReducedMotion || options.enableReducedMotion,
-    isLowBandwidth: deviceState.connection?.saveData || deviceState.connection?.effectiveType === 'slow-2g',
-    isMobile: deviceState.isMobile,
-    isDesktop: deviceState.isDesktop,
-    isLowPowerMode: deviceState.isLowPowerMode,
-    connection: deviceState.connection?.effectiveType,
-  }), [
-    deviceState.isLowPowerMode,
+  const performanceSettings = useMemo(() => {
+    const shouldReduceMotion = deviceState.prefersReducedMotion || options.enableReducedMotion || false;
+    const isLowBandwidth = deviceState.isLowPowerMode || options.enableLowBandwidth || false;
+    const shouldLazyLoad = options.enableLazyLoading !== false && !isLowBandwidth;
+
+    return {
+      shouldReduceMotion,
+      isLowBandwidth,
+      shouldLazyLoad
+    };
+  }, [
     deviceState.prefersReducedMotion,
-    deviceState.connection?.saveData,
-    deviceState.connection?.effectiveType,
-    deviceState.isMobile,
-    deviceState.isDesktop,
-    options.enableReducedMotion
+    deviceState.isLowPowerMode,
+    options.enableReducedMotion,
+    options.enableLowBandwidth,
+    options.enableLazyLoading
   ]);
 
-  // Мемоизированные настройки анимации
-  const animationSettings = useMemo(() => ({
-    duration: performanceSettings.shouldReduceMotion ? 0 : undefined,
-    transition: performanceSettings.shouldReduceMotion ? { duration: 0 } : undefined,
-    animate: !performanceSettings.shouldReduceMotion,
-  }), [performanceSettings.shouldReduceMotion]);
+  const imageSettings = useMemo<ImageSettings>(() => {
+    const { isLowBandwidth, shouldLazyLoad } = performanceSettings;
+    const isMobile = deviceState.isMobile;
 
-  // Мемоизированные настройки изображений
-  const imageSettings = useMemo(() => ({
-    quality: performanceSettings.isLowBandwidth ? 60 : 80,
-    loading: options.enableLazyLoading ? 'lazy' as const : 'eager' as const,
-    sizes: `(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw`,
-    fetchPriority: performanceSettings.isLowBandwidth ? 'low' as const : 'auto' as const,
-  }), [performanceSettings.isLowBandwidth, options.enableLazyLoading]);
+    return {
+      quality: isLowBandwidth ? 60 : isMobile ? 75 : 85,
+      loading: shouldLazyLoad ? 'lazy' : 'eager',
+      fetchPriority: isLowBandwidth ? 'low' : 'auto',
+      sizes: isMobile 
+        ? '(max-width: 768px) 100vw, 50vw'
+        : '(max-width: 1024px) 50vw, 33vw'
+    };
+  }, [performanceSettings, deviceState.isMobile]);
+
+  const getHoverAnimationSettings = useCallback(() => {
+    if (!isMounted) return {};
+    
+    if (performanceSettings.shouldReduceMotion) {
+      return {
+        whileHover: { scale: 1 },
+        whileTap: { scale: 1 }
+      };
+    }
+
+    const spring = ANIMATION_CONSTANTS.SPRING.HOVER;
+
+    return {
+      whileHover: { 
+        scale: ANIMATION_CONSTANTS.HOVER_SCALE,
+        transition: {
+          type: "spring",
+          stiffness: spring.STIFFNESS,
+          damping: spring.DAMPING
+        }
+      },
+      whileTap: { 
+        scale: ANIMATION_CONSTANTS.TAP_SCALE 
+      }
+    };
+  }, [performanceSettings.shouldReducedMotion, isMounted]);
 
   const getScrollAnimationSettings = useCallback((index: number = 0) => {
+    if (!isMounted) return {};
+    
     if (performanceSettings.shouldReduceMotion) {
       return {
         initial: { opacity: 0 },
@@ -229,9 +266,16 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
         delay: baseDelay * index,
       },
     };
-  }, [performanceSettings.shouldReduceMotion, options.rootMargin, options.threshold]);
+  }, [
+    performanceSettings.shouldReduceMotion,
+    options.rootMargin,
+    options.threshold,
+    isMounted
+  ]);
 
   const getFadeAnimationSettings = useCallback(() => {
+    if (!isMounted) return {};
+    
     const duration = performanceSettings.shouldReduceMotion 
       ? ANIMATION_CONSTANTS.FADE.REDUCED_DURATION 
       : ANIMATION_CONSTANTS.FADE.NORMAL_DURATION;
@@ -242,64 +286,15 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
       exit: { opacity: 0 },
       transition: { duration },
     };
-  }, [performanceSettings.shouldReduceMotion]);
-
-  const getSlideAnimationSettings = useCallback((direction: SlideDirection = 'up') => {
-    if (performanceSettings.shouldReduceMotion) {
-      return getFadeAnimationSettings();
-    }
-
-    const distance = ANIMATION_CONSTANTS.SLIDE.NORMAL_DISTANCE;
-    const spring = ANIMATION_CONSTANTS.SPRING.NORMAL;
-
-    const getTransform = () => {
-      switch (direction) {
-        case 'left': return { x: -distance };
-        case 'right': return { x: distance };
-        case 'up': return { y: -distance };
-        case 'down': return { y: distance };
-      }
-    };
-
-    return {
-      initial: { opacity: 0, ...getTransform() },
-      animate: { opacity: 1, x: 0, y: 0 },
-      exit: { opacity: 0, ...getTransform() },
-      transition: {
-        type: "spring",
-        stiffness: spring.STIFFNESS,
-        damping: spring.DAMPING,
-      },
-    };
-  }, [performanceSettings.shouldReduceMotion, getFadeAnimationSettings]);
-
-  const getHoverAnimationSettings = useCallback(() => {
-    if (performanceSettings.shouldReduceMotion) {
-      return {};
-    }
-
-    return {
-      whileHover: {
-        scale: ANIMATION_CONSTANTS.HOVER_SCALE,
-        transition: {
-          type: "spring",
-          stiffness: ANIMATION_CONSTANTS.SPRING.HOVER.STIFFNESS,
-          damping: ANIMATION_CONSTANTS.SPRING.HOVER.DAMPING,
-        },
-      },
-      whileTap: {
-        scale: ANIMATION_CONSTANTS.TAP_SCALE,
-      },
-    };
-  }, [performanceSettings.shouldReduceMotion]);
+  }, [performanceSettings.shouldReduceMotion, isMounted]);
 
   return {
+    ...deviceState,
     ...performanceSettings,
-    animationSettings,
     imageSettings,
+    getHoverAnimationSettings,
     getScrollAnimationSettings,
     getFadeAnimationSettings,
-    getSlideAnimationSettings,
-    getHoverAnimationSettings,
+    isMounted
   };
 } 

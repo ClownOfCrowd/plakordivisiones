@@ -2,8 +2,13 @@ import { useState, useEffect } from 'react';
 
 export function useIsMobile(breakpoint: number = 768) {
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    
+    if (typeof window === 'undefined') return;
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < breakpoint);
     };
@@ -29,6 +34,9 @@ export function useIsMobile(breakpoint: number = 768) {
       clearTimeout(timeoutId);
     };
   }, [breakpoint]);
+
+  // Возвращаем false до монтирования компонента
+  if (!isMounted) return false;
 
   return isMobile;
 } 
