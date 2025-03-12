@@ -163,9 +163,9 @@ export function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   
   const { 
-    animationSettings,
     imageSettings,
-    getHoverAnimationSettings
+    getHoverAnimationSettings,
+    getScrollAnimationSettings
   } = useDeviceOptimization();
 
   const hoverAnimation = useMemo(() => getHoverAnimationSettings(), [getHoverAnimationSettings]);
@@ -178,14 +178,10 @@ export function ProjectsPage() {
     <section className="pt-32 pb-20">
       <Container>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={animationSettings.transition}
+          {...getScrollAnimationSettings(0)}
         >
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            {...getScrollAnimationSettings(1)}
             className="text-center mb-16"
           >
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">
@@ -204,7 +200,7 @@ export function ProjectsPage() {
                 project={project}
                 index={index}
                 onSelect={handleSelectProject}
-                animationSettings={animationSettings}
+                animationSettings={getScrollAnimationSettings(index + 2)}
                 imageSettings={imageSettings}
                 hoverAnimation={hoverAnimation}
               />

@@ -61,52 +61,31 @@ const PulsingCircle = memo(() => (
 
 PulsingCircle.displayName = 'PulsingCircle';
 
-export const LoadingScreen = memo(({ minimumLoadingTime = 2000 }: LoadingScreenProps) => {
+export function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
-  const { isLowBandwidth } = useDeviceOptimization();
-
-  const updateProgress = useCallback((value: number) => {
-    setProgress(prev => {
-      if (prev >= 100) return 100;
-      return Math.min(value, 100);
-    });
-  }, []);
+  const { isMounted } = useDeviceOptimization();
 
   useEffect(() => {
-    let startTime = Date.now();
-    let progressInterval: NodeJS.Timeout;
-    let timer: NodeJS.Timeout;
+    if (!isMounted) return;
 
-    // Быстрая загрузка для устройств с медленным интернетом
-    const adjustedLoadingTime = isLowBandwidth ? Math.min(minimumLoadingTime, 1000) : minimumLoadingTime;
+    const timer = setInterval(() => {
+      setProgress(prev => {
+        const next = prev + 10;
+        if (next >= 100) {
+          clearInterval(timer);
+          setTimeout(() => setIsLoading(false), 500);
+          return 100;
+        }
+        return next;
+      });
+    }, 200);
 
-    // Оптимизированная анимация прогресса
-    const animateProgress = () => {
-      const elapsed = Date.now() - startTime;
-      const nextProgress = Math.min((elapsed / adjustedLoadingTime) * 100, 100);
-      updateProgress(nextProgress);
+    return () => clearInterval(timer);
+  }, [isMounted]);
 
-      if (nextProgress < 100) {
-        progressInterval = setTimeout(animateProgress, 16); // ~60fps
-      }
-    };
-
-    animateProgress();
-
-    // Гарантируем минимальное время показа
-    timer = setTimeout(() => {
-      setIsLoading(false);
-    }, adjustedLoadingTime);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(progressInterval);
-    };
-  }, [minimumLoadingTime, isLowBandwidth, updateProgress]);
-
-  // Отключаем анимацию для устройств с медленным интернетом
-  if (isLowBandwidth && progress > 50) {
+  // Не рендерим ничего на сервере
+  if (!isMounted) {
     return null;
   }
 
@@ -119,7 +98,7 @@ export const LoadingScreen = memo(({ minimumLoadingTime = 2000 }: LoadingScreenP
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-primary overflow-hidden"
           style={{
-            backgroundImage: 'linear-gradient(135deg, #0369a1 0%, #0284c7 100%)',
+            backgroundImage: 'linear-gradient(45deg, var(--primary-dark) 0%, var(--primary) 100%)'
           }}
         >
           <div className="relative w-full max-w-sm mx-4 sm:mx-auto">
@@ -200,4 +179,4 @@ export const LoadingScreen = memo(({ minimumLoadingTime = 2000 }: LoadingScreenP
       )}
     </AnimatePresence>
   );
-}); 
+} 

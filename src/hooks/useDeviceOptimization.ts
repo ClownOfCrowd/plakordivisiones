@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useLayoutEffect } from 'react';
 
 interface NetworkInformation extends EventTarget {
   saveData: boolean;
@@ -82,11 +82,14 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
   const [deviceState, setDeviceState] = useState<DeviceState>(DEFAULT_DEVICE_STATE);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Определение типа устройства и предпочтений анимации
-  useEffect(() => {
+  // Используем useLayoutEffect для синхронного обновления
+  useLayoutEffect(() => {
     setIsMounted(true);
-    
-    if (typeof window === 'undefined') return;
+    return () => setIsMounted(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
 
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -101,7 +104,7 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
       }));
     };
 
-    // Инициализация
+    // Инициализация только после монтирования
     updateDeviceState();
 
     // Используем ResizeObserver вместо resize event для лучшей производительности
@@ -139,7 +142,7 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
       motionQuery.removeEventListener('change', updateDeviceState);
       mobileQuery.removeEventListener('change', updateDeviceState);
     };
-  }, [options.enableReducedMotion, options.enableLowBandwidth]);
+  }, [isMounted, options.enableReducedMotion, options.enableLowBandwidth]);
 
   // Определение режима энергосбережения с debounce
   useEffect(() => {
@@ -210,7 +213,12 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
   }, [performanceSettings, deviceState.isMobile]);
 
   const getHoverAnimationSettings = useCallback(() => {
-    if (!isMounted) return {};
+    if (!isMounted) {
+      return {
+        whileHover: {},
+        whileTap: {}
+      };
+    }
     
     if (performanceSettings.shouldReduceMotion) {
       return {
@@ -234,10 +242,17 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
         scale: ANIMATION_CONSTANTS.TAP_SCALE 
       }
     };
-  }, [performanceSettings.shouldReducedMotion, isMounted]);
+  }, [performanceSettings.shouldReduceMotion, isMounted]);
 
   const getScrollAnimationSettings = useCallback((index: number = 0) => {
-    if (!isMounted) return {};
+    if (!isMounted) {
+      return {
+        initial: { opacity: 1 },
+        whileInView: { opacity: 1 },
+        viewport: { once: true },
+        transition: { duration: 0 }
+      };
+    }
     
     if (performanceSettings.shouldReduceMotion) {
       return {
@@ -274,7 +289,14 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
   ]);
 
   const getFadeAnimationSettings = useCallback(() => {
-    if (!isMounted) return {};
+    if (!isMounted) {
+      return {
+        initial: { opacity: 1 },
+        animate: { opacity: 1 },
+        exit: { opacity: 1 },
+        transition: { duration: 0 }
+      };
+    }
     
     const duration = performanceSettings.shouldReduceMotion 
       ? ANIMATION_CONSTANTS.FADE.REDUCED_DURATION 

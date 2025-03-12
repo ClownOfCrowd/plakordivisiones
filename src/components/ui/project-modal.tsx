@@ -141,7 +141,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                 </div>
               </div>
 
-              <div className="prose prose-lg max-w-none mb-6 text-gray-800">
+              <div className="space-y-6 mb-8">
                 <p>{project.description}</p>
                 
                 <h3 className="text-xl font-semibold mb-2 text-primary">El Desafío</h3>
@@ -158,20 +158,13 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                 </ul>
               </div>
 
-              <div className="flex justify-between items-center">
+              <div className="flex justify-center">
                 <Button 
                   variant="outline" 
                   onClick={onClose}
-                  className="text-primary border-primary hover:bg-primary hover:text-white transition-colors"
+                  className="text-primary border-primary hover:bg-primary hover:text-white transition-colors min-w-[200px]"
                 >
                   Cerrar
-                </Button>
-                <Button 
-                  variant="cta"
-                  onClick={() => window.location.href = '/contacto'}
-                  className="hover:brightness-110 transition-all"
-                >
-                  Solicitar Presupuesto Similar
                 </Button>
               </div>
             </div>

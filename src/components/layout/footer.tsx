@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 
@@ -13,9 +15,9 @@ const workingHours = [
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-300 py-12">
+    <footer className="bg-gray-900 text-gray-400 py-12">
       <Container>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" suppressHydrationWarning>
           {/* Компания */}
           <div>
             <h3 className="text-white font-bold text-xl mb-4">Plakor Divisiones</h3>
@@ -28,6 +30,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
+                suppressHydrationWarning
               >
                 <span className="sr-only">Facebook</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -39,6 +42,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
+                suppressHydrationWarning
               >
                 <span className="sr-only">Instagram</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -51,7 +55,7 @@ export function Footer() {
           {/* Контакты */}
           <div>
             <h3 className="text-white font-bold text-xl mb-4">Contacto</h3>
-            <div className="space-y-3">
+            <div className="space-y-3" suppressHydrationWarning>
               <p>
                 <strong>Dirección:</strong><br />
                 Camí de Sant Joan, 4<br />
@@ -92,7 +96,7 @@ export function Footer() {
           {/* Навигация */}
           <div>
             <h3 className="text-white font-bold text-xl mb-4">Enlaces</h3>
-            <nav className="space-y-3">
+            <nav className="space-y-3" suppressHydrationWarning>
               <Link href="/servicios" className="block hover:text-white">
                 Servicios
               </Link>

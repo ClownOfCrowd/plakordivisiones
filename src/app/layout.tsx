@@ -203,23 +203,25 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ErrorBoundary>
-          <ScrollReset />
-          <LoadingScreen />
-          <ToastProvider>
-            <Header />
-            <main id="main-content" className="flex-grow overflow-x-hidden">
-              {children}
-            </main>
-            <Footer />
-            <CookieConsent />
-            <Toaster 
-              position="bottom-center"
-              expand={true} 
-              richColors 
-              closeButton
-              theme="light"
-            />
-          </ToastProvider>
+          <div suppressHydrationWarning>
+            <ScrollReset />
+            <LoadingScreen />
+            <ToastProvider>
+              <Header />
+              <main id="main-content" className="flex-grow overflow-x-hidden">
+                {children}
+              </main>
+              <Footer />
+              <CookieConsent />
+              <Toaster 
+                position="bottom-center"
+                expand={true} 
+                richColors 
+                closeButton
+                theme="light"
+              />
+            </ToastProvider>
+          </div>
         </ErrorBoundary>
       </body>
     </html>
