@@ -9,27 +9,27 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.0
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to server
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PATH: /var/www/frontend
-        run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "cd ${{ env.SERVER_PATH }} && \
-          git pull origin main && \
-          npm install && \
-          npm run build && \
-          pm2 restart nextjs"
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Обновляем код
+            cd /var/www/frontend
+            git pull origin main
+            
+            # Устанавливаем зависимости и собираем проект
+            npm install
+            npm run build
+            
+            # Обновляем конфигурацию nginx
+            sudo cp .github/nginx/default.conf /etc/nginx/sites-available/default
+            sudo nginx -t && sudo systemctl restart nginx
+            
+            # Перезапускаем приложение
+            pm2 delete nextjs || true
+            PORT=3000 pm2 start npm --name nextjs -- start
