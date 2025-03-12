@@ -229,7 +229,7 @@ export function ServiceModal({ service, onClose }: ServiceModalProps) {
               </Button>
             </Link>
             <Link href="/proyectos" className="w-full sm:flex-1">
-              <Button variant="outline" size="lg" className="w-full">
+              <Button variant="outline" size="lg" className="w-full text-primary border-primary hover:bg-primary hover:text-white">
                 Ver proyectos similares
               </Button>
             </Link>

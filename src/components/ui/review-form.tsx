@@ -105,7 +105,7 @@ export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
           type="button"
           variant="outline"
           onClick={onClose}
-          className="w-full sm:w-auto px-6"
+          className="w-full sm:w-auto px-6 text-primary border-primary hover:bg-primary hover:text-white"
         >
           Cancelar
         </Button>

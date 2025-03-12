@@ -181,7 +181,7 @@ export function Services() {
                     <Link href={service.link}>
                       <Button 
                         variant="outline"
-                        className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
+                        className="w-full group-hover:bg-primary group-hover:text-white text-primary border-primary transition-colors"
                       >
                         Más información
                       </Button>
