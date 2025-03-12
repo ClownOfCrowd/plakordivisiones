@@ -49,8 +49,8 @@ const Section = memo(function Section({
   children,
   ...props
 }: SectionProps) {
-  const { isLowBandwidth, prefersReducedMotion } = useDeviceOptimization();
-  const shouldAnimate = animate && !prefersReducedMotion && !isLowBandwidth;
+  const { isLowBandwidth, shouldReduceMotion } = useDeviceOptimization();
+  const shouldAnimate = animate && !shouldReduceMotion && !isLowBandwidth;
 
   const content = (
     <Component
