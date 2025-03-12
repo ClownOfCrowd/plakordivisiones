@@ -31,10 +31,11 @@ export default function Home() {
               </Link>
               <a 
                 href="tel:+34977350508" 
-                className="inline-flex items-center justify-center min-w-[200px] px-8 py-3 text-base font-medium text-primary hover:text-white border-2 border-primary hover:bg-primary rounded-lg transition-colors shadow-lg hover:shadow-xl"
+                className="inline-flex items-center justify-center min-w-[200px] px-8 py-3 text-base font-medium text-primary hover:text-white border-2 border-primary hover:bg-primary rounded-lg transition-colors shadow-lg hover:shadow-xl group"
               >
                 <Phone className="w-5 h-5 mr-2" />
-                977 350 508
+                <span>Llamar ahora</span>
+                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
           </div>
