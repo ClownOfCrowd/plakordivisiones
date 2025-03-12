@@ -10,9 +10,9 @@ type ProjectModalProps = {
   project: {
     title: string;
     description: string;
-    challenge: string;
-    solution: string;
-    features: string[];
+    challenge?: string;
+    solution?: string;
+    features?: string[];
     images: string[];
     location: string;
     date: string;
@@ -144,18 +144,30 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
               <div className="space-y-6 mb-8">
                 <p>{project.description}</p>
                 
-                <h3 className="text-xl font-semibold mb-2 text-primary">El Desafío</h3>
-                <p className="text-gray-800">{project.challenge}</p>
+                {project.challenge && (
+                  <>
+                    <h3 className="text-xl font-semibold mb-2 text-primary">El Desafío</h3>
+                    <p className="text-gray-800">{project.challenge}</p>
+                  </>
+                )}
 
-                <h3 className="text-xl font-semibold mb-2 text-primary">Nuestra Solución</h3>
-                <p className="text-gray-800">{project.solution}</p>
+                {project.solution && (
+                  <>
+                    <h3 className="text-xl font-semibold mb-2 text-primary">Nuestra Solución</h3>
+                    <p className="text-gray-800">{project.solution}</p>
+                  </>
+                )}
 
-                <h3 className="text-xl font-semibold mb-2 text-primary">Características</h3>
-                <ul className="text-gray-800">
-                  {project.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
+                {project.features && project.features.length > 0 && (
+                  <>
+                    <h3 className="text-xl font-semibold mb-2 text-primary">Características</h3>
+                    <ul className="text-gray-800">
+                      {project.features.map((feature) => (
+                        <li key={feature}>{feature}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
 
               <div className="flex justify-center">
