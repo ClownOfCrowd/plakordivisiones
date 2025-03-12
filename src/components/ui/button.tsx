@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { forwardRef, useCallback, memo, useRef } from "react";
@@ -112,7 +113,6 @@ const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const { isLowBandwidth, shouldReduceMotion } = useDeviceOptimization();
 
-    // Мемоизированный обработчик клика
     const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
       if (soundEffect && !isLowBandwidth) {
         if (!audioRef.current) {
@@ -125,7 +125,6 @@ const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
       onClick?.(e);
     }, [onClick, soundEffect, isLowBandwidth]);
 
-    // Оптимизация анимации для разных устройств
     const motionProps = shouldReduceMotion ? {
       whileTap: {}
     } : {
@@ -138,18 +137,16 @@ const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
         return <LoadingIndicator text={loadingText || (typeof children === 'string' || typeof children === 'number' ? children : null)} />;
       }
       
-      if (typeof children === 'string' || typeof children === 'number' || React.isValidElement(children)) {
-        return (
-          <ButtonContent
-            leftIcon={leftIcon}
-            rightIcon={rightIcon}
-          >
-            {children}
-          </ButtonContent>
-        );
-      }
+      const isValidChild = typeof children === 'string' || typeof children === 'number' || React.isValidElement(children);
       
-      return null;
+      return isValidChild ? (
+        <ButtonContent
+          leftIcon={leftIcon}
+          rightIcon={rightIcon}
+        >
+          {children}
+        </ButtonContent>
+      ) : null;
     };
 
     return (
