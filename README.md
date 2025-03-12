@@ -441,3 +441,5 @@ pm2 logs strapi
 sudo -u postgres psql -c "SELECT 1 FROM pg_database WHERE datname='strapi'"
 ```
 
+# #   A u t o m a t i c   D e p l o y m e n t  
+ 
