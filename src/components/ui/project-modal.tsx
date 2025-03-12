@@ -123,7 +123,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                   <h2 className="text-3xl font-bold text-primary mb-2">
                     {project.title}
                   </h2>
-                  <div className="flex gap-2 text-sm text-secondary">
+                  <div className="flex gap-2 text-sm text-gray-700">
                     <span>{project.location}</span>
                     <span>•</span>
                     <span>{project.date}</span>
@@ -133,7 +133,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-gray-100 px-3 py-1 rounded-full text-sm"
+                      className="bg-primary/10 px-3 py-1 rounded-full text-sm text-primary font-medium"
                     >
                       {tag}
                     </span>
@@ -141,17 +141,17 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                 </div>
               </div>
 
-              <div className="prose prose-lg max-w-none mb-6">
+              <div className="prose prose-lg max-w-none mb-6 text-gray-800">
                 <p>{project.description}</p>
                 
-                <h3 className="text-xl font-semibold mb-2">El Desafío</h3>
-                <p>{project.challenge}</p>
+                <h3 className="text-xl font-semibold mb-2 text-primary">El Desafío</h3>
+                <p className="text-gray-800">{project.challenge}</p>
 
-                <h3 className="text-xl font-semibold mb-2">Nuestra Solución</h3>
-                <p>{project.solution}</p>
+                <h3 className="text-xl font-semibold mb-2 text-primary">Nuestra Solución</h3>
+                <p className="text-gray-800">{project.solution}</p>
 
-                <h3 className="text-xl font-semibold mb-2">Características</h3>
-                <ul>
+                <h3 className="text-xl font-semibold mb-2 text-primary">Características</h3>
+                <ul className="text-gray-800">
                   {project.features.map((feature) => (
                     <li key={feature}>{feature}</li>
                   ))}
@@ -162,7 +162,7 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                 <Button 
                   variant="outline" 
                   onClick={onClose}
-                  className="border-gray-300 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                  className="text-primary border-primary hover:bg-primary hover:text-white transition-colors"
                 >
                   Cerrar
                 </Button>
