@@ -1,74 +1,132 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image, { ImageProps, StaticImageData } from 'next/image';
+import Image, { ImageProps } from 'next/image';
 import { useDeviceOptimization } from '@/hooks/useDeviceOptimization';
+import { useCallback, useState, memo, useEffect } from 'react';
+import { motion, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { ImageOff } from 'lucide-react';
 
-interface OptimizedImageProps extends Omit<ImageProps, 'onLoad' | 'loading' | 'quality'> {
-  lowQualityUrl?: string;
-  enableLazyLoading?: boolean;
-  enableLowBandwidth?: boolean;
-  withBlur?: boolean;
+interface OptimizedImageProps extends Omit<ImageProps, 'onLoadingComplete'> {
+  wrapperClassName?: string;
+  showLoadingPlaceholder?: boolean;
+  priority?: boolean;
+  mobileSizes?: string;
 }
 
-export function OptimizedImage({
+const OptimizedImage = memo(function OptimizedImage({
   src,
   alt,
   className,
-  lowQualityUrl,
-  enableLazyLoading = true,
-  enableLowBandwidth = true,
-  withBlur = true,
+  wrapperClassName,
+  width,
+  height,
+  showLoadingPlaceholder = true,
+  priority = false,
+  mobileSizes,
   ...props
 }: OptimizedImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [showLowQuality, setShowLowQuality] = useState(true);
-  const { imageSettings } = useDeviceOptimization({
-    enableLazyLoading,
-    enableLowBandwidth,
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const { imageSettings, shouldReduceMotion } = useDeviceOptimization({
+    enableLazyLoading: !priority,
+    enableLowBandwidth: true
   });
 
   useEffect(() => {
-    // Предзагрузка изображения высокого качества
-    const img = document.createElement('img');
-    const imgSrc = typeof src === 'string' 
-      ? src 
-      : (src as StaticImageData).src || '';
-      
-    if (imgSrc) {
-      img.src = imgSrc;
-      img.onload = () => {
-        setIsLoaded(true);
-        setTimeout(() => setShowLowQuality(false), 100);
-      };
-    }
-  }, [src]);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  const handleError = useCallback(() => {
+    setError(true);
+    setIsLoading(false);
+  }, []);
+
+  if (error) {
+    return (
+      <div 
+        className={cn(
+          'relative overflow-hidden bg-gray-50 flex items-center justify-center',
+          wrapperClassName
+        )}
+        style={{ 
+          width: typeof width === 'number' ? `${width}px` : width,
+          height: typeof height === 'number' ? `${height}px` : height
+        }}
+      >
+        <div className="flex flex-col items-center gap-2 text-gray-400">
+          <ImageOff className="w-6 h-6" />
+          <span className="text-sm text-center px-2">{alt}</span>
+        </div>
+      </div>
+    );
+  }
+
+  const optimizedSizes = mobileSizes || (isMobile 
+    ? '(max-width: 768px) 100vw, 50vw' 
+    : imageSettings.sizes
+  );
 
   return (
-    <div className={cn('relative overflow-hidden', className)}>
-      {withBlur && showLowQuality && lowQualityUrl && (
-        <Image
-          src={lowQualityUrl}
-          alt={alt}
-          className="absolute inset-0 w-full h-full object-cover blur-lg scale-105 transform-gpu"
-          fill
-          priority
-        />
+    <div 
+      className={cn(
+        'relative overflow-hidden bg-gray-50 touch-none',
+        wrapperClassName
       )}
-      <Image
-        src={src}
-        alt={alt}
-        className={cn(
-          'w-full h-full object-cover transition-opacity duration-300 transform-gpu will-change-transform',
-          !isLoaded && 'opacity-0',
-          isLoaded && 'opacity-100'
-        )}
-        quality={imageSettings.quality}
-        loading={imageSettings.loading}
-        sizes={imageSettings.sizes}
-        {...props}
-      />
+    >
+      <LazyMotion features={domAnimation}>
+        <AnimatePresence mode="wait">
+          {isLoading && showLoadingPlaceholder && !priority && (
+            <motion.div
+              key="placeholder"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+              className="absolute inset-0 bg-gray-100 animate-pulse"
+            />
+          )}
+        </AnimatePresence>
+
+        <motion.div
+          initial={priority ? { opacity: 1 } : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+        >
+          <Image
+            src={src}
+            alt={alt}
+            width={width}
+            height={height}
+            className={cn(
+              'w-full h-full object-cover select-none',
+              isLoading && !priority ? 'opacity-0' : 'opacity-100',
+              className
+            )}
+            quality={isMobile ? Math.min(imageSettings.quality, 75) : imageSettings.quality}
+            loading={priority ? 'eager' : imageSettings.loading}
+            sizes={optimizedSizes}
+            fetchPriority={priority ? 'high' : imageSettings.fetchPriority}
+            onLoadingComplete={handleLoadingComplete}
+            onError={handleError}
+            {...props}
+          />
+        </motion.div>
+      </LazyMotion>
     </div>
   );
-}
+});
+
+OptimizedImage.displayName = "OptimizedImage";
+
+export { OptimizedImage };

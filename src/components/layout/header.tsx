@@ -1,6 +1,5 @@
 'use client';
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useState, useCallback } from "react";
 import { MobileMenu } from "./mobile-menu";
@@ -8,7 +7,6 @@ import { motion } from "framer-motion";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const router = useRouter();
 
   const toggleMenu = useCallback(() => {
     setIsMobileMenuOpen(prev => !prev);
@@ -18,24 +16,23 @@ export function Header() {
     setIsMobileMenuOpen(false);
   }, []);
 
-  const handleCallRequest = useCallback(() => {
-    router.push('/contacto');
-  }, [router]);
-
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <nav className="container mx-auto px-4 h-20">
+          <div className="flex items-center justify-between h-full">
+            <Link 
+              href="/" 
+              className="relative flex items-center"
+            >
               <span className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                 Plakor Divisiones
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center gap-6">
               <Link 
-                href="/servicios" 
+                href="/servicios"
                 className="text-secondary hover:text-primary transition-colors"
               >
                 Servicios
@@ -64,17 +61,20 @@ export function Header() {
               >
                 Contacto
               </Link>
-            </nav>
+            </div>
 
             <div className="flex items-center space-x-4">
-              <Button 
-                variant="cta" 
-                size="lg" 
+              <Link 
+                href="/contacto"
                 className="hidden sm:inline-flex"
-                onClick={handleCallRequest}
               >
-                Solicitar llamada
-              </Button>
+                <Button 
+                  variant="cta" 
+                  size="lg"
+                >
+                  Solicitar llamada
+                </Button>
+              </Link>
               <button
                 onClick={toggleMenu}
                 className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors relative z-[110]"
@@ -102,7 +102,7 @@ export function Header() {
               </button>
             </div>
           </div>
-        </div>
+        </nav>
       </header>
 
       <MobileMenu 

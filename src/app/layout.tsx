@@ -8,6 +8,8 @@ import { Toaster } from 'sonner'
 import { LoadingScreen } from '@/components/ui/loading-screen'
 import { cn } from '@/lib/utils'
 import { Metadata } from 'next'
+import { ScrollReset } from '@/components/layout/scroll-reset'
+import { ErrorBoundary } from '@/components/error-boundary'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -51,9 +53,9 @@ export const metadata: Metadata = {
   creator: 'Plakor Divisiones',
   publisher: 'Plakor Divisiones',
   formatDetection: {
-    email: false,
+    telephone: true,
+    email: true,
     address: false,
-    telephone: false,
   },
   alternates: {
     canonical: 'https://www.plakordivisiones.es',
@@ -70,19 +72,19 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://www.plakordivisiones.es/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Plakor Divisiones - Especialistas en Pladur y Reformas',
+        url: '/logo.svg',
+        width: 512,
+        height: 512,
+        alt: 'Plakor Divisiones Logo'
       }
-    ],
+    ]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Plakor Divisiones - Especialistas en Pladur y Reformas',
     description: 'Expertos en instalación de pladur y reformas integrales en Tarragona',
-    images: ['https://www.plakordivisiones.es/twitter-image.jpg'],
     creator: '@PlakorDivisiones',
+    images: ['/logo.svg'],
   },
   robots: {
     index: true,
@@ -100,20 +102,38 @@ export const metadata: Metadata = {
   viewport: {
     width: 'device-width',
     initialScale: 1,
-    maximumScale: 5,
+    maximumScale: 2,
     userScalable: true,
+    viewportFit: 'cover',
   },
-  themeColor: '#0369a1',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' }
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Plakor Divisiones',
+  },
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' }
+    ],
+    shortcut: '/favicon.svg',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/favicon.svg',
+        color: '#2563EB'
+      }
+    ]
   },
-}
-
-// Конфигурация автоматического скролла при навигации
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+};
 
 export default function RootLayout({
   children,
@@ -124,9 +144,9 @@ export default function RootLayout({
     <html 
       lang="es" 
       className={cn(
-        'scroll-smooth',
         inter.variable,
-        montserrat.variable
+        montserrat.variable,
+        'touch-manipulation'
       )}
       suppressHydrationWarning
     >
@@ -149,46 +169,55 @@ export default function RootLayout({
           href="/og-image.jpg"
           type="image/jpeg"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
-        <meta name="theme-color" content="#0369a1" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(getOrganizationSchema()),
           }}
         />
-        <link rel="alternate" hrefLang="es-ES" href="https://www.plakordivisiones.es" />
-        <meta name="geo.region" content="ES-CT" />
-        <meta name="geo.placename" content="Tarragona" />
-        <meta name="geo.position" content="41.1054;1.0489" />
-        <meta name="ICBM" content="41.1054, 1.0489" />
-        <meta name="format-detection" content="telephone=no" />
+        <link 
+          rel="preload" 
+          href="/fonts/inter-var.woff2" 
+          as="font" 
+          type="font/woff2" 
+          crossOrigin="anonymous" 
+        />
+        <link 
+          rel="dns-prefetch" 
+          href="https://fonts.googleapis.com" 
+        />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body 
         className={cn(
-          'min-h-screen bg-background font-sans antialiased',
+          'min-h-screen bg-background font-sans antialiased overscroll-none',
           inter.variable,
           montserrat.variable
         )}
       >
-        <LoadingScreen />
-        <ToastProvider>
-          <Header />
-          <main id="main-content" className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-          <Toaster 
-            position="top-right" 
-            expand={true} 
-            richColors 
-            closeButton
-            theme="light"
-          />
-        </ToastProvider>
+        <ErrorBoundary>
+          <ScrollReset />
+          <LoadingScreen />
+          <ToastProvider>
+            <Header />
+            <main id="main-content" className="flex-grow overflow-x-hidden">
+              {children}
+            </main>
+            <Footer />
+            <Toaster 
+              position="bottom-center"
+              expand={true} 
+              richColors 
+              closeButton
+              theme="light"
+            />
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

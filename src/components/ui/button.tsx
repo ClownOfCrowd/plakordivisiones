@@ -2,25 +2,25 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
+import { forwardRef, useCallback, memo, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { motion, HTMLMotionProps } from "framer-motion";
+import { useDeviceOptimization } from "@/hooks/useDeviceOptimization";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 gap-2",
+  "inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none gap-2",
   {
     variants: {
       variant: {
-        default: "bg-primary text-white hover:bg-primary-800 shadow-md hover:shadow-lg focus-visible:ring-primary/50",
-        secondary: "bg-secondary text-white hover:bg-secondary/90 shadow-md hover:shadow-lg focus-visible:ring-secondary/50",
-        outline: "border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-md hover:shadow-lg focus-visible:ring-primary/50",
-        ghost: "text-primary hover:bg-primary-50 focus-visible:ring-primary/50",
-        cta: "bg-accent text-white hover:bg-accent-hover shadow-lg hover:shadow-xl text-base font-semibold focus-visible:ring-accent/50",
-        white: "bg-white text-primary hover:bg-gray-50 border-2 border-white hover:border-primary shadow-md hover:shadow-lg focus-visible:ring-primary/50",
+        default: "bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg focus-visible:ring-primary/50",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        outline: "border-2 border-primary hover:bg-primary hover:text-white",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        cta: "bg-accent text-white hover:bg-accent/90 shadow-lg hover:shadow-xl text-base font-semibold focus-visible:ring-accent/50 transform hover:scale-[1.02] active:scale-[0.98] transition-transform",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 px-3 text-xs",
+        sm: "h-8 px-3 text-xs",
         lg: "h-12 px-8 text-base",
       },
       fullWidth: {
@@ -33,8 +33,6 @@ const buttonVariants = cva(
     defaultVariants: {
       variant: "default",
       size: "default",
-      fullWidth: false,
-      loading: false,
     },
   }
 );
@@ -49,7 +47,36 @@ interface ButtonProps
   soundEffect?: boolean;
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+// Мемоизированный компонент загрузки
+const LoadingIndicator = memo(({ text }: { text: React.ReactNode }) => (
+  <>
+    <Loader2 className="w-4 h-4 animate-spin" />
+    {text}
+  </>
+));
+
+LoadingIndicator.displayName = 'LoadingIndicator';
+
+// Мемоизированный компонент контента
+const ButtonContent = memo(({ 
+  leftIcon, 
+  children, 
+  rightIcon 
+}: { 
+  leftIcon?: React.ReactNode;
+  children: React.ReactNode;
+  rightIcon?: React.ReactNode;
+}) => (
+  <>
+    {leftIcon}
+    {children}
+    {rightIcon}
+  </>
+));
+
+ButtonContent.displayName = 'ButtonContent';
+
+const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
   ({ 
     className, 
     variant, 
@@ -64,14 +91,28 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     onClick,
     ...props 
   }, ref) => {
-    // Обработчик клика с звуковым эффектом
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (soundEffect) {
-        const audio = new Audio("/sounds/click.mp3");
-        audio.volume = 0.2;
-        audio.play().catch(() => {});
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const { isLowBandwidth, shouldReduceMotion } = useDeviceOptimization();
+
+    // Мемоизированный обработчик клика
+    const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+      if (soundEffect && !isLowBandwidth) {
+        if (!audioRef.current) {
+          audioRef.current = new Audio("/sounds/click.mp3");
+          audioRef.current.volume = 0.2;
+        }
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
       }
       onClick?.(e);
+    }, [onClick, soundEffect, isLowBandwidth]);
+
+    // Оптимизация анимации для разных устройств
+    const motionProps = shouldReduceMotion ? {
+      whileTap: {}
+    } : {
+      whileTap: { scale: 0.98 },
+      transition: { duration: 0.1 }
     };
 
     return (
@@ -79,28 +120,25 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size, fullWidth, loading, className }))}
         ref={ref}
         onClick={handleClick}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.1 }}
+        {...motionProps}
         aria-disabled={loading}
         aria-busy={loading}
         {...props}
       >
         {loading ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            {loadingText || children}
-          </>
+          <LoadingIndicator text={loadingText || children} />
         ) : (
-          <>
-            {leftIcon}
+          <ButtonContent
+            leftIcon={leftIcon}
+            rightIcon={rightIcon}
+          >
             {children}
-            {rightIcon}
-          </>
+          </ButtonContent>
         )}
       </motion.button>
     );
   }
-);
+));
 
 Button.displayName = "Button";
 

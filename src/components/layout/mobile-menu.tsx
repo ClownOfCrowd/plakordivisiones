@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,6 @@ interface MobileMenuProps {
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -39,11 +38,6 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
-
-  const handleCallRequest = () => {
-    onClose();
-    router.push('/contacto');
-  };
 
   if (!mounted) return null;
 
@@ -86,7 +80,6 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       key={item.href}
                       href={item.href}
                       onClick={onClose}
-                      scroll={true}
                       className={`flex items-center space-x-4 p-3 rounded-lg transition-colors
                         ${pathname === item.href 
                           ? 'bg-primary/10 text-primary' 
@@ -100,14 +93,19 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 </div>
                 
                 <div className="pt-4 mt-4 border-t">
-                  <Button 
-                    variant="cta" 
-                    size="lg" 
+                  <Link 
+                    href="/contacto"
                     className="w-full"
-                    onClick={handleCallRequest}
+                    onClick={onClose}
                   >
-                    Solicitar llamada
-                  </Button>
+                    <Button 
+                      variant="cta" 
+                      size="lg" 
+                      className="w-full"
+                    >
+                      Solicitar llamada
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -227,10 +227,10 @@ export function ContactForm() {
         placeholder="Selecciona un servicio"
       />
 
-      <div className="space-y-1">
+      <div>
         <label 
           htmlFor="message"
-          className="block text-sm font-medium text-secondary"
+          className="block text-sm font-medium text-gray-900"
         >
           Mensaje
           <span className="text-red-500 ml-1">*</span>
@@ -239,7 +239,7 @@ export function ContactForm() {
           id="message"
           value={formData.message}
           onChange={(e) => handleChange('message', e.target.value)}
-          className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-shadow min-h-[120px] resize-y ${
+          className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-shadow min-h-[120px] resize-y text-gray-900 ${
             errors.message ? 'border-red-500' : 'border-gray-300'
           }`}
           placeholder="Describe tu proyecto o consulta..."

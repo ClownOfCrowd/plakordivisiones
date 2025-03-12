@@ -1,38 +1,114 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
+import { useDeviceOptimization } from '@/hooks/useDeviceOptimization';
 
 interface LoadingScreenProps {
   minimumLoadingTime?: number;
 }
 
-export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps) {
+// Мемоизированные анимированные компоненты
+const AnimatedWall = memo(({ index, total }: { index: number; total: number }) => (
+  <motion.div
+    initial={{ scaleY: 0 }}
+    animate={{ scaleY: 1 }}
+    transition={{
+      delay: index * 0.1,
+      duration: 0.4,
+      ease: 'easeOut',
+    }}
+    className="absolute bottom-0 bg-white/30 w-6 rounded-t-lg"
+    style={{
+      height: `${(index + 1) * (100 / total)}%`,
+      left: `${(100 / total) * index + 10}%`,
+    }}
+  />
+));
+
+AnimatedWall.displayName = 'AnimatedWall';
+
+const RotatingElement = memo(() => (
+  <motion.div
+    animate={{ rotate: 360 }}
+    transition={{
+      duration: 2,
+      repeat: Infinity,
+      ease: 'linear',
+    }}
+    className="absolute inset-0 flex items-center justify-center"
+  >
+    <div className="w-16 h-1 bg-white/40 rounded-full transform origin-right" />
+  </motion.div>
+));
+
+RotatingElement.displayName = 'RotatingElement';
+
+const PulsingCircle = memo(() => (
+  <motion.div
+    animate={{
+      scale: [1, 1.1, 1],
+      opacity: [0.5, 0.8, 0.5],
+    }}
+    transition={{
+      duration: 1.5,
+      repeat: Infinity,
+      ease: 'easeInOut',
+    }}
+    className="absolute inset-4 rounded-full border-2 border-white/40"
+  />
+));
+
+PulsingCircle.displayName = 'PulsingCircle';
+
+export const LoadingScreen = memo(({ minimumLoadingTime = 2000 }: LoadingScreenProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const { isLowBandwidth } = useDeviceOptimization();
+
+  const updateProgress = useCallback((value: number) => {
+    setProgress(prev => {
+      if (prev >= 100) return 100;
+      return Math.min(value, 100);
+    });
+  }, []);
 
   useEffect(() => {
-    // Анимация прогресса
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, minimumLoadingTime / 100);
+    let startTime = Date.now();
+    let progressInterval: NodeJS.Timeout;
+    let timer: NodeJS.Timeout;
 
-    // Гарантируем минимальное время показа прелоадера
-    const timer = setTimeout(() => {
+    // Быстрая загрузка для устройств с медленным интернетом
+    const adjustedLoadingTime = isLowBandwidth ? Math.min(minimumLoadingTime, 1000) : minimumLoadingTime;
+
+    // Оптимизированная анимация прогресса
+    const animateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const nextProgress = Math.min((elapsed / adjustedLoadingTime) * 100, 100);
+      updateProgress(nextProgress);
+
+      if (nextProgress < 100) {
+        progressInterval = setTimeout(animateProgress, 16); // ~60fps
+      }
+    };
+
+    animateProgress();
+
+    // Гарантируем минимальное время показа
+    timer = setTimeout(() => {
       setIsLoading(false);
-    }, minimumLoadingTime);
+    }, adjustedLoadingTime);
 
     return () => {
       clearTimeout(timer);
-      clearInterval(progressInterval);
+      clearTimeout(progressInterval);
     };
-  }, [minimumLoadingTime]);
+  }, [minimumLoadingTime, isLowBandwidth, updateProgress]);
+
+  // Отключаем анимацию для устройств с медленным интернетом
+  if (isLowBandwidth && progress > 50) {
+    return null;
+  }
 
   return (
     <AnimatePresence>
@@ -40,7 +116,7 @@ export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps)
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-primary overflow-hidden"
           style={{
             backgroundImage: 'linear-gradient(135deg, #0369a1 0%, #0284c7 100%)',
@@ -51,62 +127,27 @@ export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps)
             <div className="relative aspect-square">
               {/* Фоновый круг */}
               <motion.div
-                initial={{ scale: 0, rotate: 0 }}
-                animate={{ scale: 1, rotate: 360 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
                 transition={{
-                  duration: 1.5,
+                  duration: 0.5,
                   ease: 'easeOut',
                 }}
                 className="absolute inset-0 rounded-full border-4 border-white/20"
               />
 
-              {/* Анимированные элементы строительства */}
+              {/* Анимированные элементы */}
               <div className="absolute inset-0">
                 {/* Стены */}
                 {[...Array(4)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ scaleY: 0 }}
-                    animate={{ scaleY: 1 }}
-                    transition={{
-                      delay: i * 0.2,
-                      duration: 0.8,
-                      ease: 'easeOut',
-                    }}
-                    className="absolute bottom-0 bg-white/30 w-6 rounded-t-lg"
-                    style={{
-                      height: `${(i + 1) * 25}%`,
-                      left: `${25 * i + 10}%`,
-                    }}
-                  />
+                  <AnimatedWall key={i} index={i} total={4} />
                 ))}
 
                 {/* Вращающийся элемент */}
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  <div className="w-16 h-1 bg-white/40 rounded-full transform origin-right" />
-                </motion.div>
+                <RotatingElement />
 
                 {/* Пульсирующий круг */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.5, 1, 0.5],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute inset-4 rounded-full border-2 border-white/40"
-                />
+                <PulsingCircle />
               </div>
             </div>
 
@@ -116,30 +157,25 @@ export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps)
                 <motion.div
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: progress / 100 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.1 }}
                   className="h-full bg-white origin-left"
                 />
               </div>
               <motion.p
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="absolute top-4 left-1/2 transform -translate-x-1/2 text-white/90 text-sm"
               >
-                {progress}%
+                {progress.toFixed(0)}%
               </motion.p>
             </div>
 
             {/* Логотип и текст */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="mt-12 text-center"
-            >
+            <div className="mt-12 text-center">
               <motion.h1
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
+                transition={{ delay: 0.2 }}
                 className="text-2xl sm:text-3xl font-bold text-white mb-2"
               >
                 Plakor Divisiones
@@ -147,21 +183,21 @@ export function LoadingScreen({ minimumLoadingTime = 2000 }: LoadingScreenProps)
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ delay: 0.9, duration: 0.5 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
                 className="h-0.5 bg-white/20 w-24 mx-auto mb-2"
               />
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.1 }}
+                transition={{ delay: 0.4 }}
                 className="text-blue-100"
               >
                 Construyendo calidad
               </motion.p>
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
   );
-} 
+}); 

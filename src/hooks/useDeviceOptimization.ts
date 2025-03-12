@@ -63,86 +63,109 @@ interface DeviceState {
   connection: NetworkInformation | null;
 }
 
+const DEFAULT_DEVICE_STATE: DeviceState = {
+  isMobile: false,
+  isDesktop: false,
+  isLowPowerMode: false,
+  prefersReducedMotion: false,
+  connection: null,
+};
+
 export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
-  const [deviceState, setDeviceState] = useState<DeviceState>({
-    isMobile: false,
-    isDesktop: false,
-    isLowPowerMode: false,
-    prefersReducedMotion: false,
-    connection: null,
-  });
+  const [deviceState, setDeviceState] = useState<DeviceState>(DEFAULT_DEVICE_STATE);
 
   // Определение типа устройства и предпочтений анимации
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
 
     const updateDeviceState = () => {
       setDeviceState(prev => ({
         ...prev,
-        isMobile: window.innerWidth <= 768,
+        isMobile: mobileQuery.matches,
         isDesktop: mediaQuery.matches,
         prefersReducedMotion: motionQuery.matches,
       }));
     };
 
+    // Инициализация
     updateDeviceState();
 
-    window.addEventListener('resize', updateDeviceState);
+    // Используем ResizeObserver вместо resize event для лучшей производительности
+    const resizeObserver = new ResizeObserver(updateDeviceState);
+    resizeObserver.observe(document.documentElement);
+
+    // Слушаем изменения медиа-запросов
     mediaQuery.addEventListener('change', updateDeviceState);
     motionQuery.addEventListener('change', updateDeviceState);
+    mobileQuery.addEventListener('change', updateDeviceState);
 
     return () => {
-      window.removeEventListener('resize', updateDeviceState);
+      resizeObserver.disconnect();
       mediaQuery.removeEventListener('change', updateDeviceState);
       motionQuery.removeEventListener('change', updateDeviceState);
+      mobileQuery.removeEventListener('change', updateDeviceState);
     };
   }, []);
 
-  // Определение состояния подключения
+  // Определение состояния подключения с debounce
   useEffect(() => {
-    if ('connection' in navigator) {
-      const nav = navigator as Navigator & { connection: NetworkInformation };
-      
-      const updateConnectionStatus = () => {
-        setDeviceState(prev => ({ ...prev, connection: nav.connection }));
-      };
+    if (!('connection' in navigator)) return;
 
-      updateConnectionStatus();
-      nav.connection.addEventListener('change', updateConnectionStatus);
-      return () => nav.connection.removeEventListener('change', updateConnectionStatus);
-    }
+    const nav = navigator as Navigator & { connection: NetworkInformation };
+    let timeoutId: NodeJS.Timeout;
+    
+    const updateConnectionStatus = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setDeviceState(prev => ({ ...prev, connection: nav.connection }));
+      }, 1000);
+    };
+
+    updateConnectionStatus();
+    nav.connection.addEventListener('change', updateConnectionStatus);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      nav.connection.removeEventListener('change', updateConnectionStatus);
+    };
   }, []);
 
-  // Определение режима энергосбережения
+  // Определение режима энергосбережения с debounce
   useEffect(() => {
-    if ('getBattery' in navigator) {
-      let batteryManager: BatteryManager | null = null;
+    if (!('getBattery' in navigator)) return;
 
-      (navigator as Navigator & { getBattery: () => Promise<BatteryManager> })
-        .getBattery()
-        .then((battery: BatteryManager) => {
-          batteryManager = battery;
-          
-          const updateBatteryStatus = () => {
+    let batteryManager: BatteryManager | null = null;
+    let timeoutId: NodeJS.Timeout;
+
+    (navigator as Navigator & { getBattery: () => Promise<BatteryManager> })
+      .getBattery()
+      .then((battery: BatteryManager) => {
+        batteryManager = battery;
+        
+        const updateBatteryStatus = () => {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
             setDeviceState(prev => ({
               ...prev,
               isLowPowerMode: battery.charging === false && battery.level <= 0.2
             }));
-          };
+          }, 1000);
+        };
 
-          battery.addEventListener('chargingchange', updateBatteryStatus);
-          battery.addEventListener('levelchange', updateBatteryStatus);
-          updateBatteryStatus();
-        });
+        battery.addEventListener('chargingchange', updateBatteryStatus);
+        battery.addEventListener('levelchange', updateBatteryStatus);
+        updateBatteryStatus();
+      });
 
-      return () => {
-        if (batteryManager) {
-          batteryManager.removeEventListener('chargingchange', () => {});
-          batteryManager.removeEventListener('levelchange', () => {});
-        }
-      };
-    }
+    return () => {
+      clearTimeout(timeoutId);
+      if (batteryManager) {
+        batteryManager.removeEventListener('chargingchange', () => {});
+        batteryManager.removeEventListener('levelchange', () => {});
+      }
+    };
   }, []);
 
   // Мемоизированные настройки производительности
@@ -153,7 +176,15 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
     isDesktop: deviceState.isDesktop,
     isLowPowerMode: deviceState.isLowPowerMode,
     connection: deviceState.connection?.effectiveType,
-  }), [deviceState, options.enableReducedMotion]);
+  }), [
+    deviceState.isLowPowerMode,
+    deviceState.prefersReducedMotion,
+    deviceState.connection?.saveData,
+    deviceState.connection?.effectiveType,
+    deviceState.isMobile,
+    deviceState.isDesktop,
+    options.enableReducedMotion
+  ]);
 
   // Мемоизированные настройки анимации
   const animationSettings = useMemo(() => ({
@@ -166,12 +197,22 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
   const imageSettings = useMemo(() => ({
     quality: performanceSettings.isLowBandwidth ? 60 : 80,
     loading: options.enableLazyLoading ? 'lazy' as const : 'eager' as const,
-    sizes: performanceSettings.isMobile ? '100vw' : undefined,
-  }), [performanceSettings.isLowBandwidth, performanceSettings.isMobile, options.enableLazyLoading]);
+    sizes: `(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw`,
+    fetchPriority: performanceSettings.isLowBandwidth ? 'low' as const : 'auto' as const,
+  }), [performanceSettings.isLowBandwidth, options.enableLazyLoading]);
 
   const getScrollAnimationSettings = useCallback((index: number = 0) => {
-    const baseDelay = performanceSettings.shouldReduceMotion ? 0 : ANIMATION_CONSTANTS.BASE_DELAY;
-    const spring = performanceSettings.shouldReduceMotion ? ANIMATION_CONSTANTS.SPRING.REDUCED : ANIMATION_CONSTANTS.SPRING.NORMAL;
+    if (performanceSettings.shouldReduceMotion) {
+      return {
+        initial: { opacity: 0 },
+        whileInView: { opacity: 1 },
+        viewport: { once: true },
+        transition: { duration: 0 }
+      };
+    }
+
+    const baseDelay = ANIMATION_CONSTANTS.BASE_DELAY;
+    const spring = ANIMATION_CONSTANTS.SPRING.NORMAL;
 
     return {
       initial: { opacity: 0, y: 20 },
@@ -204,10 +245,12 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
   }, [performanceSettings.shouldReduceMotion]);
 
   const getSlideAnimationSettings = useCallback((direction: SlideDirection = 'up') => {
-    const distance = performanceSettings.shouldReduceMotion 
-      ? ANIMATION_CONSTANTS.SLIDE.REDUCED_DISTANCE 
-      : ANIMATION_CONSTANTS.SLIDE.NORMAL_DISTANCE;
-    const spring = performanceSettings.shouldReduceMotion ? ANIMATION_CONSTANTS.SPRING.REDUCED : ANIMATION_CONSTANTS.SPRING.NORMAL;
+    if (performanceSettings.shouldReduceMotion) {
+      return getFadeAnimationSettings();
+    }
+
+    const distance = ANIMATION_CONSTANTS.SLIDE.NORMAL_DISTANCE;
+    const spring = ANIMATION_CONSTANTS.SPRING.NORMAL;
 
     const getTransform = () => {
       switch (direction) {
@@ -228,11 +271,15 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
         damping: spring.DAMPING,
       },
     };
-  }, [performanceSettings.shouldReduceMotion]);
+  }, [performanceSettings.shouldReduceMotion, getFadeAnimationSettings]);
 
   const getHoverAnimationSettings = useCallback(() => {
+    if (performanceSettings.shouldReduceMotion) {
+      return {};
+    }
+
     return {
-      whileHover: performanceSettings.shouldReduceMotion ? {} : {
+      whileHover: {
         scale: ANIMATION_CONSTANTS.HOVER_SCALE,
         transition: {
           type: "spring",
@@ -240,7 +287,7 @@ export function useDeviceOptimization(options: DeviceOptimizationOptions = {}) {
           damping: ANIMATION_CONSTANTS.SPRING.HOVER.DAMPING,
         },
       },
-      whileTap: performanceSettings.shouldReduceMotion ? {} : {
+      whileTap: {
         scale: ANIMATION_CONSTANTS.TAP_SCALE,
       },
     };

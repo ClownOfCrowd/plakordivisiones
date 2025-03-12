@@ -30,7 +30,7 @@ const inputWrapperVariants = cva(
 );
 
 const inputVariants = cva(
-  "w-full bg-transparent text-secondary placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed",
+  "w-full bg-transparent text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed",
   {
     variants: {
       size: {
