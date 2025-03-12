@@ -1,144 +1,72 @@
 'use client';
 
-import { useEffect, useCallback, useRef, useState, memo } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect } from 'react';
 import { X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  title: string;
   children: React.ReactNode;
-  title?: string;
-  description?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
-  className?: string;
 }
 
-const sizes = {
-  sm: 'max-w-[400px]',
-  md: 'max-w-[500px]',
-  lg: 'max-w-[650px]',
-  xl: 'max-w-[800px]',
-  full: 'max-w-[1200px]'
-} as const;
-
-// Мемоизированная кнопка закрытия для оптимизации ререндеров
-const CloseButton = memo(function CloseButton({ onClose }: { onClose: () => void }) {
-  return (
-    <button
-      onClick={onClose}
-      className={cn(
-        'absolute right-3 top-3',
-        'w-8 h-8',
-        'rounded-lg',
-        'bg-gray-100 hover:bg-gray-200',
-        'flex items-center justify-center',
-        'transition-colors',
-        'z-[60]'
-      )}
-      aria-label="Закрыть"
-    >
-      <X className="w-4 h-4 text-gray-600" />
-    </button>
-  );
-});
-
-// Мемоизированный заголовок для оптимизации ререндеров
-const ModalHeader = memo(function ModalHeader({ 
-  title, 
-  description 
-}: { 
-  title?: string; 
-  description?: string;
-}) {
-  if (!title && !description) return null;
-
-  return (
-    <div className="border-b border-gray-100">
-      <div className="px-6 py-4">
-        {title && (
-          <h2 
-            id="modal-title"
-            className="text-lg font-semibold text-gray-900 pr-10"
-          >
-            {title}
-          </h2>
-        )}
-        {description && (
-          <p className="mt-1 text-sm text-gray-500">
-            {description}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-});
-
-export function Modal({
-  isOpen,
-  onClose,
-  children,
-  title,
-  description,
-  size = 'md',
-  className
-}: ModalProps) {
-  const [mounted, setMounted] = useState(false);
-  const modalRef = useRef<HTMLDivElement>(null);
-
+export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  const handleClose = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
-    if (e?.type === 'click' && (e as React.MouseEvent).target !== modalRef.current) return;
-    onClose();
-  }, [onClose]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
     };
 
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
 
     return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
-  if (!mounted || !isOpen) return null;
-
-  return createPortal(
-    <div
-      ref={modalRef}
-      onClick={handleClose}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 pt-[10vh] px-4"
-    >
-      <div 
-        className={cn(
-          'relative w-full',
-          'bg-white rounded-lg shadow-xl',
-          'my-4',
-          sizes[size],
-          className
-        )}
-        onClick={e => e.stopPropagation()}
-      >
-        <CloseButton onClose={onClose} />
-        <ModalHeader title={title} description={description} />
-        
-        <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
-          {children}
-        </div>
-      </div>
-    </div>,
-    document.body
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+          />
+          <div className="fixed inset-0 overflow-y-auto z-50 px-4 py-6 sm:py-12">
+            <div className="min-h-full flex items-center justify-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-lg bg-white rounded-xl shadow-2xl mx-auto relative"
+              >
+                <div className="p-6 max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 pr-8">{title}</h2>
+                    <button
+                      onClick={onClose}
+                      className="absolute right-4 top-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  {children}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </>
+      )}
+    </AnimatePresence>
   );
 } 
