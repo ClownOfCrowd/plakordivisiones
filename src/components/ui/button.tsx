@@ -84,7 +84,7 @@ const ButtonContent = memo(({
 }: { 
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  children: string | number | React.ReactElement;
+  children: React.ReactNode;
 }) => (
   <>
     {leftIcon && <span className="mr-2">{leftIcon}</span>}
@@ -134,19 +134,17 @@ const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
 
     const renderContent = () => {
       if (loading) {
-        return <LoadingIndicator text={loadingText || (typeof children === 'string' || typeof children === 'number' ? children : null)} />;
+        return <LoadingIndicator text={loadingText || children} />;
       }
       
-      const isValidChild = typeof children === 'string' || typeof children === 'number' || React.isValidElement(children);
-      
-      return isValidChild ? (
+      return (
         <ButtonContent
           leftIcon={leftIcon}
           rightIcon={rightIcon}
         >
           {children}
         </ButtonContent>
-      ) : null;
+      );
     };
 
     return (
