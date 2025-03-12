@@ -15,16 +15,16 @@ const workingHours = [
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-400 py-12">
+    <footer className="bg-gray-900 text-gray-400 py-12" suppressHydrationWarning>
       <Container>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" suppressHydrationWarning>
           {/* Компания */}
-          <div>
+          <div suppressHydrationWarning>
             <h3 className="text-white font-bold text-xl mb-4">Plakor Divisiones</h3>
             <p className="mb-4">
               Más de 15 años de experiencia en construcción y reformas en España
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4" suppressHydrationWarning>
               <a
                 href="https://www.facebook.com/share/15Z69wo3CD/?mibextid=wwXIfr"
                 target="_blank"
@@ -53,7 +53,7 @@ export function Footer() {
           </div>
 
           {/* Контакты */}
-          <div>
+          <div suppressHydrationWarning>
             <h3 className="text-white font-bold text-xl mb-4">Contacto</h3>
             <div className="space-y-3" suppressHydrationWarning>
               <p>
@@ -64,16 +64,16 @@ export function Footer() {
               </p>
               <p>
                 <strong>Teléfono:</strong><br />
-                <a href="tel:+34977350508" className="hover:text-white">
+                <a href="tel:+34977350508" className="hover:text-white" suppressHydrationWarning>
                   +34 977 350 508
                 </a><br />
-                <a href="tel:+34646629414" className="hover:text-white">
+                <a href="tel:+34646629414" className="hover:text-white" suppressHydrationWarning>
                   +34 646 629 414
                 </a>
               </p>
               <p>
                 <strong>Email:</strong><br />
-                <a href="mailto:plakordivisiones@hotmail.com" className="hover:text-white">
+                <a href="mailto:plakordivisiones@hotmail.com" className="hover:text-white" suppressHydrationWarning>
                   plakordivisiones@hotmail.com
                 </a>
               </p>
@@ -81,11 +81,11 @@ export function Footer() {
           </div>
 
           {/* Часы работы */}
-          <div>
+          <div suppressHydrationWarning>
             <h3 className="text-white font-bold text-xl mb-4">Horario</h3>
-            <div className="space-y-2">
+            <div className="space-y-2" suppressHydrationWarning>
               {workingHours.map(({ day, hours }) => (
-                <div key={day} className="flex justify-between">
+                <div key={day} className="flex justify-between" suppressHydrationWarning>
                   <span>{day}</span>
                   <span>{hours}</span>
                 </div>
@@ -94,29 +94,29 @@ export function Footer() {
           </div>
 
           {/* Навигация */}
-          <div>
+          <div suppressHydrationWarning>
             <h3 className="text-white font-bold text-xl mb-4">Enlaces</h3>
             <nav className="space-y-3" suppressHydrationWarning>
-              <Link href="/servicios" className="block hover:text-white">
+              <Link href="/servicios" className="block hover:text-white" suppressHydrationWarning>
                 Servicios
               </Link>
-              <Link href="/proyectos" className="block hover:text-white">
+              <Link href="/proyectos" className="block hover:text-white" suppressHydrationWarning>
                 Proyectos
               </Link>
-              <Link href="/resenas" className="block hover:text-white">
+              <Link href="/resenas" className="block hover:text-white" suppressHydrationWarning>
                 Reseñas
               </Link>
-              <Link href="/faq" className="block hover:text-white">
+              <Link href="/faq" className="block hover:text-white" suppressHydrationWarning>
                 FAQ
               </Link>
-              <Link href="/contacto" className="block hover:text-white">
+              <Link href="/contacto" className="block hover:text-white" suppressHydrationWarning>
                 Contacto
               </Link>
             </nav>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+        <div className="border-t border-gray-800 mt-12 pt-8 text-center" suppressHydrationWarning>
           <p>&copy; {new Date().getFullYear()} Plakor Divisiones. Todos los derechos reservados.</p>
         </div>
       </Container>
