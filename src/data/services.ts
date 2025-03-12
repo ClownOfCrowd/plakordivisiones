@@ -1,8 +1,19 @@
+import { 
+  Layers, 
+  Home, 
+  Shield, 
+  Wrench, 
+  Paintbrush 
+} from 'lucide-react';
+
 export const servicesData = [
   {
+    id: 1,
     title: "Construcción en Seco",
     description: "Soluciones modernas y eficientes en sistemas de construcción en seco, incluyendo montajes de Pladur y tabiques divisorios.",
+    shortDescription: "Soluciones modernas y eficientes en sistemas de construcción en seco.",
     image: "/images/services/construccion-seco.jpg",
+    icon: Layers,
     features: [
       "Montajes de Pladur",
       "Tabiques divisorios",
@@ -40,9 +51,12 @@ export const servicesData = [
     ]
   },
   {
+    id: 2,
     title: "Reformas y Remodelaciones",
     description: "Transformamos espacios con reformas integrales y remodelaciones personalizadas para hogares y negocios.",
+    shortDescription: "Transformamos espacios con reformas integrales y remodelaciones personalizadas.",
     image: "/images/services/reformas.jpg",
+    icon: Home,
     features: [
       "Reformas integrales",
       "Remodelaciones de cocinas y baños",
@@ -80,9 +94,12 @@ export const servicesData = [
     ]
   },
   {
+    id: 3,
     title: "Aislamientos",
     description: "Soluciones profesionales de aislamiento térmico y acústico para mejorar el confort y la eficiencia energética.",
+    shortDescription: "Soluciones profesionales de aislamiento térmico y acústico.",
     image: "/images/services/aislamientos.jpg",
+    icon: Shield,
     features: [
       "Aislamiento térmico",
       "Aislamiento acústico",
@@ -120,9 +137,12 @@ export const servicesData = [
     ]
   },
   {
+    id: 4,
     title: "Instalaciones",
     description: "Instalaciones completas y actualizaciones de sistemas eléctricos, fontanería, climatización y más.",
+    shortDescription: "Instalaciones completas y actualizaciones de sistemas.",
     image: "/images/services/instalaciones.jpg",
+    icon: Wrench,
     features: [
       "Instalaciones eléctricas",
       "Fontanería",
@@ -160,9 +180,12 @@ export const servicesData = [
     ]
   },
   {
+    id: 5,
     title: "Acabados y Decoración",
     description: "Servicios especializados en acabados de alta calidad y soluciones decorativas personalizadas.",
+    shortDescription: "Acabados de alta calidad y soluciones decorativas personalizadas.",
     image: "/images/services/acabados.jpg",
+    icon: Paintbrush,
     features: [
       "Pintura decorativa",
       "Revestimientos",

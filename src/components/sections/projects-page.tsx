@@ -1,72 +1,12 @@
 'use client';
 
 import { Container } from '@/components/ui/container';
-import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { useDesktopOptimization } from '@/hooks/useDesktopOptimization';
-import Link from 'next/link';
-import { getProjects } from '@/lib/strapi';
-
-// Оптимизированные анимации
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { 
-      staggerChildren: 0.05,
-      ease: 'easeOut'
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 15,
-      mass: 0.5
-    }
-  }
-};
-
-// Интерфейс для проекта из Strapi
-interface StrapiProject {
-  id: number;
-  attributes: {
-    title: string;
-    description: string;
-    location: string;
-    tags: string[];
-    seoDescription: string;
-    area?: string;
-    services: string[];
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-    images: {
-      data: Array<{
-        id: number;
-        attributes: {
-          url: string;
-          width: number;
-          height: number;
-          formats: {
-            thumbnail: { url: string };
-            small: { url: string };
-            medium: { url: string };
-            large?: { url: string };
-          };
-        }
-      }>;
-    };
-  };
-}
+import { useState, useCallback, useMemo } from 'react';
+import { ProjectModal } from '@/components/ui/project-modal';
+import { useDeviceOptimization } from '@/hooks/useDeviceOptimization';
+import { memo } from 'react';
 
 // Интерфейс для проекта
 interface Project {
@@ -81,30 +21,15 @@ interface Project {
     services: string[];
   };
   seoDescription: string;
+  images: string[];
+  challenge: string;
+  solution: string;
+  features: string[];
+  date: string;
 }
 
-// Преобразование данных из Strapi в формат для компонента
-function mapStrapiProjectToProject(strapiProject: StrapiProject): Project {
-  const { id, attributes } = strapiProject;
-  const imageUrl = attributes.images?.data?.[0]?.attributes?.url || '/images/projects/placeholder.jpg';
-  
-  return {
-    id,
-    title: attributes.title,
-    description: attributes.description,
-    imageUrl: imageUrl.startsWith('/') ? `${process.env.NEXT_PUBLIC_STRAPI_API_URL}${imageUrl}` : imageUrl,
-    location: attributes.location,
-    tags: attributes.tags || [],
-    details: {
-      area: attributes.area,
-      services: attributes.services || [],
-    },
-    seoDescription: attributes.seoDescription,
-  };
-}
-
-// Временные данные (будут использоваться, если не удастся загрузить из Strapi)
-const fallbackProjects: Project[] = [
+// Данные проектов
+const projects: Project[] = [
   {
     id: 1,
     title: 'Reforma integral Casino de Reus',
@@ -116,7 +41,16 @@ const fallbackProjects: Project[] = [
     details: {
       area: '450m²',
       services: ['Restauración histórica', 'Modernización', 'Acabados exclusivos']
-    }
+    },
+    images: [
+      '/images/projects/reforma-1.jpg',
+      '/images/projects/reforma-2.jpg',
+      '/images/projects/reforma-3.jpg'
+    ],
+    challenge: 'Renovar manteniendo la esencia histórica',
+    solution: 'Combinación de técnicas tradicionales y modernas',
+    features: ['Restauración de elementos originales', 'Modernización de instalaciones', 'Mejora de accesibilidad'],
+    date: 'marzo 2024'
   },
   {
     id: 2,
@@ -128,7 +62,16 @@ const fallbackProjects: Project[] = [
     tags: ['comercial', 'reforma', 'pladur'],
     details: {
       services: ['Reforma integral', 'Instalación de pladur', 'Acabados comerciales']
-    }
+    },
+    images: [
+      '/images/projects/pladur-1.jpg',
+      '/images/projects/pladur-2.jpg',
+      '/images/projects/pladur-3.jpg'
+    ],
+    challenge: 'Optimizar el espacio de exposición',
+    solution: 'Diseño modular y flexible',
+    features: ['Iluminación LED', 'Mobiliario a medida', 'Zona de pruebas'],
+    date: 'febrero 2024'
   },
   {
     id: 3,
@@ -140,193 +83,141 @@ const fallbackProjects: Project[] = [
     tags: ['comercial', 'obra nueva', 'sanitario'],
     details: {
       services: ['Obra nueva', 'Instalaciones sanitarias', 'Acabados profesionales']
-    }
+    },
+    images: [
+      '/images/projects/techos-1.jpg',
+      '/images/projects/techos-2.jpg',
+      '/images/projects/techos-3.jpg'
+    ],
+    challenge: 'Crear un ambiente sanitario acogedor',
+    solution: 'Diseño centrado en el paciente',
+    features: ['Salas de espera confortables', 'Consultas insonorizadas', 'Iluminación natural'],
+    date: 'enero 2024'
   }
 ];
 
+// Оптимизированный компонент карточки проекта
+const ProjectCard = memo(({ 
+  project, 
+  index, 
+  onSelect, 
+  animationSettings,
+  imageSettings,
+  hoverAnimation 
+}: { 
+  project: Project;
+  index: number;
+  onSelect: (project: Project) => void;
+  animationSettings: any;
+  imageSettings: any;
+  hoverAnimation: any;
+}) => (
+  <motion.article
+    {...hoverAnimation}
+    onClick={() => onSelect(project)}
+    className="group cursor-pointer"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: index * 0.1 }}
+  >
+    <div className="relative aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
+      <Image
+        src={project.imageUrl}
+        alt={project.seoDescription}
+        fill
+        className="object-cover transform-gpu transition-transform duration-300 group-hover:scale-105"
+        quality={imageSettings.quality}
+        loading={imageSettings.loading}
+        sizes={imageSettings.sizes}
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        aria-hidden="true"
+      >
+        <div className="absolute bottom-0 left-0 right-0 p-6">
+          <h3 className="text-xl font-semibold text-white mb-2">
+            {project.title}
+          </h3>
+          <p className="text-white/90 text-sm line-clamp-2">
+            {project.description}
+          </p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {project.tags.slice(0, 3).map(tag => (
+              <span 
+                key={tag}
+                className="px-2 py-1 bg-white/10 text-white/90 text-xs rounded-full"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </motion.article>
+));
+
+ProjectCard.displayName = 'ProjectCard';
+
 export function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
-  const [projects, setProjects] = useState<Project[]>(fallbackProjects);
-  const [isLoading, setIsLoading] = useState(true);
-  const prefersReducedMotion = useReducedMotion();
-  const { getAnimationSettings, getTransformSettings } = useDesktopOptimization();
-  const animationSettings = getAnimationSettings();
-  const transformSettings = getTransformSettings();
   
-  // Используем useRef для кэширования обработчиков событий
-  const intersectionObserver = useRef<IntersectionObserver | null>(null);
-  
-  // Оптимизированный обработчик для выбора проекта
-  const handleProjectSelect = useCallback((project: Project) => {
+  const { 
+    animationSettings,
+    imageSettings,
+    getHoverAnimationSettings
+  } = useDeviceOptimization();
+
+  const hoverAnimation = useMemo(() => getHoverAnimationSettings(), [getHoverAnimationSettings]);
+
+  const handleSelectProject = useCallback((project: Project) => {
     setSelectedProject(project);
   }, []);
 
-  // Загрузка проектов из Strapi
-  useEffect(() => {
-    async function loadProjects() {
-      try {
-        setIsLoading(true);
-        const strapiProjects = await getProjects();
-        
-        if (strapiProjects && strapiProjects.length > 0) {
-          const mappedProjects = strapiProjects.map(mapStrapiProjectToProject);
-          setProjects(mappedProjects);
-        }
-      } catch (error) {
-        console.error('Error loading projects:', error);
-        // Используем резервные данные в случае ошибки
-        setProjects(fallbackProjects);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    loadProjects();
-  }, []);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
   return (
-    <>
-      <section className="pt-32 pb-20">
-        <Container>
+    <section className="pt-32 pb-20">
+      <Container>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={animationSettings.transition}
+        >
           <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            style={{
-              willChange: 'opacity, transform',
-              perspective: '1000px',
-            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-center mb-16"
           >
-            <motion.div
-              variants={itemVariants}
-              className="text-center mb-16"
-              style={{
-                willChange: 'transform',
-                backfaceVisibility: 'hidden',
-              }}
-            >
-              <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">
-                Nuestros Proyectos
-              </h1>
-              <p className="text-lg text-secondary max-w-3xl mx-auto">
-                Descubre nuestra selección de proyectos de reformas, 
-                instalaciones de pladur y trabajos especializados en Tarragona. 
-                Más de 15 años de experiencia garantizando calidad y profesionalidad 
-                en cada proyecto.
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {projects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  variants={itemVariants}
-                  className="group cursor-pointer"
-                  onClick={() => handleProjectSelect(project)}
-                  style={{
-                    ...transformSettings,
-                    willChange: 'transform',
-                    transformStyle: 'preserve-3d',
-                  }}
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
-                    <Image
-                      src={project.imageUrl}
-                      alt={project.seoDescription}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover transform-gpu transition-transform duration-300 group-hover:scale-105"
-                      loading={index < 6 ? "eager" : "lazy"}
-                      quality={85}
-                      style={{
-                        willChange: 'transform',
-                        backfaceVisibility: 'hidden',
-                      }}
-                    />
-                    <div
-                      className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      aria-hidden="true"
-                      style={{
-                        willChange: 'opacity',
-                        transform: 'translateZ(1px)',
-                      }}
-                    >
-                      <div 
-                        className="absolute bottom-0 left-0 right-0 p-6"
-                        style={{
-                          transform: 'translateZ(20px)',
-                        }}
-                      >
-                        <h3 className="text-white text-xl font-semibold mb-2">
-                          {project.title}
-                        </h3>
-                        <p className="text-white/90 text-sm mb-2">
-                          {project.location}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {project.tags.slice(0, 3).map(tag => (
-                            <span 
-                              key={tag}
-                              className="text-xs bg-white/20 px-2 py-1 rounded-full"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            <motion.div
-              variants={itemVariants}
-              className="mt-16 text-center"
-              style={{
-                willChange: 'transform',
-                backfaceVisibility: 'hidden',
-              }}
-            >
-              <div 
-                className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 md:p-12 max-w-3xl mx-auto"
-                style={{
-                  transform: 'translateZ(1px)',
-                }}
-              >
-                <h2 className="text-2xl md:text-3xl font-bold text-primary mb-4">
-                  ¿Tienes un proyecto en mente?
-                </h2>
-                <p className="text-lg text-secondary mb-8">
-                  Cuéntanos tu idea y te ayudaremos a hacerla realidad. Nuestro equipo 
-                  está listo para asesorarte y ofrecerte la mejor solución.
-                </p>
-                <Link href="/contacto">
-                  <Button 
-                    variant="cta" 
-                    size="lg" 
-                    className="min-w-[200px]"
-                    style={{
-                      transform: 'translateZ(20px)',
-                    }}
-                  >
-                    Contactar ahora
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
+            <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">
+              Nuestros Proyectos
+            </h1>
+            <p className="text-lg text-secondary max-w-3xl mx-auto">
+              Descubre nuestra selección de proyectos más recientes y cómo 
+              transformamos espacios en toda la provincia de Tarragona.
+            </p>
           </motion.div>
-        </Container>
-      </section>
-    </>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                index={index}
+                onSelect={handleSelectProject}
+                animationSettings={animationSettings}
+                imageSettings={imageSettings}
+                hoverAnimation={hoverAnimation}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </Container>
+
+      <ProjectModal
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
+    </section>
   );
 } 

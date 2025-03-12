@@ -23,55 +23,38 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['framer-motion', 'lucide-react']
   },
-  // Настройка перенаправлений для админ-панели Strapi
-  async rewrites() {
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
-    return [
-      {
-        source: '/admin',
-        destination: `${strapiUrl}/admin`,
-      },
-      {
-        source: '/admin/:path*',
-        destination: `${strapiUrl}/admin/:path*`,
-      },
-      {
-        source: '/api/:path*',
-        destination: `${strapiUrl}/api/:path*`,
-      },
-      {
-        source: '/uploads/:path*',
-        destination: `${strapiUrl}/uploads/:path*`,
-      },
-      {
-        source: '/content-manager/:path*',
-        destination: `${strapiUrl}/content-manager/:path*`,
-      },
-      {
-        source: '/content-type-builder/:path*',
-        destination: `${strapiUrl}/content-type-builder/:path*`,
-      },
-      {
-        source: '/i18n/:path*',
-        destination: `${strapiUrl}/i18n/:path*`,
-      },
-      {
-        source: '/email/:path*',
-        destination: `${strapiUrl}/email/:path*`,
-      },
-      {
-        source: '/users-permissions/:path*',
-        destination: `${strapiUrl}/users-permissions/:path*`,
-      },
-      {
-        source: '/upload/:path*',
-        destination: `${strapiUrl}/upload/:path*`,
-      },
-      {
-        source: '/documentation/:path*',
-        destination: `${strapiUrl}/documentation/:path*`,
-      },
-    ];
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false };
+    
+    if (process.env.NODE_ENV === 'production') {
+      config.optimization = {
+        ...config.optimization,
+        minimize: true,
+        splitChunks: {
+          chunks: 'all',
+          minSize: 20000,
+          maxSize: 244000,
+          minChunks: 1,
+          maxAsyncRequests: 30,
+          maxInitialRequests: 30,
+          enforceSizeThreshold: 50000,
+          cacheGroups: {
+            defaultVendors: {
+              test: /[\\/]node_modules[\\/]/,
+              priority: -10,
+              reuseExistingChunk: true,
+            },
+            default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      };
+    }
+    
+    return config;
   },
   // Security headers
   async headers() {
@@ -83,22 +66,43 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: [
-              "default-src 'self' https://www.google.com https://www.youtube.com",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://www.google-analytics.com",
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google-analytics.com https://*.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: https://www.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com",
-              "frame-src 'self' https://www.google.com https://www.youtube.com",
+              "img-src 'self' data: https://*.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' " + strapiUrl + " https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com"
+              `connect-src 'self' ${strapiUrl} https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com`
             ].join('; ')
           }
         ]
       }
     ];
   },
-  webpack: (config) => {
-    config.resolve.fallback = { fs: false }
-    return config
+  async rewrites() {
+    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+    const strapiPaths = [
+      'admin',
+      'api',
+      'uploads',
+      'content-manager',
+      'content-type-builder',
+      'i18n',
+      'email',
+      'users-permissions',
+      'upload',
+      'documentation'
+    ];
+
+    return strapiPaths.flatMap(path => [
+      {
+        source: `/${path}`,
+        destination: `${strapiUrl}/${path}`,
+      },
+      {
+        source: `/${path}/:slug*`,
+        destination: `${strapiUrl}/${path}/:slug*`,
+      }
+    ]);
   },
 };
 

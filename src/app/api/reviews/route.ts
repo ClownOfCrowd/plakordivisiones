@@ -1,37 +1,57 @@
 import { NextResponse } from 'next/server';
-import { submitReview } from '@/lib/strapi';
+
+const reviews = [
+  {
+    id: 1,
+    name: 'María García',
+    rating: 5,
+    comment: 'Excelente trabajo en la reforma de mi cocina. El equipo fue muy profesional y cumplieron con los plazos.',
+    service: 'Reforma de cocina',
+    date: '2024-03-15',
+    approved: true
+  },
+  {
+    id: 2,
+    name: 'Juan Martínez',
+    rating: 5,
+    comment: 'Muy satisfecho con la renovación del baño. Acabados de primera calidad y atención personalizada.',
+    service: 'Reforma de baño',
+    date: '2024-02-28',
+    approved: true
+  },
+  {
+    id: 3,
+    name: 'Ana López',
+    rating: 5,
+    comment: 'Realizaron un excelente trabajo en la instalación del pladur. Rápidos, limpios y profesionales.',
+    service: 'Instalación de pladur',
+    date: '2024-02-15',
+    approved: true
+  }
+];
+
+export async function GET() {
+  return NextResponse.json(reviews);
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, rating, text, service } = body;
+    const newReview = {
+      id: reviews.length + 1,
+      ...body,
+      date: new Date().toISOString().split('T')[0],
+      approved: false
+    };
+    
+    // В реальном приложении здесь был бы код для сохранения в базу данных
+    reviews.push(newReview);
 
-    // Проверяем обязательные поля
-    if (!name || !email || !rating || !text || !service) {
-      return NextResponse.json(
-        { error: 'Faltan campos obligatorios' },
-        { status: 400 }
-      );
-    }
-
-    // Отправляем данные в Strapi
-    const strapiResponse = await submitReview({
-      name,
-      email,
-      rating,
-      text,
-      service,
-    });
-
-    return NextResponse.json({ 
-      success: true, 
-      data: strapiResponse
-    });
+    return NextResponse.json(newReview);
   } catch (error) {
-    console.error('Error submitting review:', error);
     return NextResponse.json(
       { error: 'Error al enviar la reseña' },
-      { status: 500 }
+      { status: 400 }
     );
   }
 } 

@@ -277,19 +277,11 @@ export function ReviewForm({ onClose, onSubmit }: ReviewFormProps) {
           rows={4}
         />
 
-        <div className="flex gap-4 pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="flex-1"
-          >
-            Cancelar
-          </Button>
+        <div className="flex justify-center pt-2">
           <Button 
             type="submit" 
             variant="default"
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
+            className="min-w-[200px] bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl"
             loading={isSubmitting}
             loadingText="Enviando..."
           >

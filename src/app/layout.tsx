@@ -141,6 +141,8 @@ export default function RootLayout({
           href="https://fonts.gstatic.com" 
           crossOrigin="anonymous"
         />
+        <meta name="google-site-verification" content="your-google-verification-code" />
+        <meta name="yandex-verification" content="yandex-verification-code" />
         <link
           rel="preload"
           as="image"

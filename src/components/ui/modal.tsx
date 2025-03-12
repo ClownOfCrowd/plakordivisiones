@@ -1,11 +1,8 @@
 'use client';
 
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useRef, useState, memo } from 'react';
 import { createPortal } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface ModalProps {
@@ -14,280 +11,134 @@ interface ModalProps {
   children: React.ReactNode;
   title?: string;
   description?: string;
-  closeOnClickOutside?: boolean;
-  closeOnEsc?: boolean;
-  showCloseButton?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
-  preserveScrollBarGap?: boolean;
 }
 
-// Оптимизированные варианты анимаций
-const overlayVariants = {
-  hidden: { opacity: 0 },
-  visible: { 
-    opacity: 1,
-    transition: { 
-      duration: 0.2,
-      ease: 'easeOut'
-    }
-  },
-  exit: { 
-    opacity: 0,
-    transition: { 
-      duration: 0.2,
-      ease: 'easeIn'
-    }
-  }
-};
-
-const modalVariants = {
-  hidden: { 
-    opacity: 0, 
-    scale: 0.95,
-    y: 20 
-  },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
-    y: 0,
-    transition: { 
-      type: "spring",
-      stiffness: 300,
-      damping: 25,
-      mass: 0.5
-    }
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.95,
-    y: 20,
-    transition: { 
-      duration: 0.2,
-      ease: 'easeIn'
-    }
-  }
-};
-
-const sizeClasses = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
-  full: 'max-w-[90vw] w-full'
+const sizes = {
+  sm: 'max-w-[400px]',
+  md: 'max-w-[500px]',
+  lg: 'max-w-[650px]',
+  xl: 'max-w-[800px]',
+  full: 'max-w-[1200px]'
 } as const;
 
-export function Modal({ 
-  isOpen, 
-  onClose, 
-  children, 
+// Мемоизированная кнопка закрытия для оптимизации ререндеров
+const CloseButton = memo(function CloseButton({ onClose }: { onClose: () => void }) {
+  return (
+    <button
+      onClick={onClose}
+      className={cn(
+        'absolute right-3 top-3',
+        'w-8 h-8',
+        'rounded-lg',
+        'bg-gray-100 hover:bg-gray-200',
+        'flex items-center justify-center',
+        'transition-colors',
+        'z-[60]'
+      )}
+      aria-label="Закрыть"
+    >
+      <X className="w-4 h-4 text-gray-600" />
+    </button>
+  );
+});
+
+// Мемоизированный заголовок для оптимизации ререндеров
+const ModalHeader = memo(function ModalHeader({ 
+  title, 
+  description 
+}: { 
+  title?: string; 
+  description?: string;
+}) {
+  if (!title && !description) return null;
+
+  return (
+    <div className="border-b border-gray-100">
+      <div className="px-6 py-4">
+        {title && (
+          <h2 
+            id="modal-title"
+            className="text-lg font-semibold text-gray-900 pr-10"
+          >
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p className="mt-1 text-sm text-gray-500">
+            {description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+});
+
+export function Modal({
+  isOpen,
+  onClose,
+  children,
   title,
   description,
-  closeOnClickOutside = true,
-  closeOnEsc = true,
-  showCloseButton = true,
   size = 'md',
-  className,
-  preserveScrollBarGap = true
+  className
 }: ModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = useReducedMotion();
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Сохраняем предыдущий активный элемент
-  const previousActiveElement = useRef<HTMLElement | null>(null);
-
-  // Закрытие по Escape
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (closeOnEsc && e.key === 'Escape') {
-      onClose();
-    }
-  }, [closeOnEsc, onClose]);
-
-  // Закрытие по клику вне модального окна
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (closeOnClickOutside && modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      onClose();
-    }
-  }, [closeOnClickOutside, onClose]);
-
-  // Управление фокусом внутри модального окна
-  const handleTabKey = useCallback((e: KeyboardEvent) => {
-    if (!modalRef.current) return;
-
-    const focusableElements = modalRef.current.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-    if (e.key === 'Tab') {
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          lastElement.focus();
-          e.preventDefault();
-        }
-      } else {
-        if (document.activeElement === lastElement) {
-          firstElement.focus();
-          e.preventDefault();
-        }
-      }
-    }
-  }, []);
-
-  // Блокировка прокрутки и обработчики событий
-  useEffect(() => {
-    if (isOpen) {
-      // Сохраняем текущую позицию прокрутки и блокируем прокрутку
-      const scrollY = window.scrollY;
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.top = `-${scrollY}px`;
-      
-      if (preserveScrollBarGap) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-      }
-      
-      // Сохраняем предыдущий активный элемент
-      previousActiveElement.current = document.activeElement as HTMLElement;
-
-      // Добавляем обработчики
-      document.addEventListener('keydown', handleKeyDown);
-      document.addEventListener('keydown', handleTabKey);
-      document.addEventListener('mousedown', handleClickOutside);
-
-      // Добавляем модальное окно в историю браузера
-      router.push(window.location.pathname + '#modal', { scroll: false });
-
-      return () => {
-        // Восстанавливаем прокрутку
-        document.body.style.position = '';
-        document.body.style.width = '';
-        document.body.style.top = '';
-        document.body.style.paddingRight = '';
-        window.scrollTo(0, scrollY);
-
-        // Удаляем обработчики
-        document.removeEventListener('keydown', handleKeyDown);
-        document.removeEventListener('keydown', handleTabKey);
-        document.removeEventListener('mousedown', handleClickOutside);
-
-        // Возвращаем фокус на предыдущий элемент
-        if (previousActiveElement.current) {
-          previousActiveElement.current.focus();
-        }
-
-        // Удаляем модальное окно из истории
-        router.back();
-      };
-    }
-  }, [isOpen, handleKeyDown, handleTabKey, handleClickOutside, router, preserveScrollBarGap]);
-
-  // Управление фокусом при открытии
-  useEffect(() => {
-    if (isOpen && modalRef.current) {
-      const focusableElement = modalRef.current.querySelector(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      ) as HTMLElement;
-      
-      if (focusableElement) {
-        focusableElement.focus();
-      }
-    }
-  }, [isOpen]);
-
-  // Монтирование на клиенте
   useEffect(() => {
     setMounted(true);
+    return () => setMounted(false);
   }, []);
 
-  if (!mounted) return null;
+  const handleClose = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
+    if (e?.type === 'click' && (e as React.MouseEvent).target !== modalRef.current) return;
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!mounted || !isOpen) return null;
 
   return createPortal(
-    <AnimatePresence mode="wait">
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-50"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={title ? 'modal-title' : undefined}
-          aria-describedby={description ? 'modal-description' : undefined}
-        >
-          {/* Оверлей */}
-          <motion.div
-            initial={prefersReducedMotion ? false : "hidden"}
-            animate="visible"
-            exit="exit"
-            variants={overlayVariants}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-            aria-hidden="true"
-          />
-          
-          {/* Контейнер для центрирования */}
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="min-h-full px-4 flex items-center justify-center">
-              {/* Модальное окно */}
-              <motion.div
-                ref={modalRef}
-                initial={prefersReducedMotion ? false : "hidden"}
-                animate="visible"
-                exit="exit"
-                variants={modalVariants}
-                className={cn(
-                  'bg-white rounded-2xl overflow-hidden w-full shadow-2xl relative my-8 transform-gpu',
-                  sizeClasses[size],
-                  className
-                )}
-              >
-                {/* Кнопка закрытия */}
-                {showCloseButton && (
-                  <Button
-                    onClick={onClose}
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-4 right-4 z-10 rounded-full p-2 hover:bg-gray-100"
-                    aria-label="Cerrar modal"
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
-                )}
-
-                {/* Заголовок и описание */}
-                {(title || description) && (
-                  <div className="px-6 pt-6 pb-4">
-                    {title && (
-                      <h2 
-                        id="modal-title"
-                        className="text-2xl font-bold text-primary mb-2"
-                      >
-                        {title}
-                      </h2>
-                    )}
-                    {description && (
-                      <p 
-                        id="modal-description"
-                        className="text-secondary"
-                      >
-                        {description}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Контент */}
-                <div className={!title && !description ? 'p-0' : 'px-6 pb-6'}>
-                  {children}
-                </div>
-              </motion.div>
-            </div>
-          </div>
+    <div
+      ref={modalRef}
+      onClick={handleClose}
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 pt-[10vh] px-4"
+    >
+      <div 
+        className={cn(
+          'relative w-full',
+          'bg-white rounded-lg shadow-xl',
+          'my-4',
+          sizes[size],
+          className
+        )}
+        onClick={e => e.stopPropagation()}
+      >
+        <CloseButton onClose={onClose} />
+        <ModalHeader title={title} description={description} />
+        
+        <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
+          {children}
         </div>
-      )}
-    </AnimatePresence>,
+      </div>
+    </div>,
     document.body
   );
 } 

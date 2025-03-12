@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/container";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useDesktopOptimization } from '@/hooks/useDesktopOptimization';
+import { useDeviceOptimization } from "@/hooks/useDeviceOptimization";
 
 // Оптимизированные варианты анимаций
 const containerVariants = {
@@ -64,164 +64,109 @@ export function Portfolio() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const gridRef = useRef<HTMLDivElement>(null);
-  const { getAnimationSettings, getTransformSettings } = useDesktopOptimization();
-  const animationSettings = getAnimationSettings();
-  const transformSettings = getTransformSettings();
+  
+  const { 
+    animationSettings,
+    imageSettings,
+    getHoverAnimationSettings,
+    getScrollAnimationSettings
+  } = useDeviceOptimization();
 
-  // Оптимизированный обработчик для смены категории
-  const handleCategoryChange = useCallback((categoryId: string) => {
-    setIsLoading(true);
-    setActiveCategory(categoryId);
-  }, []);
+  const hoverAnimation = getHoverAnimationSettings();
 
-  // Фильтрация проектов с мемоизацией
-  const filteredProjects = useCallback(() => {
-    return activeCategory === "all" 
-      ? projects 
-      : projects.filter(project => project.category === activeCategory);
-  }, [activeCategory]);
-
-  // Эффект для анимации сетки при смене категории
-  useEffect(() => {
-    if (gridRef.current) {
-      const grid = gridRef.current;
-      grid.style.opacity = '0';
-      grid.style.transition = 'opacity 0.3s ease-out';
-      
-      setTimeout(() => {
-        grid.style.opacity = '1';
-        setIsLoading(false);
-      }, 300);
-    }
-  }, [activeCategory]);
+  const filteredProjects = projects.filter(
+    (project) => activeCategory === "all" || project.category === activeCategory
+  );
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20">
       <Container>
         <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={containerVariants}
-          style={{
-            willChange: 'opacity, transform',
-            perspective: '1000px',
-          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={animationSettings.transition}
+          className="text-center mb-12"
         >
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
+            Nuestros Proyectos Destacados
+          </h2>
+          <p className="text-lg text-secondary max-w-3xl mx-auto">
+            Explora nuestra selección de proyectos más recientes y descubre cómo 
+            transformamos espacios en toda la provincia de Tarragona.
+          </p>
+        </motion.div>
+
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
+          {categories.map((category) => (
+            <motion.button
+              key={category.id}
+              onClick={() => setActiveCategory(category.id)}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeCategory === category.id
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 text-secondary hover:bg-gray-200"
+              }`}
+              {...hoverAnimation}
+            >
+              {category.label}
+            </motion.button>
+          ))}
+        </div>
+
+        <div 
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          <AnimatePresence mode="wait">
+            {filteredProjects.map((project, index) => (
+              <motion.article
+                key={project.id}
+                {...getScrollAnimationSettings(index)}
+                {...hoverAnimation}
+                className="group cursor-pointer"
+              >
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="object-cover transform-gpu transition-transform duration-300 group-hover:scale-105"
+                    quality={imageSettings.quality}
+                    loading={imageSettings.loading}
+                    sizes={imageSettings.sizes}
+                    onLoadingComplete={() => setIsLoading(false)}
+                  />
+                  <div
+                    className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    aria-hidden="true"
+                  >
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-xl font-semibold text-white mb-2">
+                        {project.title}
+                      </h3>
+                      <p className="text-white/90 text-sm line-clamp-2">
+                        {project.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.article>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {!isLoading && filteredProjects.length === 0 && (
           <motion.div
-            variants={itemVariants}
-            className="text-center mb-12"
-            style={{
-              willChange: 'transform',
-              backfaceVisibility: 'hidden',
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={animationSettings.transition}
+            className="text-center py-12"
           >
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary mb-4">
-              Nuestros Proyectos
-            </h2>
-            <p className="text-lg text-secondary max-w-2xl mx-auto">
-              Descubre algunos de nuestros trabajos más destacados
+            <p className="text-lg text-secondary">
+              No hay proyectos disponibles en esta categoría.
             </p>
           </motion.div>
-
-          <motion.div 
-            variants={itemVariants}
-            className="flex justify-center gap-4 mb-12"
-            style={{
-              willChange: 'transform',
-              backfaceVisibility: 'hidden',
-            }}
-          >
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
-                className={`px-6 py-2 rounded-full transition-all ${
-                  activeCategory === category.id
-                    ? "bg-primary text-white shadow-lg"
-                    : "bg-white text-secondary hover:bg-primary/10"
-                }`}
-                style={{
-                  transform: activeCategory === category.id ? 'translateZ(10px)' : 'translateZ(0)',
-                  transition: 'transform 0.3s ease-out',
-                }}
-              >
-                {category.label}
-              </button>
-            ))}
-          </motion.div>
-
-          <div 
-            ref={gridRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            style={{
-              willChange: 'opacity',
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {isLoading ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="col-span-full flex justify-center py-12"
-                >
-                  <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                </motion.div>
-              ) : (
-                filteredProjects().map((project) => (
-                  <motion.div
-                    key={project.id}
-                    layout
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="group cursor-pointer"
-                    style={{
-                      ...transformSettings,
-                      willChange: 'transform',
-                      transformStyle: 'preserve-3d',
-                    }}
-                  >
-                    <div className="relative h-64 overflow-hidden rounded-lg shadow-lg">
-                      <div 
-                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                        style={{
-                          willChange: 'opacity',
-                          transform: 'translateZ(1px)',
-                        }}
-                      >
-                        <div 
-                          className="flex flex-col items-center justify-center h-full text-white p-6"
-                          style={{
-                            transform: 'translateZ(20px)',
-                          }}
-                        >
-                          <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-                          <p className="text-sm text-center">{project.description}</p>
-                        </div>
-                      </div>
-                      <div className="relative h-full transform-gpu transition-transform duration-300 group-hover:scale-105">
-                        <Image
-                          src={project.image}
-                          alt={project.title}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          quality={85}
-                          style={{
-                            willChange: 'transform',
-                            backfaceVisibility: 'hidden',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
+        )}
       </Container>
     </section>
   );

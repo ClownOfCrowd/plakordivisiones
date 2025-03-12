@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { submitContactForm } from '@/lib/strapi';
+import { ContactFormSchema } from '@/lib/schema';
+import { STRAPI_API_URL, STRAPI_API_TOKEN } from '@/lib/constants';
 
 // Функция для добавления заголовков CORS
 function corsHeaders(response: NextResponse) {
@@ -22,52 +23,42 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: Request) {
-  console.log('Contact form API endpoint called');
-  
   try {
     const body = await request.json();
-    console.log('Request body:', body);
     
-    const { name, email, phone, service, message } = body;
+    // Валидация данных
+    const validatedData = ContactFormSchema.parse(body);
+    
+    // Подготовка данных для Strapi
+    const strapiData = {
+      data: {
+        name: validatedData.name,
+        email: validatedData.email,
+        phone: validatedData.phone,
+        message: validatedData.message,
+        service: validatedData.service,
+      },
+    };
 
-    // Отправляем данные в Strapi
-    try {
-      console.log('Submitting to Strapi with data:', {
-        name,
-        email,
-        phone,
-        service,
-        message,
-        requestStatus: 'new',
-      });
-      
-      const strapiResponse = await submitContactForm({
-        name,
-        email,
-        phone,
-        service,
-        message,
-        requestStatus: 'new',
-      });
-      
-      console.log('Strapi response:', strapiResponse);
+    // Отправка данных в Strapi
+    const strapiResponse = await fetch(`${STRAPI_API_URL}/api/contacts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+      },
+      body: JSON.stringify(strapiData),
+    });
 
-      return corsHeaders(NextResponse.json({ 
-        success: true, 
-        data: strapiResponse
-      }));
-    } catch (error) {
-      console.error('Error submitting to Strapi:', error);
-      return corsHeaders(NextResponse.json(
-        { error: 'Error submitting form' },
-        { status: 500 }
-      ));
+    if (!strapiResponse.ok) {
+      throw new Error('Error submitting to Strapi');
     }
+
+    return corsHeaders(NextResponse.json({ success: true }));
   } catch (error) {
-    console.error('Error processing request:', error);
     return corsHeaders(NextResponse.json(
-      { error: 'Error processing request' },
-      { status: 500 }
+      { error: 'Error processing contact form' },
+      { status: 400 }
     ));
   }
 } 
