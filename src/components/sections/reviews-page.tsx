@@ -1,237 +1,140 @@
 'use client';
 
-import { useState, useCallback, useMemo, memo } from 'react';
+import { useState } from 'react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Star, ArrowRight, MessageSquare, Globe, Home } from 'lucide-react';
-import { Modal } from '@/components/ui/modal';
-import { ReviewForm, ReviewFormData } from '@/components/ui/review-form';
-import { toast } from 'sonner';
+import { motion } from 'framer-motion';
+import { Star, ArrowRight } from 'lucide-react';
 
-// Интерфейс для отзыва
-interface Review extends ReviewFormData {
-  id: number;
-  date: string;
-  approved: boolean;
-}
-
-// Локальные данные отзывов
-const reviews: Review[] = [
+const reviews = [
   {
     id: 1,
-    name: 'María García',
+    name: "Juan García",
     rating: 5,
-    text: 'Excelente trabajo en la reforma de mi cocina. El equipo fue muy profesional y cumplieron con los plazos.',
-    service: 'Reforma de cocina',
-    date: '2024-03-15',
-    approved: true
+    text: "Excelente trabajo con la instalación de pladur. El equipo fue muy profesional y limpio.",
+    service: "Instalación de Pladur",
+    date: "2024-01-15"
   },
   {
     id: 2,
-    name: 'Juan Martínez',
+    name: "María López",
     rating: 5,
-    text: 'Muy satisfecho con la renovación del baño. Acabados de primera calidad y atención personalizada.',
-    service: 'Reforma de baño',
-    date: '2024-02-28',
-    approved: true
-  },
-  {
-    id: 3,
-    name: 'Ana López',
-    rating: 5,
-    text: 'Realizaron un excelente trabajo en la instalación del pladur. Rápidos, limpios y profesionales.',
-    service: 'Instalación de pladur',
-    date: '2024-02-15',
-    approved: true
+    text: "La reforma quedó perfecta, muy contentos con el resultado final.",
+    service: "Reforma Integral",
+    date: "2024-01-10"
   }
 ];
 
-// Оптимизированный компонент отзыва
-const ReviewCard = memo(({ review }: { review: Review }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.3 }}
-    className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow will-change-transform"
-  >
-    <div className="flex items-center justify-between mb-4">
-      <div>
-        <h3 className="font-semibold text-lg">{review.name}</h3>
-        <p className="text-sm text-gray-500">
-          {new Date(review.date).toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-          })}
-        </p>
-      </div>
-      <div className="flex gap-1">
-        {Array.from({ length: review.rating }).map((_, i) => (
-          <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-        ))}
-      </div>
-    </div>
-    <p className="text-secondary">{review.text}</p>
-    <div className="mt-4 pt-4 border-t border-gray-100">
-      <p className="text-sm text-gray-500">
-        Servicio: {review.service.charAt(0).toUpperCase() + review.service.slice(1)}
-      </p>
-    </div>
-  </motion.div>
-));
-
-ReviewCard.displayName = 'ReviewCard';
-
-// Оптимизированная кнопка внешней ссылки
-const ExternalLinkButton = memo(({ 
-  href, 
-  icon: Icon, 
-  children 
-}: { 
-  href: string; 
-  icon: typeof Globe; 
-  children: React.ReactNode;
-}) => (
-  <motion.a
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="block transform-gpu"
-  >
-    <Button 
-      variant="outline" 
-      size="lg" 
-      className="w-full group hover:bg-primary/5 hover:border-primary border-2"
-    >
-      <div className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-3">
-          <Icon className="w-6 h-6 text-primary" />
-          <span className="text-primary">{children}</span>
-        </div>
-        <ArrowRight className="w-5 h-5 text-primary transition-transform group-hover:translate-x-1" />
-      </div>
-    </Button>
-  </motion.a>
-));
-
-ExternalLinkButton.displayName = 'ExternalLinkButton';
-
 export function ReviewsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
-
-  const handleSubmit = useCallback(async (data: ReviewFormData) => {
-    try {
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) throw new Error('Failed to submit review');
-      
-      toast.success('¡Gracias por tu reseña! La revisaremos y publicaremos pronto.');
-      setIsModalOpen(false);
-    } catch (error) {
-      toast.error('Ha ocurrido un error al enviar la reseña. Por favor, inténtalo de nuevo.');
-    }
-  }, []);
-
-  const filteredReviews = useMemo(() => 
-    reviews
-      .filter(review => review.approved)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    []
-  );
 
   return (
-    <>
-      <section className="pt-32 pb-20">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+    <Container className="py-24 md:py-32">
+      <div className="max-w-7xl mx-auto">
+        {/* Заголовок */}
+        <div className="text-center mb-16 px-4">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            Reseñas de Nuestros Clientes
+          </h1>
+          <p className="text-lg text-gray-800 max-w-3xl mx-auto">
+            Descubre lo que nuestros clientes dicen sobre nuestros servicios. 
+            Tu opinión es importante para nosotros.
+          </p>
+        </div>
+
+        {/* Внешние ссылки */}
+        <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-16 px-4">
+          <a
+            href="https://g.page/r/CZk6RlVxWJWJEBM/review"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full"
           >
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="w-full border-2 bg-white hover:bg-blue-50 text-gray-900 hover:text-blue-700 hover:border-blue-600 transition-all"
+            >
+              <span className="flex items-center justify-between w-full">
+                <span className="font-medium">Reseña en Google</span>
+                <ArrowRight className="w-5 h-5" />
+              </span>
+            </Button>
+          </a>
+
+          <a
+            href="https://www.facebook.com/profile.php?id=100094772135416&sk=reviews"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full"
+          >
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="w-full border-2 bg-white hover:bg-blue-50 text-gray-900 hover:text-blue-700 hover:border-blue-600 transition-all"
+            >
+              <span className="flex items-center justify-between w-full">
+                <span className="font-medium">Reseña en Facebook</span>
+                <ArrowRight className="w-5 h-5" />
+              </span>
+            </Button>
+          </a>
+        </div>
+
+        {/* Отзывы */}
+        <div className="grid md:grid-cols-2 gap-6 px-4 mb-16">
+          {reviews.map((review) => (
             <motion.div
+              key={review.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-center mb-16"
+              className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
             >
-              <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">
-                Opiniones de Nuestros Clientes
-              </h1>
-              <p className="text-lg text-secondary max-w-3xl mx-auto">
-                Descubre lo que dicen nuestros clientes sobre nuestro trabajo y servicios. 
-                Nos enorgullece mantener un alto nivel de satisfacción.
-              </p>
-            </motion.div>
-
-            {/* Кнопки для перехода на внешние сайты */}
-            <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-16">
-              <ExternalLinkButton
-                href="https://www.google.com/search?q=Plakor+Divisiones+-+Expertos+en+pladur+en+Tarragona+Reviews"
-                icon={Globe}
-              >
-                Ver reseñas en Google
-              </ExternalLinkButton>
-
-              <ExternalLinkButton
-                href="https://www.habitissimo.es/pro/plakor-divisiones"
-                icon={Home}
-              >
-                Ver reseñas en Habitissimo
-              </ExternalLinkButton>
-            </div>
-
-            {/* Сетка отзывов */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredReviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
-              ))}
-            </div>
-
-            {/* Призыв к действию */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="mt-16 text-center"
-            >
-              <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 md:p-12 max-w-3xl mx-auto shadow-lg border border-primary/10">
-                <h2 className="text-2xl md:text-3xl font-bold text-primary mb-4">
-                  ¿Has trabajado con nosotros?
-                </h2>
-                <p className="text-lg text-secondary mb-8">
-                  Tu opinión es muy importante para nosotros. Comparte tu experiencia y ayuda a otros 
-                  clientes a tomar la mejor decisión.
-                </p>
-                <div className="flex flex-wrap gap-4 justify-center">
-                  <button 
-                    className="inline-flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <MessageSquare className="w-6 h-6" />
-                    Dejar una reseña
-                    <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
-                  </button>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">{review.name}</h3>
+                  <p className="text-gray-800">{review.service}</p>
+                </div>
+                <div className="flex gap-1">
+                  {Array.from({ length: review.rating }).map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                  ))}
                 </div>
               </div>
+              <p className="text-gray-800 text-lg mb-4">{review.text}</p>
+              <p className="text-gray-700">
+                {new Date(review.date).toLocaleDateString('es-ES', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
             </motion.div>
-          </motion.div>
-        </Container>
-      </section>
+          ))}
+        </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        title="Dejar una reseña"
-      >
-        <ReviewForm onSubmit={handleSubmit} />
-      </Modal>
-    </>
+        {/* Призыв к действию */}
+        <div className="px-4">
+          <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 md:p-12 max-w-3xl mx-auto shadow-lg border border-blue-100">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 text-center">
+              ¿Has trabajado con nosotros?
+            </h2>
+            <p className="text-lg text-gray-800 mb-8 text-center">
+              Tu opinión es muy importante para nosotros. Comparte tu experiencia y ayuda a otros 
+              clientes a tomar la mejor decisión.
+            </p>
+            <div className="flex justify-center">
+              <Button
+                size="lg"
+                onClick={() => setIsModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-md hover:shadow-lg transition-all"
+              >
+                Dejar una reseña
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Container>
   );
-} 
+}

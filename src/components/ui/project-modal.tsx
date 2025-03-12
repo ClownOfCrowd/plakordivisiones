@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDeviceOptimization } from '@/hooks/useDeviceOptimization';
 
@@ -18,39 +17,13 @@ type ProjectModalProps = {
     location: string;
     date: string;
     tags: string[];
-  };
+  } | null;
   isOpen: boolean;
   onClose: () => void;
 };
 
-const modalVariants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.95,
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
-      mass: 0.5,
-    }
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.95,
-    transition: {
-      duration: 0.2,
-      ease: "easeOut"
-    }
-  }
-};
-
 export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
   const [activeImage, setActiveImage] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -60,36 +33,33 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
 
   const hoverAnimation = useMemo(() => getHoverAnimationSettings(), [getHoverAnimationSettings]);
 
-  // Сброс состояний при закрытии
   useEffect(() => {
     if (!isOpen) {
       setActiveImage(0);
     }
   }, [isOpen]);
 
-  // Оптимизированный обработчик для смены изображения
   const handleImageChange = useCallback((index: number) => {
     if (index === activeImage) return;
     setActiveImage(index);
   }, [activeImage]);
 
-  // Обработчик клавиш
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
-      } else if (e.key === 'ArrowLeft') {
-        setActiveImage(prev => (prev > 0 ? prev - 1 : project?.images.length - 1));
-      } else if (e.key === 'ArrowRight') {
-        setActiveImage(prev => (prev < (project?.images.length ?? 0) - 1 ? prev + 1 : 0));
+      } else if (e.key === 'ArrowLeft' && project) {
+        setActiveImage(prev => (prev > 0 ? prev - 1 : project.images.length - 1));
+      } else if (e.key === 'ArrowRight' && project) {
+        setActiveImage(prev => (prev < project.images.length - 1 ? prev + 1 : 0));
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, project?.images.length]);
+  }, [isOpen, onClose, project]);
 
   if (!project || !isOpen) return null;
 
@@ -133,7 +103,6 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Навигация по изображениям */}
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
                 {project.images.map((_, index) => (
                   <button
@@ -234,4 +203,4 @@ export function ProjectModal({ project, isOpen, onClose }: ProjectModalProps) {
       )}
     </AnimatePresence>
   );
-} 
+}

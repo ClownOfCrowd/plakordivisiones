@@ -24,12 +24,10 @@ export function OptimizedImage({
 }: OptimizedImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showLowQuality, setShowLowQuality] = useState(true);
-  const { getImageSettings } = useDeviceOptimization({
+  const { imageSettings } = useDeviceOptimization({
     enableLazyLoading,
     enableLowBandwidth,
   });
-
-  const imageSettings = getImageSettings();
 
   useEffect(() => {
     // Предзагрузка изображения высокого качества
@@ -73,4 +71,4 @@ export function OptimizedImage({
       />
     </div>
   );
-} 
+}
