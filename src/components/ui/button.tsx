@@ -48,12 +48,29 @@ interface ButtonProps
 }
 
 // Мемоизированный компонент загрузки
-const LoadingIndicator = memo(({ text }: { text: React.ReactNode }) => (
-  <>
-    <Loader2 className="w-4 h-4 animate-spin" />
-    {text}
-  </>
-));
+const LoadingIndicator = memo(({ text }: { text: React.ReactNode }) => {
+  const spinnerVariants = {
+    animate: {
+      rotate: 360,
+      transition: {
+        duration: 1,
+        repeat: Infinity,
+        ease: "linear"
+      }
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <motion.div
+        className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+        variants={spinnerVariants}
+        animate="animate"
+      />
+      {typeof text === 'string' ? text : typeof text === 'number' ? String(text) : null}
+    </div>
+  );
+});
 
 LoadingIndicator.displayName = 'LoadingIndicator';
 
@@ -68,9 +85,9 @@ const ButtonContent = memo(({
   rightIcon?: React.ReactNode;
 }) => (
   <>
-    {leftIcon}
+    {leftIcon && <span className="mr-2">{leftIcon}</span>}
     {children}
-    {rightIcon}
+    {rightIcon && <span className="ml-2">{rightIcon}</span>}
   </>
 ));
 
@@ -126,7 +143,7 @@ const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? (
-          <LoadingIndicator text={loadingText || children} />
+          <LoadingIndicator text={loadingText || (typeof children === 'string' || typeof children === 'number' ? children : null)} />
         ) : (
           <ButtonContent
             leftIcon={leftIcon}
