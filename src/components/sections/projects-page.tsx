@@ -33,7 +33,7 @@ const projects: Project[] = [
   {
     id: 1,
     title: 'Reforma integral Casino de Reus',
-    description: 'Reforma integral del casino de Reus, combinando historia y modernidad en un espacio exclusivo',
+    description: 'Transformación completa de este emblemático edificio histórico, combinando elegancia clásica con funcionalidad moderna.',
     seoDescription: 'Proyecto emblemático de reforma integral del Casino de Reus: restauración histórica y modernización de espacios interiores, preservando el patrimonio arquitectónico mientras se incorporan elementos contemporáneos.',
     imageUrl: '/images/projects/reforma-1.jpg',
     location: 'Reus',
@@ -47,20 +47,27 @@ const projects: Project[] = [
       '/images/projects/reforma-2.jpg',
       '/images/projects/reforma-3.jpg'
     ],
-    challenge: 'Renovar manteniendo la esencia histórica',
-    solution: 'Combinación de técnicas tradicionales y modernas',
-    features: ['Restauración de elementos originales', 'Modernización de instalaciones', 'Mejora de accesibilidad'],
+    challenge: 'El principal desafío fue renovar un edificio histórico protegido manteniendo su esencia y carácter original, mientras se incorporaban instalaciones modernas y se mejoraba la funcionalidad de los espacios. La estructura presentaba problemas de humedad y deterioro en elementos ornamentales que requerían una restauración meticulosa.',
+    solution: 'Desarrollamos un enfoque que combinó técnicas tradicionales de restauración con soluciones modernas. Trabajamos con artesanos especializados para recuperar molduras, techos y elementos decorativos originales. Implementamos sistemas de climatización e iluminación discretos que respetan la estética histórica pero ofrecen el confort actual. Cada material fue cuidadosamente seleccionado para complementar el carácter del edificio.',
+    features: [
+      'Restauración completa de fachada y elementos arquitectónicos originales',
+      'Modernización de instalaciones eléctricas, agua y climatización',
+      'Mejora de accesibilidad con soluciones integradas en el diseño histórico',
+      'Iluminación LED personalizada que realza los elementos decorativos',
+      'Restauración de suelos de mosaico hidráulico original'
+    ],
     date: 'marzo 2024'
   },
   {
     id: 2,
     title: 'Reforma Tienda de Estufas y Chimeneas',
-    description: 'Reforma de tienda de estufas y chimeneas en c. Mercè Rodoreda de Reus. Transformación completa del espacio comercial.',
+    description: 'Rediseño integral de espacio comercial especializado, creando una experiencia inmersiva para los clientes con zonas de exposición y demostración.',
     seoDescription: 'Reforma integral de local comercial en Reus: transformación de tienda de estufas y chimeneas, optimización del espacio de exposición y mejora de la experiencia del cliente.',
     imageUrl: '/images/projects/pladur-1.jpg',
     location: 'Reus',
     tags: ['comercial', 'reforma', 'pladur'],
     details: {
+      area: '120m²',
       services: ['Reforma integral', 'Instalación de pladur', 'Acabados comerciales']
     },
     images: [
@@ -68,20 +75,27 @@ const projects: Project[] = [
       '/images/projects/pladur-2.jpg',
       '/images/projects/pladur-3.jpg'
     ],
-    challenge: 'Optimizar el espacio de exposición',
-    solution: 'Diseño modular y flexible',
-    features: ['Iluminación LED', 'Mobiliario a medida', 'Zona de pruebas'],
+    challenge: 'El espacio original era un local rectangular sin personalidad, con techos bajos y poca iluminación natural. El reto consistía en crear un showroom atractivo que permitiera exponer diferentes modelos de estufas y chimeneas en funcionamiento, cumpliendo con todas las normativas de seguridad y ventilación, mientras se maximizaba el limitado espacio disponible.',
+    solution: 'Diseñamos un layout modular con diferentes ambientes que simulan espacios domésticos, permitiendo al cliente visualizar cómo quedarían los productos en su hogar. Utilizamos pladur para crear separaciones parciales y nichos de exposición, jugando con diferentes alturas de techo para generar dinamismo. Instalamos un sistema de ventilación especializado que permite el funcionamiento seguro de varios modelos simultáneamente.',
+    features: [
+      'Iluminación LED direccional para destacar cada producto',
+      'Mobiliario a medida con materiales ignífugos',
+      'Zona central de demostración con chimeneas en funcionamiento',
+      'Sistema de ventilación de alta capacidad oculto en el diseño',
+      'Pantallas interactivas con información técnica de cada modelo'
+    ],
     date: 'febrero 2024'
   },
   {
     id: 3,
     title: 'Centro Médico en Tarragona',
-    description: 'Obra nueva centro médico en Tarragona, diseñado para ofrecer un ambiente profesional y acogedor.',
+    description: 'Construcción de moderno centro de especialidades médicas con diseño centrado en el bienestar del paciente y eficiencia operativa para el personal sanitario.',
     seoDescription: 'Construcción de nuevo centro médico en Tarragona: diseño moderno y funcional, optimización de espacios sanitarios y cumplimiento de normativas específicas del sector.',
     imageUrl: '/images/projects/techos-1.jpg',
     location: 'Tarragona',
     tags: ['comercial', 'obra nueva', 'sanitario'],
     details: {
+      area: '320m²',
       services: ['Obra nueva', 'Instalaciones sanitarias', 'Acabados profesionales']
     },
     images: [
@@ -89,9 +103,16 @@ const projects: Project[] = [
       '/images/projects/techos-2.jpg',
       '/images/projects/techos-3.jpg'
     ],
-    challenge: 'Crear un ambiente sanitario acogedor',
-    solution: 'Diseño centrado en el paciente',
-    features: ['Salas de espera confortables', 'Consultas insonorizadas', 'Iluminación natural'],
+    challenge: 'El proyecto requería crear un centro médico multidisciplinar en un espacio diáfano, dividiendo el área en consultas especializadas, zonas comunes y áreas administrativas. Era fundamental conseguir un equilibrio entre la privacidad necesaria en un entorno sanitario y la sensación de amplitud y bienestar. Además, debíamos cumplir con estrictas normativas sanitarias mientras creábamos un ambiente que redujera la ansiedad típica de los entornos médicos.',
+    solution: 'Desarrollamos un diseño que prioriza la luz natural y utiliza una paleta de colores suaves y materiales cálidos para crear un ambiente acogedor. Las consultas fueron diseñadas con aislamiento acústico reforzado y sistemas de ventilación independientes. Utilizamos materiales antibacterianos y de fácil limpieza en todas las superficies, e implementamos un sistema de circulación que separa claramente los flujos de pacientes y personal médico para optimizar la operativa diaria.',
+    features: [
+      'Salas de espera con luz natural y vegetación interior',
+      'Consultas completamente insonorizadas con sistemas audiovisuales integrados',
+      'Sistema de climatización con filtración HEPA',
+      'Señalética intuitiva con códigos de color por especialidad',
+      'Mobiliario ergonómico diseñado específicamente para entornos sanitarios',
+      'Iluminación regulable que simula la luz natural'
+    ],
     date: 'enero 2024'
   }
 ];
