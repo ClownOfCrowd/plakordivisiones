@@ -63,7 +63,6 @@ const nextConfig = {
       return [];
     }
     
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
     return [
       {
         source: '/:path*',
@@ -77,7 +76,7 @@ const nextConfig = {
               "img-src 'self' data: https://*.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com https://*.google.com https://*.googleapis.com",
               "font-src 'self' data: https://fonts.gstatic.com",
               "frame-src 'self' https://*.google.com https://www.google.com https://*.googleapis.com",
-              `connect-src 'self' ${strapiUrl} https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com`
+              "connect-src 'self' https://www.plakordivisiones.es https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com"
             ].join('; ')
           }
         ]

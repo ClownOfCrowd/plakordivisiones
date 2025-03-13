@@ -1,4 +1,4 @@
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL;
+const STRAPI_URL = 'https://www.plakordivisiones.es';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
 
 // Список публичных эндпоинтов, не требующих авторизации
