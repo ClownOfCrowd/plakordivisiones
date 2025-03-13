@@ -110,6 +110,9 @@ interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: string;
   size?: string;
   error?: string;
+  success?: boolean;
+  label?: string;
+  hint?: string;
 }
 
 const Select = forwardRef<HTMLButtonElement, SelectProps>(
