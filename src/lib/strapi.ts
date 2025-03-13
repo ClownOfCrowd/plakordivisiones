@@ -74,7 +74,7 @@ export interface Review {
     name: string;
     rating: number;
     comment: string;
-    service: string;
+    service: 'Instalación de Pladur' | 'Reforma' | 'Techos' | 'Aislamientos' | 'Otros';
     estado: 'pending' | 'approved' | 'rejected';
     creadoEn: string;
   };
@@ -143,7 +143,10 @@ export const strapiApi = {
       method: 'POST',
       body: JSON.stringify({ 
         data: {
-          ...data,
+          name: data.name,
+          rating: data.rating,
+          service: data.service.trim(),
+          comment: data.comment,
           estado: 'pending',
           creadoEn: new Date().toISOString()
         }
