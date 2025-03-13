@@ -187,13 +187,13 @@ export function ContactPage() {
               >
                 {/* Google Maps */}
                 <div className="rounded-2xl overflow-hidden shadow-xl bg-white h-[400px] md:h-[450px] relative">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3075.838456789123!2d1.056003776315572!3d41.078899779999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a0f9c0f0f0f0f0%3A0x0!2zNDHCsDA0JzQ0LjAiTiAxwrAzMyczMC4wIlc!5e0!3m2!1ses!2ses!4v1625760000000!5m2!1ses!2ses"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
+                  <iframe 
+                    src="https://www.google.com/maps/embed?pb=!4v1741861696561!6m8!1m7!1sZNiOntMvkSj1xDhJlU-TGA!2m2!1d41.07890006544189!2d1.060382835849338!3f79.26030161364187!4f-6.932106169967341!5f0.7820865974627469" 
+                    width="100%" 
+                    height="100%" 
+                    style={{ border: 0 }} 
+                    allowFullScreen 
+                    loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
                     className="absolute inset-0"
                   />
