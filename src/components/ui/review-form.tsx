@@ -6,11 +6,14 @@ import { Star } from 'lucide-react';
 import { Select, type SelectOption } from '@/components/ui/select';
 import { strapiApi } from '@/lib/strapi';
 import { toast } from 'sonner';
+import type { Review } from '@/lib/strapi';
 
 interface ReviewFormProps {
   onSubmit: (data: any) => void;
   onClose: () => void;
 }
+
+type ServiceType = Review['attributes']['service'];
 
 // Варианты услуг
 const serviceOptions: SelectOption[] = [
@@ -25,13 +28,17 @@ const serviceOptions: SelectOption[] = [
 export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
   const [rating, setRating] = useState(5);
   const [name, setName] = useState('');
-  const [service, setService] = useState('');
+  const [service, setService] = useState<ServiceType | ''>('');
   const [text, setText] = useState('');
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (service === '') {
+      toast.error('Por favor, selecciona un servicio');
+      return;
+    }
     setIsSubmitting(true);
 
     try {
