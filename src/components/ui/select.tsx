@@ -107,8 +107,8 @@ interface SelectProps {
   required?: boolean;
   placeholder?: string;
   className?: string;
-  variant?: string;
-  size?: string;
+  variant?: "default" | "outline" | "filled";
+  size?: "default" | "sm" | "lg";
   error?: string;
   success?: boolean;
   label?: string;
