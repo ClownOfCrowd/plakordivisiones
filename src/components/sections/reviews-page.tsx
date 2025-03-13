@@ -134,7 +134,7 @@ export function ReviewsPage() {
                     </div>
                     <p className="text-gray-800 text-lg mb-4">{review.attributes.comment}</p>
                     <p className="text-gray-700">
-                      {new Date(review.attributes.createdAt).toLocaleDateString('es-ES', {
+                      {new Date(review.attributes.creadoEn).toLocaleDateString('es-ES', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'

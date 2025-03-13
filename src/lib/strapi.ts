@@ -67,8 +67,8 @@ export interface Review {
     rating: number;
     comment: string;
     service: string;
-    status: 'pending' | 'approved' | 'rejected';
-    createdAt: string;
+    estado: 'pending' | 'approved' | 'rejected';
+    creadoEn: string;
   };
 }
 
@@ -129,14 +129,14 @@ export const strapiApi = {
   getProjectBySlug: (slug: string) => fetchAPI(`projects?filters[slug][$eq]=${slug}&populate=*`),
   
   // Отзывы
-  getReviews: () => fetchAPI('reviews?filters[status][$eq]=approved'),
+  getReviews: () => fetchAPI('reviews?filters[estado][$eq]=approved'),
   submitReview: (data: ReviewFormData) => 
     fetchAPI('reviews', {
       method: 'POST',
       body: JSON.stringify({ 
         data: {
           ...data,
-          status: 'pending'
+          estado: 'pending'
         }
       }),
     }),
