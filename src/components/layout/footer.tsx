@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { useEffect, useState } from "react";
 
 const workingHours = [
   { day: "Lunes", hours: "8:00 - 19:00" },
@@ -14,6 +15,16 @@ const workingHours = [
 ];
 
 export function Footer() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <footer className="bg-gray-900 text-gray-400 py-12" suppressHydrationWarning>
       <Container>

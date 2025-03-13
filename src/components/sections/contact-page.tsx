@@ -12,7 +12,10 @@ export function ContactPage() {
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    setIsMounted(true);
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Мемоизированные обработчики
@@ -29,7 +32,9 @@ export function ContactPage() {
   }, []);
 
   if (!isMounted) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white" />
+    );
   }
 
   return (
