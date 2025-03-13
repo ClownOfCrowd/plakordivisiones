@@ -209,15 +209,21 @@ export function ContactForm() {
         leftIcon={<Phone className="w-5 h-5" />}
       />
 
-      <Select
-        label="Servicio"
-        options={serviceOptions}
-        value={formData.service}
-        onChange={(value) => handleChange('service', value)}
-        error={errors.service}
-        required
-        placeholder="Selecciona un servicio"
-      />
+      <div>
+        <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-1">
+          Servicio
+        </label>
+        <Select
+          options={serviceOptions}
+          value={formData.service}
+          onChange={(value) => handleChange('service', value)}
+          required
+          placeholder="Selecciona un servicio"
+        />
+        {errors.service && (
+          <p className="mt-1 text-sm text-red-600">{errors.service}</p>
+        )}
+      </div>
 
       <div>
         <label 
