@@ -1,46 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Star, ArrowRight, MessageSquare } from 'lucide-react';
+import { Star, ArrowRight, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Modal } from '@/components/ui/modal';
 import { ReviewForm } from '@/components/ui/review-form';
 import { toast } from 'sonner';
-
-// Временные данные отзывов
-const reviews = [
-  {
-    id: 1,
-    name: "Juan García",
-    rating: 5,
-    text: "Excelente trabajo con la instalación de pladur. El equipo fue muy profesional y limpio.",
-    service: "Instalación de Pladur",
-    date: "2024-01-15"
-  },
-  {
-    id: 2,
-    name: "María López",
-    rating: 5,
-    text: "La reforma quedó perfecta, muy contentos con el resultado final.",
-    service: "Reforma Integral",
-    date: "2024-01-10"
-  }
-];
+import { strapiApi } from '@/lib/strapi';
+import type { Review } from '@/lib/strapi';
 
 export function ReviewsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadReviews();
+  }, []);
+
+  const loadReviews = async () => {
+    try {
+      const response = await strapiApi.getReviews();
+      setReviews(response.data);
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      toast.error('Error al cargar las reseñas');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (data: any) => {
     try {
-      console.log('Submitting review:', data);
-      toast.success('¡Gracias por tu reseña! La revisaremos y publicaremos pronto.');
+      await loadReviews(); // Перезагружаем отзывы после отправки нового
       setIsModalOpen(false);
     } catch (error) {
-      toast.error('Ha ocurrido un error al enviar la reseña. Por favor, inténtalo de nuevo.');
+      console.error('Error refreshing reviews:', error);
     }
   };
+
+  const nextReview = () => {
+    setCurrentIndex((prev) => (prev + 1) % reviews.length);
+  };
+
+  const prevReview = () => {
+    setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+  };
+
+  const displayedReviews = reviews.slice(currentIndex, currentIndex + 3);
 
   return (
     <Container className="py-24 md:py-32">
@@ -96,35 +106,72 @@ export function ReviewsPage() {
         </div>
 
         {/* Отзывы */}
-        <div className="grid md:grid-cols-2 gap-6 px-4 mb-16">
-          {reviews.map((review) => (
-            <motion.div
-              key={review.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{review.name}</h3>
-                  <p className="text-gray-700">{review.service}</p>
-                </div>
-                <div className="flex gap-1">
-                  {Array.from({ length: review.rating }).map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
-                  ))}
-                </div>
+        <div className="relative px-4 mb-16">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            </div>
+          ) : reviews.length > 0 ? (
+            <>
+              <div className="grid md:grid-cols-3 gap-6">
+                {displayedReviews.map((review) => (
+                  <motion.div
+                    key={review.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">{review.attributes.name}</h3>
+                        <p className="text-gray-700">{review.attributes.service}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        {Array.from({ length: review.attributes.rating }).map((_, i) => (
+                          <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-gray-800 text-lg mb-4">{review.attributes.comment}</p>
+                    <p className="text-gray-700">
+                      {new Date(review.attributes.createdAt).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </motion.div>
+                ))}
               </div>
-              <p className="text-gray-800 text-lg mb-4">{review.text}</p>
-              <p className="text-gray-700">
-                {new Date(review.date).toLocaleDateString('es-ES', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+
+              {reviews.length > 3 && (
+                <div className="flex justify-center gap-4 mt-8">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={prevReview}
+                    className="rounded-full"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={nextReview}
+                    className="rounded-full"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">
+                Aún no hay reseñas. ¡Sé el primero en compartir tu experiencia!
               </p>
-            </motion.div>
-          ))}
+            </div>
+          )}
         </div>
 
         {/* Призыв к действию */}

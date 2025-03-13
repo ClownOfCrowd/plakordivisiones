@@ -3,11 +3,24 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
+import { Select, type SelectOption } from '@/components/ui/select';
+import { strapiApi } from '@/lib/strapi';
+import { toast } from 'sonner';
 
 interface ReviewFormProps {
   onSubmit: (data: any) => void;
   onClose: () => void;
 }
+
+// Варианты услуг
+const serviceOptions: SelectOption[] = [
+  { value: '', label: 'Selecciona un servicio', disabled: true },
+  { value: 'Instalación de Pladur', label: 'Instalación de Pladur' },
+  { value: 'Reforma', label: 'Reforma' },
+  { value: 'Techos', label: 'Techos' },
+  { value: 'Aislamientos', label: 'Aislamientos' },
+  { value: 'Otros', label: 'Otros' }
+];
 
 export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
   const [rating, setRating] = useState(5);
@@ -15,16 +28,34 @@ export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
   const [service, setService] = useState('');
   const [text, setText] = useState('');
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      name,
-      rating,
-      service,
-      text,
-      date: new Date().toISOString()
-    });
+    setIsSubmitting(true);
+
+    try {
+      await strapiApi.submitReview({
+        name,
+        rating,
+        service,
+        comment: text
+      });
+      
+      toast.success('¡Gracias por tu reseña! La revisaremos y publicaremos pronto.');
+      onSubmit({
+        name,
+        rating,
+        service,
+        text,
+        date: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('Ha ocurrido un error al enviar la reseña. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,14 +79,12 @@ export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
         <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-1">
           Servicio
         </label>
-        <input
-          type="text"
-          id="service"
-          required
+        <Select
+          options={serviceOptions}
           value={service}
-          onChange={(e) => setService(e.target.value)}
-          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base"
-          placeholder="¿Qué servicio contrataste?"
+          onChange={setService}
+          required
+          placeholder="Selecciona un servicio"
         />
       </div>
 
@@ -106,12 +135,15 @@ export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
           variant="outline"
           onClick={onClose}
           className="w-full sm:w-auto px-6 text-primary border-primary hover:bg-primary hover:text-white"
+          disabled={isSubmitting}
         >
           Cancelar
         </Button>
         <Button
           type="submit"
           className="w-full sm:w-auto px-6 bg-primary hover:bg-primary/90"
+          disabled={isSubmitting}
+          loading={isSubmitting}
         >
           Enviar
         </Button>
