@@ -200,10 +200,23 @@ export function ContactPage() {
                     allowFullScreen 
                     loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="absolute inset-0"
+                    className="absolute inset-0 z-10"
                     title="Plakor Divisiones Location"
-                    sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   />
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-0">
+                    <div className="text-center p-4">
+                      <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
+                      <p className="text-lg font-medium text-gray-900 mb-2">
+                        Cargando mapa...
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Camí de Sant Joan, 4<br />
+                        43391 Vinyols i els Arcs<br />
+                        Tarragona
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Дополнительная информация */}

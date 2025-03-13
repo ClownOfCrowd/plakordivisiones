@@ -56,8 +56,13 @@ const nextConfig = {
     
     return config;
   },
-  // Security headers
+  // Security headers - только для production, в development используем middleware
   async headers() {
+    // В режиме разработки не применяем CSP через next.config.js
+    if (process.env.NODE_ENV === 'development') {
+      return [];
+    }
+    
     const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
     return [
       {
@@ -69,9 +74,9 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google-analytics.com https://*.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: https://*.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com",
+              "img-src 'self' data: https://*.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com https://*.google.com https://*.googleapis.com",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "frame-src 'self' https://*.google.com https://*.googleapis.com",
+              "frame-src 'self' https://*.google.com https://www.google.com https://*.googleapis.com",
               `connect-src 'self' ${strapiUrl} https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com`
             ].join('; ')
           }
