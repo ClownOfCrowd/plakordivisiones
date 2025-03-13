@@ -16,25 +16,33 @@ async function fetchAPI(endpoint: string, options = {}) {
     },
   };
 
-  console.log('Sending request to:', `${STRAPI_URL}/api/${endpoint}`);
-  console.log('Request options:', {
+  const url = `${STRAPI_URL}/api/${endpoint}`;
+  const finalOptions = {
     ...defaultOptions,
     ...options,
-  });
+  };
 
-  const response = await fetch(`${STRAPI_URL}/api/${endpoint}`, {
-    ...defaultOptions,
-    ...options,
-  });
+  console.log('Request URL:', url);
+  console.log('Is public endpoint:', isPublicEndpoint);
+  console.log('Request options:', finalOptions);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('API Error Response:', errorText);
-    throw new Error(`API error: ${response.statusText} - ${errorText}`);
+  try {
+    const response = await fetch(url, finalOptions);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      console.error('Response status:', response.status);
+      console.error('Response headers:', Object.fromEntries(response.headers));
+      throw new Error(`API error: ${response.statusText} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data;
 }
 
 // Типы данных
@@ -129,14 +137,15 @@ export const strapiApi = {
   getProjectBySlug: (slug: string) => fetchAPI(`projects?filters[slug][$eq]=${slug}&populate=*`),
   
   // Отзывы
-  getReviews: () => fetchAPI('reviews?filters[estado][$eq]=approved'),
+  getReviews: () => fetchAPI('reviews?filters[estado][$eq]=approved&sort[0]=creadoEn:desc'),
   submitReview: (data: ReviewFormData) => 
     fetchAPI('reviews', {
       method: 'POST',
       body: JSON.stringify({ 
         data: {
           ...data,
-          estado: 'pending'
+          estado: 'pending',
+          creadoEn: new Date().toISOString()
         }
       }),
     }),
