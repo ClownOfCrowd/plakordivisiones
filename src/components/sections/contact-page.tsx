@@ -187,17 +187,24 @@ export function ContactPage() {
               >
                 {/* Google Maps */}
                 <div className="rounded-2xl overflow-hidden shadow-xl bg-white h-[400px] md:h-[450px] relative">
-                  <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3010.044782427569!2d1.0581925!3d41.0788998!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a157851e4fffff%3A0x51c05a8e12e57c35!2sPlakor%20Divisiones!5e0!3m2!1ses!2ses!4v1709669433099!5m2!1ses!2ses"
-                    width="100%" 
-                    height="100%" 
-                    style={{ border: 0 }} 
-                    allowFullScreen 
-                    loading="lazy" 
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="w-full h-full"
-                    title="Ubicación de Plakor Divisiones en Google Maps"
-                  />
+                  <a
+                    href="https://maps.google.com/?q=41.0788998,1.0581925"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
+                  >
+                    <div className="text-center p-4">
+                      <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
+                      <p className="text-lg font-medium text-gray-900 mb-2">
+                        Ver ubicación en Google Maps
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Camí de Sant Joan, 4<br />
+                        43391 Vinyols i els Arcs<br />
+                        Tarragona
+                      </p>
+                    </div>
+                  </a>
                 </div>
 
                 {/* Дополнительная информация */}
