@@ -71,6 +71,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https://*.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com",
               "font-src 'self' data: https://fonts.gstatic.com",
+              "frame-src 'self' https://*.google.com https://*.googleapis.com",
               `connect-src 'self' ${strapiUrl} https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com`
             ].join('; ')
           }

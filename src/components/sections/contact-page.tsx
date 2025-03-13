@@ -201,6 +201,8 @@ export function ContactPage() {
                     loading="lazy" 
                     referrerPolicy="no-referrer-when-downgrade"
                     className="absolute inset-0"
+                    title="Plakor Divisiones Location"
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                   />
                 </div>
 
