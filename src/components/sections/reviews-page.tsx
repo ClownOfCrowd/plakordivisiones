@@ -148,17 +148,17 @@ export function ReviewsPage() {
                 <div className="flex justify-center gap-4 mt-8">
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={prevReview}
-                    className="rounded-full"
+                    className="rounded-full w-10 h-10 p-0"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </Button>
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={nextReview}
-                    className="rounded-full"
+                    className="rounded-full w-10 h-10 p-0"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </Button>
