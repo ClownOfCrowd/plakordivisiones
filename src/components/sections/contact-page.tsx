@@ -187,24 +187,16 @@ export function ContactPage() {
               >
                 {/* Google Maps */}
                 <div className="rounded-2xl overflow-hidden shadow-xl bg-white h-[400px] md:h-[450px] relative">
-                  <a
-                    href="https://maps.google.com/?q=41.0788998,1.0581925"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute inset-0 flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors"
-                  >
-                    <div className="text-center p-4">
-                      <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
-                      <p className="text-lg font-medium text-gray-900 mb-2">
-                        Ver ubicación en Google Maps
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Camí de Sant Joan, 4<br />
-                        43391 Vinyols i els Arcs<br />
-                        Tarragona
-                      </p>
-                    </div>
-                  </a>
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3075.838456789123!2d1.056003776315572!3d41.078899779999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a0f9c0f0f0f0f0%3A0x0!2zNDHCsDA0JzQ0LjAiTiAxwrAzMyczMC4wIlc!5e0!3m2!1ses!2ses!4v1625760000000!5m2!1ses!2ses"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0"
+                  />
                 </div>
 
                 {/* Дополнительная информация */}
