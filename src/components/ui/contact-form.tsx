@@ -7,6 +7,7 @@ import { Select, type SelectOption } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Mail, Send } from 'lucide-react';
+import { strapiApi } from '@/lib/strapi';
 
 // Типы для формы
 interface FormData {
@@ -20,11 +21,11 @@ interface FormData {
 // Варианты услуг
 const serviceOptions: SelectOption[] = [
   { value: '', label: 'Selecciona un servicio', disabled: true },
-  { value: 'pladur', label: 'Instalación de Pladur' },
-  { value: 'reforma', label: 'Reforma' },
-  { value: 'techos', label: 'Techos' },
-  { value: 'aislamientos', label: 'Aislamientos' },
-  { value: 'otros', label: 'Otros' }
+  { value: 'Instalación de Pladur', label: 'Instalación de Pladur' },
+  { value: 'Reforma', label: 'Reforma' },
+  { value: 'Techos', label: 'Techos' },
+  { value: 'Aislamientos', label: 'Aislamientos' },
+  { value: 'Otros', label: 'Otros' }
 ];
 
 // Анимация для сообщений об ошибках
@@ -124,18 +125,8 @@ export function ContactForm() {
       setIsSubmitting(true);
       
       try {
-        // Отправка данных на API
-        const response = await fetch('/api/contact-form', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ data: formData }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Error al enviar el mensaje');
-        }
+        // Отправка данных в Strapi
+        await strapiApi.submitContact(formData);
         
         toast.success('Mensaje enviado correctamente', {
           description: 'Nos pondremos en contacto contigo lo antes posible'
@@ -158,6 +149,7 @@ export function ContactForm() {
           }
         }
       } catch (error) {
+        console.error('Error submitting form:', error);
         toast.error('Error al enviar el mensaje', {
           description: 'Por favor, inténtalo de nuevo más tarde'
         });

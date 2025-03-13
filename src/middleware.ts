@@ -47,6 +47,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
 
   // Настраиваем CSP
+  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
   const cspHeader = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.google-analytics.com https://*.googletagmanager.com",
@@ -54,7 +55,7 @@ export function middleware(request: NextRequest) {
     "img-src 'self' data: https://*.plakordivisiones.es https://*.google-analytics.com https://*.googletagmanager.com https://*.google.com https://*.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "frame-src 'self' https://*.google.com https://www.google.com https://*.googleapis.com",
-    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com"
+    `connect-src 'self' ${strapiUrl} https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com`
   ].join('; ');
 
   // Устанавливаем заголовок CSP
