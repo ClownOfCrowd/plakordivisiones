@@ -74,8 +74,8 @@ export interface Review {
     name: string;
     rating: number;
     comment: string;
-    service: 'Instalación de Pladur' | 'Reforma' | 'Techos' | 'Aislamientos' | 'Otros';
-    estado: 'pending' | 'approved' | 'rejected';
+    service: '     Instalación de Pladur'|'     Reforma'|'     Techos'|'     Aislamientos'|'     Otros';
+    estado: '     pending'|'     approved'|'     rejected';
     creadoEn: string;
   };
 }
@@ -145,9 +145,9 @@ export const strapiApi = {
         data: {
           name: data.name,
           rating: data.rating,
-          service: data.service.trim(),
+          service: data.service,
           comment: data.comment,
-          estado: 'pending',
+          estado: '     pending',
           creadoEn: new Date().toISOString()
         }
       }),

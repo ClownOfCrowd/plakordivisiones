@@ -18,11 +18,11 @@ type ServiceType = Review['attributes']['service'];
 // Варианты услуг
 const serviceOptions: SelectOption[] = [
   { value: '', label: 'Selecciona un servicio', disabled: true },
-  { value: 'Instalación de Pladur', label: 'Instalación de Pladur' },
-  { value: 'Reforma', label: 'Reforma' },
-  { value: 'Techos', label: 'Techos' },
-  { value: 'Aislamientos', label: 'Aislamientos' },
-  { value: 'Otros', label: 'Otros' }
+  { value: '     Instalación de Pladur', label: 'Instalación de Pladur' },
+  { value: '     Reforma', label: 'Reforma' },
+  { value: '     Techos', label: 'Techos' },
+  { value: '     Aislamientos', label: 'Aislamientos' },
+  { value: '     Otros', label: 'Otros' }
 ];
 
 export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
