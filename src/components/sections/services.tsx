@@ -3,6 +3,7 @@
 import { Container } from "@/components/ui/container";
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useDeviceOptimization } from "@/hooks/use-device-optimization";
 
 // Структура данных для услуг с группировкой
@@ -119,7 +120,7 @@ const services = [
 ];
 
 export function Services() {
-  const { getScrollAnimationSettings } = useDeviceOptimization();
+  const { getScrollAnimationSettings, imageSettings } = useDeviceOptimization();
   const prefersReducedMotion = useReducedMotion();
 
   return (
@@ -162,11 +163,18 @@ export function Services() {
                   className="group relative bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                   suppressHydrationWarning
                 >
-                  <div 
-                    className="relative h-48 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${service.image})` }}
-                    suppressHydrationWarning
-                  />
+                  <div className="relative h-48">
+                    <Image
+                      src={service.image}
+                      alt={service.title}
+                      fill
+                      sizes={imageSettings.sizes}
+                      className="object-cover"
+                      quality={imageSettings.quality}
+                      priority={serviceIndex < 3}
+                      loading={serviceIndex < 3 ? "eager" : "lazy"}
+                    />
+                  </div>
                   
                   <div className="p-6" suppressHydrationWarning>
                     <h4 className="text-xl font-semibold text-gray-900 mb-2">

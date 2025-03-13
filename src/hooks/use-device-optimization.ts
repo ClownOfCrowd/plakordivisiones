@@ -3,6 +3,11 @@ import { useReducedMotion } from "framer-motion";
 export function useDeviceOptimization() {
   const prefersReducedMotion = useReducedMotion();
 
+  const imageSettings = {
+    sizes: "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
+    quality: 75,
+  };
+
   const getScrollAnimationSettings = (delay = 0) => {
     if (prefersReducedMotion) {
       return {
@@ -29,5 +34,6 @@ export function useDeviceOptimization() {
 
   return {
     getScrollAnimationSettings,
+    imageSettings,
   };
 } 
