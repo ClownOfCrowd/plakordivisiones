@@ -100,12 +100,16 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-interface SelectProps {
+interface SelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   options: SelectOption[];
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
   placeholder?: string;
+  className?: string;
+  variant?: string;
+  size?: string;
+  error?: string;
 }
 
 const Select = forwardRef<HTMLButtonElement, SelectProps>(
