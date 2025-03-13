@@ -320,4 +320,4 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
 
 Select.displayName = "Select";
 
-export type { SelectProps, SelectOption }; 
+export type { SelectProps }; 
