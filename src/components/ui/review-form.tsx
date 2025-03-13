@@ -89,7 +89,7 @@ export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
         <Select
           options={serviceOptions}
           value={service}
-          onChange={setService}
+          onChange={(value) => setService(value as ServiceType)}
           required
           placeholder="Selecciona un servicio"
         />

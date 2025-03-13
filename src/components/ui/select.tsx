@@ -94,25 +94,18 @@ const messageVariants = {
   }
 };
 
-interface SelectOption {
+export interface SelectOption {
   value: string;
   label: string;
   disabled?: boolean;
 }
 
-interface SelectProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "size" | "onChange">,
-    Omit<VariantProps<typeof selectWrapperVariants>, "isDisabled" | "error" | "success">,
-    VariantProps<typeof selectButtonVariants> {
+interface SelectProps {
   options: SelectOption[];
-  value?: string;
-  onChange?: (value: string) => void;
-  placeholder?: string;
-  label?: string;
-  hint?: string;
-  error?: string;
-  success?: string;
+  value: string;
+  onChange: (value: string) => void;
   required?: boolean;
+  placeholder?: string;
 }
 
 const Select = forwardRef<HTMLButtonElement, SelectProps>(
