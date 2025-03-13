@@ -209,36 +209,6 @@ export function Services() {
             </div>
           </div>
         ))}
-
-        <div 
-          className="mt-16 text-center"
-          suppressHydrationWarning
-        >
-          <div className="bg-gradient-to-r from-primary to-primary/80 text-white rounded-lg p-8 md:p-12">
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              ¿Necesitas alguno de nuestros servicios?
-            </h3>
-            <p className="text-lg mb-8">
-              Contáctanos para obtener un presupuesto personalizado
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link 
-                href="/contacto"
-                className="inline-flex items-center justify-center min-w-[200px] px-8 py-3 text-base font-medium text-white bg-black/20 hover:bg-black/30 rounded-lg transition-colors"
-                suppressHydrationWarning
-              >
-                Solicitar presupuesto
-              </Link>
-              <a
-                href="tel:+34977350508"
-                className="inline-flex items-center justify-center min-w-[200px] px-8 py-3 text-base font-medium text-white bg-black/20 hover:bg-black/30 rounded-lg transition-colors"
-                suppressHydrationWarning
-              >
-                Llamar ahora
-              </a>
-            </div>
-          </div>
-        </div>
       </Container>
     </section>
   );
