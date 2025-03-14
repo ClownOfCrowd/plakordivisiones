@@ -77,7 +77,7 @@ export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base"
+          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-base text-gray-900"
           placeholder="Tu nombre"
         />
       </div>
@@ -131,7 +131,7 @@ export function ReviewForm({ onSubmit, onClose }: ReviewFormProps) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={4}
-          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-base"
+          className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-base text-gray-900"
           placeholder="Cuéntanos tu experiencia..."
         />
       </div>

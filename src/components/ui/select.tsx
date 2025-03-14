@@ -226,7 +226,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
             aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
             {...props}
           >
-            <span className={!selectedOption ? "text-gray-400" : undefined}>
+            <span className={!selectedOption ? "text-gray-700" : "text-gray-900"}>
               {selectedOption ? selectedOption.label : placeholder}
             </span>
             <motion.div
