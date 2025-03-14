@@ -34,7 +34,7 @@ const selectWrapperVariants = cva(
 
 // Варианты стилей для кнопки селекта
 const selectButtonVariants = cva(
-  "w-full flex items-center justify-between bg-transparent text-secondary placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed",
+  "w-full flex items-center justify-between bg-transparent text-gray-900 placeholder:text-gray-700 focus:outline-none disabled:cursor-not-allowed",
   {
     variants: {
       size: {
@@ -254,7 +254,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
                     key={option.value}
                     type="button"
                     className={cn(
-                      "w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-50 transition-colors",
+                      "w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-50 transition-colors text-gray-900",
                       option.disabled && "opacity-50 cursor-not-allowed",
                       option.value === value && "bg-primary/5 text-primary",
                     )}
