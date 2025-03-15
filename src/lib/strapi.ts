@@ -247,21 +247,27 @@ export const strapiApi = {
   getProjectsByCategory: (category: string) => fetchAPI(`projects?filters[category][$eq]=${category}&populate=*&sort[0]=completionDate:desc`),
   
   // Отзывы
-  getReviews: () => fetchAPI('reviews?filters[estado][$eq]=approved&sort[0]=creadoEn:desc'),
-  submitReview: (data: ReviewFormData) => 
-    fetchAPI('reviews', {
+  getReviews: () => {
+    console.log('Fetching approved reviews with filter: estado=$eq=approved');
+    return fetchAPI('reviews?filters[estado][$eq]=     approved&sort[0]=creadoEn:desc');
+  },
+  submitReview: (data: ReviewFormData) => {
+    const reviewData = {
+      data: {
+        name: data.name,
+        rating: data.rating,
+        service: data.service,
+        comment: data.comment,
+        estado: '     pending',
+        creadoEn: new Date().toISOString()
+      }
+    };
+    console.log('Submitting review with data:', reviewData);
+    return fetchAPI('reviews', {
       method: 'POST',
-      body: JSON.stringify({ 
-        data: {
-          name: data.name,
-          rating: data.rating,
-          service: data.service,
-          comment: data.comment,
-          estado: '     pending',
-          creadoEn: new Date().toISOString()
-        }
-      }),
-    }),
+      body: JSON.stringify(reviewData),
+    });
+  },
 
   // Услуги
   getServices: () => fetchAPI('services?populate=*'),

@@ -23,8 +23,21 @@ export function ReviewsPage() {
 
   const loadReviews = async () => {
     try {
+      console.log('Loading reviews...');
       const response = await strapiApi.getReviews();
-      setReviews(response.data);
+      console.log('Reviews response:', response);
+      
+      if (response.data && Array.isArray(response.data)) {
+        console.log(`Received ${response.data.length} reviews`);
+        response.data.forEach((review, index) => {
+          console.log(`Review ${index}:`, review);
+          console.log(`Review ${index} estado:`, review.attributes.estado);
+        });
+        setReviews(response.data);
+      } else {
+        console.warn('No reviews found or invalid response format:', response);
+        setReviews([]);
+      }
     } catch (error) {
       console.error('Error loading reviews:', error);
       toast.error('Error al cargar las reseñas');
