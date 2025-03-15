@@ -29,15 +29,28 @@ export function ReviewsPage() {
       
       if (response.data && Array.isArray(response.data)) {
         console.log(`Received ${response.data.length} reviews`);
-        response.data.forEach((review: Review, index: number) => {
+        response.data.forEach((review: any, index: number) => {
           console.log(`Review ${index}:`, review);
-          console.log(`Review ${index} estado:`, review.attributes.estado);
-          console.log(`Review ${index} estado type:`, typeof review.attributes.estado);
-          console.log(`Review ${index} estado length:`, review.attributes.estado.length);
-          console.log(`Review ${index} estado === '     approved':`, review.attributes.estado === '     approved');
-          console.log(`Review ${index} estado.trim() === 'approved':`, review.attributes.estado.trim() === 'approved');
+          if (review.attributes) {
+            console.log(`Review ${index} estado:`, review.attributes.estado);
+            console.log(`Review ${index} estado type:`, typeof review.attributes.estado);
+            console.log(`Review ${index} estado length:`, review.attributes.estado.length);
+            console.log(`Review ${index} estado === '     approved':`, review.attributes.estado === '     approved');
+            console.log(`Review ${index} estado.trim() === 'approved':`, review.attributes.estado.trim() === 'approved');
+          } else {
+            console.log(`Review ${index} has unexpected structure:`, review);
+            if (review.estado) {
+              console.log(`Review ${index} estado (direct):`, review.estado);
+            }
+          }
         });
-        setReviews(response.data);
+        
+        const validReviews = response.data.filter((review: any) => 
+          review.attributes || (review.estado && review.estado === '     approved')
+        );
+        
+        console.log(`Valid reviews count: ${validReviews.length}`);
+        setReviews(validReviews);
       } else {
         console.warn('No reviews found or invalid response format:', response);
         setReviews([]);
@@ -140,18 +153,24 @@ export function ReviewsPage() {
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-900">{review.attributes.name}</h3>
-                        <p className="text-gray-700">{review.attributes.service}</p>
+                        <h3 className="text-xl font-semibold text-gray-900">
+                          {review.attributes ? review.attributes.name : review.name}
+                        </h3>
+                        <p className="text-gray-700">
+                          {review.attributes ? review.attributes.service : review.service}
+                        </p>
                       </div>
                       <div className="flex gap-1">
-                        {Array.from({ length: review.attributes.rating }).map((_, i) => (
+                        {Array.from({ length: review.attributes ? review.attributes.rating : review.rating }).map((_, i) => (
                           <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
                         ))}
                       </div>
                     </div>
-                    <p className="text-gray-800 text-lg mb-4">{review.attributes.comment}</p>
+                    <p className="text-gray-800 text-lg mb-4">
+                      {review.attributes ? review.attributes.comment : review.comment}
+                    </p>
                     <p className="text-gray-700">
-                      {new Date(review.attributes.creadoEn).toLocaleDateString('es-ES', {
+                      {new Date(review.attributes ? review.attributes.creadoEn : review.creadoEn).toLocaleDateString('es-ES', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'

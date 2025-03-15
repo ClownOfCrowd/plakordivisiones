@@ -249,7 +249,39 @@ export const strapiApi = {
   // Отзывы
   getReviews: () => {
     console.log('Fetching approved reviews with filter: estado=$eq=     approved');
-    return fetchAPI('reviews?filters[estado][$eq]=     approved&sort[0]=creadoEn:desc');
+    return fetchAPI('reviews?filters[estado][$eq]=     approved&sort[0]=creadoEn:desc')
+      .then(response => {
+        console.log('Raw reviews response:', response);
+        
+        // Проверяем, есть ли данные в ответе
+        if (response && response.data && Array.isArray(response.data)) {
+          console.log(`Found ${response.data.length} reviews in response`);
+          
+          // Проверяем структуру данных
+          const firstReview = response.data[0];
+          if (firstReview) {
+            console.log('First review structure:', firstReview);
+            
+            // Если данные имеют неожиданную структуру, преобразуем их
+            if (!firstReview.attributes && firstReview.estado) {
+              console.log('Converting direct structure to attributes structure');
+              response.data = response.data.map((review: any) => ({
+                id: review.id,
+                attributes: {
+                  name: review.name,
+                  rating: review.rating,
+                  comment: review.comment,
+                  service: review.service,
+                  estado: review.estado,
+                  creadoEn: review.creadoEn || review.createdAt
+                }
+              }));
+            }
+          }
+        }
+        
+        return response;
+      });
   },
   submitReview: (data: ReviewFormData) => {
     const reviewData = {
