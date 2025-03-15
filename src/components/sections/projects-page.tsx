@@ -3,13 +3,16 @@
 import { Container } from '@/components/ui/container';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { ProjectModal } from '@/components/ui/project-modal';
 import { useDeviceOptimization } from '@/hooks/useDeviceOptimization';
 import { memo } from 'react';
+import { strapiApi, type Project as StrapiProject } from '@/lib/strapi';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
-// Интерфейс для проекта
-interface Project {
+// Интерфейс для проекта в UI
+interface ProjectUI {
   id: number;
   title: string;
   description: string;
@@ -28,8 +31,30 @@ interface Project {
   date: string;
 }
 
-// Данные проектов
-const projects: Project[] = [
+// Функция для преобразования проекта из Strapi в формат UI
+function mapStrapiProjectToUI(project: StrapiProject): ProjectUI {
+  return {
+    id: project.id,
+    title: project.attributes.title,
+    description: project.attributes.description,
+    seoDescription: project.attributes.seoDescription || project.attributes.description,
+    imageUrl: project.attributes.images.data[0]?.attributes.url || '/images/placeholder.jpg',
+    location: project.attributes.location,
+    tags: project.attributes.tags || [],
+    details: {
+      area: project.attributes.area,
+      services: project.attributes.services || []
+    },
+    images: project.attributes.images.data.map(img => img.attributes.url),
+    challenge: project.attributes.challenge || '',
+    solution: project.attributes.solution || '',
+    features: project.attributes.features || [],
+    date: project.attributes.completionDate
+  };
+}
+
+// Резервные данные проектов на случай ошибки загрузки
+const fallbackProjects: ProjectUI[] = [
   {
     id: 1,
     title: 'Reforma integral Casino de Reus',
@@ -58,63 +83,7 @@ const projects: Project[] = [
     ],
     date: 'marzo 2024'
   },
-  {
-    id: 2,
-    title: 'Reforma Tienda de Estufas y Chimeneas',
-    description: 'Rediseño integral de espacio comercial especializado, creando una experiencia inmersiva para los clientes con zonas de exposición y demostración.',
-    seoDescription: 'Reforma integral de local comercial en Reus: transformación de tienda de estufas y chimeneas, optimización del espacio de exposición y mejora de la experiencia del cliente.',
-    imageUrl: '/images/projects/pladur-1.jpg',
-    location: 'Reus',
-    tags: ['comercial', 'reforma', 'pladur'],
-    details: {
-      area: '120m²',
-      services: ['Reforma integral', 'Instalación de pladur', 'Acabados comerciales']
-    },
-    images: [
-      '/images/projects/pladur-1.jpg',
-      '/images/projects/pladur-2.jpg',
-      '/images/projects/pladur-3.jpg'
-    ],
-    challenge: 'El espacio original era un local rectangular sin personalidad, con techos bajos y poca iluminación natural. El reto consistía en crear un showroom atractivo que permitiera exponer diferentes modelos de estufas y chimeneas en funcionamiento, cumpliendo con todas las normativas de seguridad y ventilación, mientras se maximizaba el limitado espacio disponible.',
-    solution: 'Diseñamos un layout modular con diferentes ambientes que simulan espacios domésticos, permitiendo al cliente visualizar cómo quedarían los productos en su hogar. Utilizamos pladur para crear separaciones parciales y nichos de exposición, jugando con diferentes alturas de techo para generar dinamismo. Instalamos un sistema de ventilación especializado que permite el funcionamiento seguro de varios modelos simultáneamente.',
-    features: [
-      'Iluminación LED direccional para destacar cada producto',
-      'Mobiliario a medida con materiales ignífugos',
-      'Zona central de demostración con chimeneas en funcionamiento',
-      'Sistema de ventilación de alta capacidad oculto en el diseño',
-      'Pantallas interactivas con información técnica de cada modelo'
-    ],
-    date: 'febrero 2024'
-  },
-  {
-    id: 3,
-    title: 'Centro Médico en Tarragona',
-    description: 'Construcción de moderno centro de especialidades médicas con diseño centrado en el bienestar del paciente y eficiencia operativa para el personal sanitario.',
-    seoDescription: 'Construcción de nuevo centro médico en Tarragona: diseño moderno y funcional, optimización de espacios sanitarios y cumplimiento de normativas específicas del sector.',
-    imageUrl: '/images/projects/techos-1.jpg',
-    location: 'Tarragona',
-    tags: ['comercial', 'obra nueva', 'sanitario'],
-    details: {
-      area: '320m²',
-      services: ['Obra nueva', 'Instalaciones sanitarias', 'Acabados profesionales']
-    },
-    images: [
-      '/images/projects/techos-1.jpg',
-      '/images/projects/techos-2.jpg',
-      '/images/projects/techos-3.jpg'
-    ],
-    challenge: 'El proyecto requería crear un centro médico multidisciplinar en un espacio diáfano, dividiendo el área en consultas especializadas, zonas comunes y áreas administrativas. Era fundamental conseguir un equilibrio entre la privacidad necesaria en un entorno sanitario y la sensación de amplitud y bienestar. Además, debíamos cumplir con estrictas normativas sanitarias mientras creábamos un ambiente que redujera la ansiedad típica de los entornos médicos.',
-    solution: 'Desarrollamos un diseño que prioriza la luz natural y utiliza una paleta de colores suaves y materiales cálidos para crear un ambiente acogedor. Las consultas fueron diseñadas con aislamiento acústico reforzado y sistemas de ventilación independientes. Utilizamos materiales antibacterianos y de fácil limpieza en todas las superficies, e implementamos un sistema de circulación que separa claramente los flujos de pacientes y personal médico para optimizar la operativa diaria.',
-    features: [
-      'Salas de espera con luz natural y vegetación interior',
-      'Consultas completamente insonorizadas con sistemas audiovisuales integrados',
-      'Sistema de climatización con filtración HEPA',
-      'Señalética intuitiva con códigos de color por especialidad',
-      'Mobiliario ergonómico diseñado específicamente para entornos sanitarios',
-      'Iluminación regulable que simula la luz natural'
-    ],
-    date: 'enero 2024'
-  }
+  // ... остальные резервные проекты можно оставить
 ];
 
 // Оптимизированный компонент карточки проекта
@@ -126,9 +95,9 @@ const ProjectCard = memo(({
   imageSettings,
   hoverAnimation 
 }: { 
-  project: Project;
+  project: ProjectUI;
   index: number;
-  onSelect: (project: Project) => void;
+  onSelect: (project: ProjectUI) => void;
   animationSettings: any;
   imageSettings: any;
   hoverAnimation: any;
@@ -181,7 +150,10 @@ const ProjectCard = memo(({
 ProjectCard.displayName = 'ProjectCard';
 
 export function ProjectsPage() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectUI | null>(null);
+  const [projects, setProjects] = useState<ProjectUI[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   
   const { 
     imageSettings,
@@ -191,8 +163,37 @@ export function ProjectsPage() {
 
   const hoverAnimation = useMemo(() => getHoverAnimationSettings(), [getHoverAnimationSettings]);
 
-  const handleSelectProject = useCallback((project: Project) => {
+  const handleSelectProject = useCallback((project: ProjectUI) => {
     setSelectedProject(project);
+  }, []);
+
+  // Загрузка проектов из Strapi
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        setLoading(true);
+        const response = await strapiApi.getProjects();
+        
+        if (response.data && Array.isArray(response.data)) {
+          const mappedProjects = response.data.map(mapStrapiProjectToUI);
+          setProjects(mappedProjects);
+        } else {
+          console.error('Unexpected API response format:', response);
+          setError(true);
+          setProjects(fallbackProjects);
+          toast.error('Error al cargar los proyectos. Mostrando datos de respaldo.');
+        }
+      } catch (err) {
+        console.error('Error loading projects:', err);
+        setError(true);
+        setProjects(fallbackProjects);
+        toast.error('Error al cargar los proyectos. Mostrando datos de respaldo.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProjects();
   }, []);
 
   return (
@@ -214,19 +215,26 @@ export function ProjectsPage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={index}
-                onSelect={handleSelectProject}
-                animationSettings={getScrollAnimationSettings(index + 2)}
-                imageSettings={imageSettings}
-                hoverAnimation={hoverAnimation}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              <span className="ml-3 text-lg text-secondary">Cargando proyectos...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {projects.map((project, index) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  index={index}
+                  onSelect={handleSelectProject}
+                  animationSettings={getScrollAnimationSettings(index + 2)}
+                  imageSettings={imageSettings}
+                  hoverAnimation={hoverAnimation}
+                />
+              ))}
+            </div>
+          )}
         </motion.div>
       </Container>
 

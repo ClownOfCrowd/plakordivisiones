@@ -2,7 +2,7 @@ const STRAPI_URL = 'https://www.plakordivisiones.es';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
 
 // Список публичных эндпоинтов, не требующих авторизации
-const publicEndpoints = ['contact-submissions', 'reviews'];
+const publicEndpoints = ['contact-submissions', 'reviews', 'projects'];
 
 async function fetchAPI(endpoint: string, options = {}) {
   const isPublicEndpoint = publicEndpoints.some(publicEndpoint => 
@@ -51,6 +51,7 @@ export interface Project {
   attributes: {
     title: string;
     description: string;
+    seoDescription: string;
     slug: string;
     images: {
       data: Array<{
@@ -61,10 +62,19 @@ export interface Project {
         };
       }>;
     };
+    challenge: string;
+    solution: string;
+    features: string[];
     category: string;
     completionDate: string;
     location: string;
+    tags: string[];
+    area: string;
+    services: string[];
     featured: boolean;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
   };
 }
 
@@ -133,8 +143,11 @@ type ReviewFormData = Pick<Review['attributes'], 'name' | 'rating' | 'comment' |
 // API методы
 export const strapiApi = {
   // Проекты
-  getProjects: () => fetchAPI('projects?populate=*'),
+  getProjects: () => fetchAPI('projects?populate=*&sort[0]=completionDate:desc'),
+  getFeaturedProjects: () => fetchAPI('projects?filters[featured][$eq]=true&populate=*&sort[0]=completionDate:desc'),
   getProjectBySlug: (slug: string) => fetchAPI(`projects?filters[slug][$eq]=${slug}&populate=*`),
+  getProjectById: (id: number) => fetchAPI(`projects/${id}?populate=*`),
+  getProjectsByCategory: (category: string) => fetchAPI(`projects?filters[category][$eq]=${category}&populate=*&sort[0]=completionDate:desc`),
   
   // Отзывы
   getReviews: () => fetchAPI('reviews?filters[estado][$eq]=approved&sort[0]=creadoEn:desc'),
