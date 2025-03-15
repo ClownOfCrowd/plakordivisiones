@@ -171,7 +171,7 @@ export function ProjectsPage() {
           console.log('Projects data array:', response.data);
           
           // Проверяем каждый проект перед маппингом
-          const validProjects = response.data.filter(project => project && project.attributes);
+          const validProjects = response.data.filter((project: StrapiProject) => project && project.attributes);
           console.log('Valid projects count:', validProjects.length);
           
           if (validProjects.length === 0) {
