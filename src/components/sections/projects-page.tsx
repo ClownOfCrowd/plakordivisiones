@@ -33,19 +33,43 @@ interface ProjectUI {
 
 // Функция для преобразования проекта из Strapi в формат UI
 function mapStrapiProjectToUI(project: StrapiProject): ProjectUI {
+  console.log('Project from Strapi:', project);
+  
+  if (!project || !project.attributes) {
+    console.error('Invalid project data:', project);
+    return {
+      id: 0,
+      title: 'Error: Invalid Project',
+      description: 'This project data is invalid',
+      seoDescription: 'Invalid project data',
+      imageUrl: '/images/placeholder.jpg',
+      location: 'Unknown',
+      tags: [],
+      details: {
+        area: '',
+        services: []
+      },
+      images: ['/images/placeholder.jpg'],
+      challenge: '',
+      solution: '',
+      features: [],
+      date: ''
+    };
+  }
+  
   return {
     id: project.id,
     title: project.attributes.title,
     description: project.attributes.description,
     seoDescription: project.attributes.seoDescription || project.attributes.description,
-    imageUrl: project.attributes.images.data[0]?.attributes.url || '/images/placeholder.jpg',
+    imageUrl: project.attributes.images?.data?.[0]?.attributes?.url || '/images/placeholder.jpg',
     location: project.attributes.location,
     tags: project.attributes.tags || [],
     details: {
       area: project.attributes.area,
       services: project.attributes.services || []
     },
-    images: project.attributes.images.data.map(img => img.attributes.url),
+    images: project.attributes.images?.data?.map(img => img.attributes.url) || ['/images/placeholder.jpg'],
     challenge: project.attributes.challenge || '',
     solution: project.attributes.solution || '',
     features: project.attributes.features || [],
@@ -141,12 +165,25 @@ export function ProjectsPage() {
         setLoading(true);
         const response = await strapiApi.getProjects();
         
+        console.log('Full API response:', response);
+        
         if (response.data && Array.isArray(response.data)) {
-          const mappedProjects = response.data.map(mapStrapiProjectToUI);
-          setProjects(mappedProjects);
+          console.log('Projects data array:', response.data);
+          
+          // Проверяем каждый проект перед маппингом
+          const validProjects = response.data.filter(project => project && project.attributes);
+          console.log('Valid projects count:', validProjects.length);
+          
+          if (validProjects.length === 0) {
+            console.warn('No valid projects found in the response');
+            setProjects([]);
+          } else {
+            const mappedProjects = validProjects.map(mapStrapiProjectToUI);
+            setProjects(mappedProjects);
+          }
           
           // Если проектов нет, но запрос успешный - показываем пустой массив
-          if (mappedProjects.length === 0) {
+          if (response.data.length === 0) {
             console.log('No projects found in Strapi');
           }
         } else {
