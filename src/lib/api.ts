@@ -6,7 +6,7 @@ export async function submitContactForm(data: ContactFormData) {
   return strapiApi.submitContact(data);
 }
 
-type ReviewFormData = Pick<Review['attributes'], 'name' | 'rating' | 'comment' | 'service'>;
+type ReviewFormData = Pick<NonNullable<Review['attributes']>, 'name' | 'rating' | 'comment' | 'service'>;
 
 export async function submitReview(data: ReviewFormData) {
   return strapiApi.submitReview(data);

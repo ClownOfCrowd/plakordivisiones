@@ -177,7 +177,7 @@ export interface ProjectWithAttributes {
 
 export interface Review {
   id: number;
-  attributes: {
+  attributes?: {
     name: string;
     rating: number;
     comment: string;
@@ -185,6 +185,14 @@ export interface Review {
     estado: '     pending'|'     approved'|'     rejected';
     creadoEn: string;
   };
+  // Поля для прямого доступа (без attributes)
+  name?: string;
+  rating?: number;
+  comment?: string;
+  service?: '     Instalación de Pladur'|'     Reforma'|'     Techos'|'     Aislamientos'|'     Otros';
+  estado?: '     pending'|'     approved'|'     rejected';
+  creadoEn?: string;
+  createdAt?: string;
 }
 
 export interface Service {
@@ -235,7 +243,7 @@ export interface ContactSubmission {
 }
 
 type ContactFormData = Pick<ContactSubmission['attributes'], 'name' | 'email' | 'phone' | 'service' | 'message'>;
-type ReviewFormData = Pick<Review['attributes'], 'name' | 'rating' | 'comment' | 'service'>;
+type ReviewFormData = Pick<NonNullable<Review['attributes']>, 'name' | 'rating' | 'comment' | 'service'>;
 
 // API методы
 export const strapiApi = {
@@ -265,15 +273,15 @@ export const strapiApi = {
             // Если данные имеют неожиданную структуру, преобразуем их
             if (!firstReview.attributes && firstReview.estado) {
               console.log('Converting direct structure to attributes structure');
-              response.data = response.data.map((review: any) => ({
+              response.data = response.data.map((review: Review) => ({
                 id: review.id,
                 attributes: {
-                  name: review.name,
-                  rating: review.rating,
-                  comment: review.comment,
-                  service: review.service,
-                  estado: review.estado,
-                  creadoEn: review.creadoEn || review.createdAt
+                  name: review.name || '',
+                  rating: review.rating || 0,
+                  comment: review.comment || '',
+                  service: review.service || '     Otros',
+                  estado: review.estado || '     pending',
+                  creadoEn: review.creadoEn || review.createdAt || new Date().toISOString()
                 }
               }));
             }

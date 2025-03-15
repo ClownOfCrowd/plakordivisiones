@@ -13,7 +13,7 @@ interface ReviewFormProps {
   onClose: () => void;
 }
 
-type ServiceType = Review['attributes']['service'];
+type ServiceType = NonNullable<Review['attributes']>['service'];
 
 // Варианты услуг
 const serviceOptions: SelectOption[] = [

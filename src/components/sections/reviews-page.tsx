@@ -29,7 +29,7 @@ export function ReviewsPage() {
       
       if (response.data && Array.isArray(response.data)) {
         console.log(`Received ${response.data.length} reviews`);
-        response.data.forEach((review: any, index: number) => {
+        response.data.forEach((review: Review, index: number) => {
           console.log(`Review ${index}:`, review);
           if (review.attributes) {
             console.log(`Review ${index} estado:`, review.attributes.estado);
@@ -45,7 +45,7 @@ export function ReviewsPage() {
           }
         });
         
-        const validReviews = response.data.filter((review: any) => 
+        const validReviews = response.data.filter((review: Review) => 
           review.attributes || (review.estado && review.estado === '     approved')
         );
         
@@ -154,23 +154,23 @@ export function ReviewsPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900">
-                          {review.attributes ? review.attributes.name : review.name}
+                          {review.attributes ? review.attributes.name : (review.name || 'Anónimo')}
                         </h3>
                         <p className="text-gray-700">
-                          {review.attributes ? review.attributes.service : review.service}
+                          {review.attributes ? review.attributes.service : (review.service || 'Servicio no especificado')}
                         </p>
                       </div>
                       <div className="flex gap-1">
-                        {Array.from({ length: review.attributes ? review.attributes.rating : review.rating }).map((_, i) => (
+                        {Array.from({ length: review.attributes ? review.attributes.rating : (review.rating || 0) }).map((_, i) => (
                           <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
                         ))}
                       </div>
                     </div>
                     <p className="text-gray-800 text-lg mb-4">
-                      {review.attributes ? review.attributes.comment : review.comment}
+                      {review.attributes ? review.attributes.comment : (review.comment || 'Sin comentarios')}
                     </p>
                     <p className="text-gray-700">
-                      {new Date(review.attributes ? review.attributes.creadoEn : review.creadoEn).toLocaleDateString('es-ES', {
+                      {new Date(review.attributes ? review.attributes.creadoEn : (review.creadoEn || review.createdAt || new Date().toISOString())).toLocaleDateString('es-ES', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
