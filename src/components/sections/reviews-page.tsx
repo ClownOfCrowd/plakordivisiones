@@ -29,7 +29,7 @@ export function ReviewsPage() {
       
       if (response.data && Array.isArray(response.data)) {
         console.log(`Received ${response.data.length} reviews`);
-        response.data.forEach((review, index) => {
+        response.data.forEach((review: Review, index: number) => {
           console.log(`Review ${index}:`, review);
           console.log(`Review ${index} estado:`, review.attributes.estado);
         });
