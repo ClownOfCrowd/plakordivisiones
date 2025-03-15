@@ -163,6 +163,27 @@ export function ProjectsPage() {
     async function loadProjects() {
       try {
         setLoading(true);
+        
+        // Прямой запрос к API для отладки
+        console.log('Making direct API request for debugging...');
+        try {
+          const apiUrl = `${process.env.NEXT_PUBLIC_STRAPI_API_URL || 'https://www.plakordivisiones.es'}/api/projects?populate=*`;
+          console.log('Direct API URL:', apiUrl);
+          const directResponse = await fetch(apiUrl);
+          const directResponseText = await directResponse.text();
+          console.log('Direct API response status:', directResponse.status);
+          console.log('Direct API raw response:', directResponseText);
+          
+          try {
+            const directData = JSON.parse(directResponseText);
+            console.log('Direct API parsed data:', directData);
+          } catch (parseError) {
+            console.error('Error parsing direct API response:', parseError);
+          }
+        } catch (directError) {
+          console.error('Error making direct API request:', directError);
+        }
+        
         const response = await strapiApi.getProjects();
         
         console.log('Full API response:', response);

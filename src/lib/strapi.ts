@@ -1,43 +1,47 @@
-const STRAPI_URL = 'https://www.plakordivisiones.es';
+export const STRAPI_URL = (process.env.NEXT_PUBLIC_STRAPI_API_URL || 'https://www.plakordivisiones.es');
+export const STRAPI_API_URL = `${STRAPI_URL}/api`;
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN;
 
 // Список публичных эндпоинтов, не требующих авторизации
-const publicEndpoints = ['contact-submissions', 'reviews', 'projects'];
+const PUBLIC_ENDPOINTS = ['contact-submissions', 'reviews', 'projects'];
 
-async function fetchAPI(endpoint: string, options = {}) {
-  const isPublicEndpoint = publicEndpoints.some(publicEndpoint => 
-    endpoint.startsWith(publicEndpoint)
-  );
-
-  const defaultOptions = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(isPublicEndpoint ? {} : { 'Authorization': `Bearer ${STRAPI_TOKEN}` }),
-    },
-  };
-
-  const url = `${STRAPI_URL}/api/${endpoint}`;
-  const finalOptions = {
-    ...defaultOptions,
-    ...options,
-  };
-
-  console.log('Request URL:', url);
-  console.log('Is public endpoint:', isPublicEndpoint);
-  console.log('Request options:', finalOptions);
+async function fetchAPI(endpoint: string, options: RequestInit = {}) {
+  console.log(`Fetching API: ${endpoint}`);
+  console.log(`Full URL: ${STRAPI_API_URL}/${endpoint}`);
+  console.log(`Is public endpoint: ${PUBLIC_ENDPOINTS.some(e => endpoint.startsWith(e))}`);
+  console.log(`Request options:`, options);
 
   try {
-    const response = await fetch(url, finalOptions);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      console.error('Response status:', response.status);
-      console.error('Response headers:', Object.fromEntries(response.headers));
-      throw new Error(`API error: ${response.statusText} - ${errorText}`);
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    if (STRAPI_TOKEN && !PUBLIC_ENDPOINTS.some(e => endpoint.startsWith(e))) {
+      Object.assign(headers, {
+        Authorization: `Bearer ${STRAPI_TOKEN}`,
+      });
     }
 
-    const data = await response.json();
+    const mergedOptions = {
+      headers,
+      ...options,
+    };
+
+    const response = await fetch(`${STRAPI_API_URL}/${endpoint}`, mergedOptions);
+    console.log(`Response status: ${response.status}`);
+    console.log(`Response headers:`, Object.fromEntries([...response.headers.entries()]));
+    
+    const responseText = await response.text();
+    console.log(`Raw response text:`, responseText);
+    
+    if (!response.ok) {
+      console.error(`API error: ${response.statusText} - ${responseText}`);
+      throw new Error(`API error: ${response.statusText} - ${responseText}`);
+    }
+
+    // Преобразуем текст обратно в JSON
+    const data = responseText ? JSON.parse(responseText) : {};
+    console.log('Parsed response data:', data);
     return data;
   } catch (error) {
     console.error('Fetch error:', error);
