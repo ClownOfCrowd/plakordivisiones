@@ -32,6 +32,10 @@ export function ReviewsPage() {
         response.data.forEach((review: Review, index: number) => {
           console.log(`Review ${index}:`, review);
           console.log(`Review ${index} estado:`, review.attributes.estado);
+          console.log(`Review ${index} estado type:`, typeof review.attributes.estado);
+          console.log(`Review ${index} estado length:`, review.attributes.estado.length);
+          console.log(`Review ${index} estado === '     approved':`, review.attributes.estado === '     approved');
+          console.log(`Review ${index} estado.trim() === 'approved':`, review.attributes.estado.trim() === 'approved');
         });
         setReviews(response.data);
       } else {

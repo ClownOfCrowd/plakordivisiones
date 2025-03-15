@@ -248,7 +248,7 @@ export const strapiApi = {
   
   // Отзывы
   getReviews: () => {
-    console.log('Fetching approved reviews with filter: estado=$eq=approved');
+    console.log('Fetching approved reviews with filter: estado=$eq=     approved');
     return fetchAPI('reviews?filters[estado][$eq]=     approved&sort[0]=creadoEn:desc');
   },
   submitReview: (data: ReviewFormData) => {
