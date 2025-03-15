@@ -53,39 +53,6 @@ function mapStrapiProjectToUI(project: StrapiProject): ProjectUI {
   };
 }
 
-// Резервные данные проектов на случай ошибки загрузки
-const fallbackProjects: ProjectUI[] = [
-  {
-    id: 1,
-    title: 'Reforma integral Casino de Reus',
-    description: 'Transformación completa de este emblemático edificio histórico, combinando elegancia clásica con funcionalidad moderna.',
-    seoDescription: 'Proyecto emblemático de reforma integral del Casino de Reus: restauración histórica y modernización de espacios interiores, preservando el patrimonio arquitectónico mientras se incorporan elementos contemporáneos.',
-    imageUrl: '/images/projects/reforma-1.jpg',
-    location: 'Reus',
-    tags: ['comercial', 'reforma integral', 'diseño interior'],
-    details: {
-      area: '450m²',
-      services: ['Restauración histórica', 'Modernización', 'Acabados exclusivos']
-    },
-    images: [
-      '/images/projects/reforma-1.jpg',
-      '/images/projects/reforma-2.jpg',
-      '/images/projects/reforma-3.jpg'
-    ],
-    challenge: 'El principal desafío fue renovar un edificio histórico protegido manteniendo su esencia y carácter original, mientras se incorporaban instalaciones modernas y se mejoraba la funcionalidad de los espacios. La estructura presentaba problemas de humedad y deterioro en elementos ornamentales que requerían una restauración meticulosa.',
-    solution: 'Desarrollamos un enfoque que combinó técnicas tradicionales de restauración con soluciones modernas. Trabajamos con artesanos especializados para recuperar molduras, techos y elementos decorativos originales. Implementamos sistemas de climatización e iluminación discretos que respetan la estética histórica pero ofrecen el confort actual. Cada material fue cuidadosamente seleccionado para complementar el carácter del edificio.',
-    features: [
-      'Restauración completa de fachada y elementos arquitectónicos originales',
-      'Modernización de instalaciones eléctricas, agua y climatización',
-      'Mejora de accesibilidad con soluciones integradas en el diseño histórico',
-      'Iluminación LED personalizada que realza los elementos decorativos',
-      'Restauración de suelos de mosaico hidráulico original'
-    ],
-    date: 'marzo 2024'
-  },
-  // ... остальные резервные проекты можно оставить
-];
-
 // Оптимизированный компонент карточки проекта
 const ProjectCard = memo(({ 
   project, 
@@ -185,14 +152,12 @@ export function ProjectsPage() {
         } else {
           console.error('Unexpected API response format:', response);
           setError(true);
-          setProjects(fallbackProjects);
-          toast.error('Error al cargar los proyectos. Mostrando datos de respaldo.');
+          toast.error('Error al cargar los proyectos.');
         }
       } catch (err) {
         console.error('Error loading projects:', err);
         setError(true);
-        setProjects(fallbackProjects);
-        toast.error('Error al cargar los proyectos. Mostrando datos de respaldo.');
+        toast.error('Error al cargar los proyectos.');
       } finally {
         setLoading(false);
       }
@@ -224,6 +189,11 @@ export function ProjectsPage() {
             <div className="flex justify-center items-center py-20">
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
               <span className="ml-3 text-lg text-secondary">Cargando proyectos...</span>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col justify-center items-center py-20">
+              <p className="text-xl text-red-500 mb-4">Error al cargar los proyectos</p>
+              <p className="text-base text-secondary/80">Por favor, intenta recargar la página o contacta con nosotros si el problema persiste.</p>
             </div>
           ) : projects.length === 0 ? (
             <div className="flex flex-col justify-center items-center py-20">
