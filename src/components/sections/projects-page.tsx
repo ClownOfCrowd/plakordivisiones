@@ -212,14 +212,14 @@ export function ProjectsPage() {
           console.log('Projects data array:', response.data);
           
           // Отладочная информация о структуре данных
-          response.data.forEach((project, index) => {
+          response.data.forEach((project: StrapiProject, index: number) => {
             console.log(`Project ${index}:`, project);
             console.log(`Project ${index} has title:`, !!project.title);
             console.log(`Project ${index} has images:`, !!project.images);
           });
           
           // Проверяем каждый проект перед маппингом
-          const validProjects = response.data.filter((project) => {
+          const validProjects = response.data.filter((project: StrapiProject) => {
             const isValid = project && typeof project === 'object' && project.title && project.id;
             console.log(`Project ${project?.id} is valid:`, isValid);
             return isValid;
