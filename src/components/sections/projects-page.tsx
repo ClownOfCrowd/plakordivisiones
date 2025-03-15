@@ -57,19 +57,39 @@ function mapStrapiProjectToUI(project: StrapiProject): ProjectUI {
     };
   }
   
+  // Получаем базовый URL для изображений
+  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'https://www.plakordivisiones.es';
+  
+  // Функция для формирования полного URL изображения
+  const getFullImageUrl = (url: string) => {
+    if (!url) return '/images/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    return `${baseUrl}${url}`;
+  };
+  
+  // Получаем URL первого изображения или используем заглушку
+  const firstImageUrl = project.attributes.images?.data?.[0]?.attributes?.url;
+  const imageUrl = firstImageUrl ? getFullImageUrl(firstImageUrl) : '/images/placeholder.jpg';
+  
+  // Получаем URL всех изображений
+  const imageUrls = project.attributes.images?.data?.map(img => getFullImageUrl(img.attributes.url)) || ['/images/placeholder.jpg'];
+  
+  console.log('Image URL:', imageUrl);
+  console.log('All image URLs:', imageUrls);
+  
   return {
     id: project.id,
     title: project.attributes.title,
     description: project.attributes.description,
     seoDescription: project.attributes.seoDescription || project.attributes.description,
-    imageUrl: project.attributes.images?.data?.[0]?.attributes?.url || '/images/placeholder.jpg',
+    imageUrl: imageUrl,
     location: project.attributes.location,
     tags: project.attributes.tags || [],
     details: {
       area: project.attributes.area,
       services: project.attributes.services || []
     },
-    images: project.attributes.images?.data?.map(img => img.attributes.url) || ['/images/placeholder.jpg'],
+    images: imageUrls,
     challenge: project.attributes.challenge || '',
     solution: project.attributes.solution || '',
     features: project.attributes.features || [],
@@ -191,8 +211,22 @@ export function ProjectsPage() {
         if (response.data && Array.isArray(response.data)) {
           console.log('Projects data array:', response.data);
           
+          // Отладочная информация о структуре данных
+          response.data.forEach((project, index) => {
+            console.log(`Project ${index}:`, project);
+            console.log(`Project ${index} has attributes:`, !!project.attributes);
+            if (project.attributes) {
+              console.log(`Project ${index} attributes:`, project.attributes);
+            }
+          });
+          
           // Проверяем каждый проект перед маппингом
-          const validProjects = response.data.filter((project: StrapiProject) => project && project.attributes);
+          const validProjects = response.data.filter((project) => {
+            const isValid = project && typeof project === 'object' && project.attributes;
+            console.log(`Project ${project?.id} is valid:`, isValid);
+            return isValid;
+          });
+          
           console.log('Valid projects count:', validProjects.length);
           
           if (validProjects.length === 0) {
