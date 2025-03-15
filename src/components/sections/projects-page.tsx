@@ -35,7 +35,7 @@ interface ProjectUI {
 function mapStrapiProjectToUI(project: StrapiProject): ProjectUI {
   console.log('Project from Strapi:', project);
   
-  if (!project || !project.attributes) {
+  if (!project) {
     console.error('Invalid project data:', project);
     return {
       id: 0,
@@ -68,32 +68,32 @@ function mapStrapiProjectToUI(project: StrapiProject): ProjectUI {
   };
   
   // Получаем URL первого изображения или используем заглушку
-  const firstImageUrl = project.attributes.images?.data?.[0]?.attributes?.url;
+  const firstImageUrl = project.images?.[0]?.url;
   const imageUrl = firstImageUrl ? getFullImageUrl(firstImageUrl) : '/images/placeholder.jpg';
   
   // Получаем URL всех изображений
-  const imageUrls = project.attributes.images?.data?.map(img => getFullImageUrl(img.attributes.url)) || ['/images/placeholder.jpg'];
+  const imageUrls = project.images?.map(img => getFullImageUrl(img.url)) || ['/images/placeholder.jpg'];
   
   console.log('Image URL:', imageUrl);
   console.log('All image URLs:', imageUrls);
   
   return {
     id: project.id,
-    title: project.attributes.title,
-    description: project.attributes.description,
-    seoDescription: project.attributes.seoDescription || project.attributes.description,
+    title: project.title,
+    description: project.description,
+    seoDescription: project.seoDescription || project.description,
     imageUrl: imageUrl,
-    location: project.attributes.location,
-    tags: project.attributes.tags || [],
+    location: project.location,
+    tags: project.tags || [],
     details: {
-      area: project.attributes.area,
-      services: project.attributes.services || []
+      area: project.area,
+      services: project.services || []
     },
     images: imageUrls,
-    challenge: project.attributes.challenge || '',
-    solution: project.attributes.solution || '',
-    features: project.attributes.features || [],
-    date: project.attributes.completionDate
+    challenge: project.challenge || '',
+    solution: project.solution || '',
+    features: project.features || [],
+    date: project.completionDate
   };
 }
 
@@ -214,15 +214,13 @@ export function ProjectsPage() {
           // Отладочная информация о структуре данных
           response.data.forEach((project, index) => {
             console.log(`Project ${index}:`, project);
-            console.log(`Project ${index} has attributes:`, !!project.attributes);
-            if (project.attributes) {
-              console.log(`Project ${index} attributes:`, project.attributes);
-            }
+            console.log(`Project ${index} has title:`, !!project.title);
+            console.log(`Project ${index} has images:`, !!project.images);
           });
           
           // Проверяем каждый проект перед маппингом
           const validProjects = response.data.filter((project) => {
-            const isValid = project && typeof project === 'object' && project.attributes;
+            const isValid = project && typeof project === 'object' && project.title && project.id;
             console.log(`Project ${project?.id} is valid:`, isValid);
             return isValid;
           });
