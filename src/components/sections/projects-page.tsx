@@ -177,6 +177,11 @@ export function ProjectsPage() {
         if (response.data && Array.isArray(response.data)) {
           const mappedProjects = response.data.map(mapStrapiProjectToUI);
           setProjects(mappedProjects);
+          
+          // Если проектов нет, но запрос успешный - показываем пустой массив
+          if (mappedProjects.length === 0) {
+            console.log('No projects found in Strapi');
+          }
         } else {
           console.error('Unexpected API response format:', response);
           setError(true);
@@ -219,6 +224,11 @@ export function ProjectsPage() {
             <div className="flex justify-center items-center py-20">
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
               <span className="ml-3 text-lg text-secondary">Cargando proyectos...</span>
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="flex flex-col justify-center items-center py-20">
+              <p className="text-xl text-secondary mb-4">No hay proyectos disponibles actualmente.</p>
+              <p className="text-base text-secondary/80">Por favor, vuelve más tarde o contacta con nosotros para más información.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
