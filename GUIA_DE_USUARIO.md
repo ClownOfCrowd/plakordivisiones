@@ -329,4 +329,53 @@ Si encuentra problemas que no puede resolver, contacte al soporte técnico:
 
 ---
 
-Esta guía se actualizará periódicamente con nueva información y soluciones a problemas comunes. Última actualización: [fecha actual]. 
+## Conexión al Servidor
+
+### Acceso SSH al Servidor
+
+Para conectarse directamente al servidor donde está alojado el sitio web:
+
+1. Abra una terminal (CMD en Windows o Terminal en Mac/Linux)
+2. Utilice el siguiente comando SSH:
+   ```
+   ssh usuario@plakordivisiones.es
+   ```
+   Reemplace "usuario" con el nombre de usuario proporcionado por su administrador.
+
+3. Cuando se le solicite, introduzca la contraseña del servidor
+
+### Acceso FTP al Servidor
+
+Si prefiere utilizar FTP para transferir archivos:
+
+1. Utilice un cliente FTP como FileZilla o WinSCP
+2. Configure la conexión con los siguientes datos:
+   - **Servidor**: plakordivisiones.es
+   - **Protocolo**: SFTP (SSH File Transfer Protocol)
+   - **Puerto**: 22
+   - **Usuario**: [su nombre de usuario]
+   - **Contraseña**: [su contraseña]
+
+3. Una vez conectado, navegue a la carpeta `/var/www/plakordivisiones` donde se encuentra el sitio web
+
+### Reinicio del Servidor
+
+Si necesita reiniciar la aplicación después de realizar cambios:
+
+```
+pm2 restart plakordivisiones
+```
+
+Para ver el estado de la aplicación:
+
+```
+pm2 status
+```
+
+Para ver los registros (logs) de la aplicación:
+
+```
+pm2 logs plakordivisiones
+```
+
+Esta guía se actualizará periódicamente con nueva información y soluciones a problemas comunes. Última actualización: Mayo 2024. 
