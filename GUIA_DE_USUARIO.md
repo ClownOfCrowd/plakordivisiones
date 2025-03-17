@@ -344,19 +344,95 @@ Para conectarse directamente al servidor donde está alojado el sitio web:
 
 3. Cuando se le solicite, introduzca la contraseña del servidor
 
+### Conexión al Servidor con Visual Studio Code (Método Recomendado)
+
+Este método es más sencillo y visual para personas sin experiencia en línea de comandos:
+
+1. **Instale Visual Studio Code**:
+   - Descargue e instale Visual Studio Code desde [https://code.visualstudio.com/](https://code.visualstudio.com/)
+
+2. **Instale la extensión Remote-SSH**:
+   - Abra Visual Studio Code
+   - Haga clic en el icono de extensiones en la barra lateral izquierda (o presione Ctrl+Shift+X)
+   - Busque "Remote-SSH" y haga clic en "Instalar"
+
+3. **Conecte al servidor**:
+   - Presione F1 (o Ctrl+Shift+P) para abrir la paleta de comandos
+   - Escriba "Remote-SSH: Connect to Host..." y seleccione esta opción
+   - Seleccione "Add New SSH Host..." si es la primera vez
+   - Introduzca el comando SSH: `ssh root@75.119.150.68` (o el usuario y dirección IP proporcionados)
+   - Seleccione el archivo de configuración SSH (normalmente la opción predeterminada está bien)
+   - Haga clic en "Connect" cuando aparezca el servidor en la lista
+   - Seleccione el tipo de plataforma (Linux)
+   - Introduzca su contraseña cuando se le solicite
+
+4. **Navegar por los archivos del servidor**:
+   - Una vez conectado, haga clic en "Open Folder" en la barra lateral
+   - Navegue a `/var/www/plakordivisiones` y haga clic en "OK"
+   - Ahora puede ver y editar los archivos directamente en el servidor
+
+### Conexión Simplificada para Usuarios sin Experiencia Técnica
+
+Si no está familiarizado con herramientas de desarrollo, aquí hay métodos más sencillos:
+
+#### Opción 1: Usar PuTTY (Windows)
+
+1. **Descargue e instale PuTTY**:
+   - Vaya a [https://www.putty.org/](https://www.putty.org/) y descargue PuTTY
+   - Instale el programa siguiendo las instrucciones
+
+2. **Configure la conexión**:
+   - Abra PuTTY
+   - En el campo "Host Name", escriba: `75.119.150.68`
+   - Asegúrese de que el puerto sea 22 y el tipo de conexión sea SSH
+   - Haga clic en "Open"
+   - Cuando aparezca la ventana de terminal, introduzca:
+     - Usuario: `root` (o el usuario proporcionado)
+     - Contraseña: (la contraseña proporcionada)
+
+#### Opción 2: Usar Terminal (Mac/Linux)
+
+1. Abra la aplicación Terminal
+2. Escriba el siguiente comando:
+   ```
+   ssh root@75.119.150.68
+   ```
+3. Presione Enter
+4. Cuando se le solicite, introduzca la contraseña
+
 ### Acceso FTP al Servidor
 
 Si prefiere utilizar FTP para transferir archivos:
 
 1. Utilice un cliente FTP como FileZilla o WinSCP
 2. Configure la conexión con los siguientes datos:
-   - **Servidor**: plakordivisiones.es
+   - **Servidor**: 75.119.150.68
    - **Protocolo**: SFTP (SSH File Transfer Protocol)
    - **Puerto**: 22
-   - **Usuario**: [su nombre de usuario]
-   - **Contraseña**: [su contraseña]
+   - **Usuario**: root (o el usuario proporcionado)
+   - **Contraseña**: (la contraseña proporcionada)
 
 3. Una vez conectado, navegue a la carpeta `/var/www/plakordivisiones` donde se encuentra el sitio web
+
+#### Guía Paso a Paso para FileZilla:
+
+1. **Descargue e instale FileZilla**:
+   - Vaya a [https://filezilla-project.org/](https://filezilla-project.org/) y descargue FileZilla Client
+   - Instale el programa siguiendo las instrucciones
+
+2. **Configure la conexión**:
+   - Abra FileZilla
+   - En la barra superior, introduzca:
+     - **Servidor**: sftp://75.119.150.68
+     - **Nombre de usuario**: root (o el usuario proporcionado)
+     - **Contraseña**: (la contraseña proporcionada)
+     - **Puerto**: 22
+   - Haga clic en "Conexión rápida"
+
+3. **Navegue por los archivos**:
+   - En el panel derecho verá los archivos del servidor
+   - Navegue a `/var/www/plakordivisiones`
+   - Puede arrastrar y soltar archivos entre su ordenador (panel izquierdo) y el servidor (panel derecho)
 
 ### Reinicio del Servidor
 
